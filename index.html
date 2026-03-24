@@ -472,15 +472,6 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
     </div>
     <div class="upload-area">
       <div class="file-input-wrap">
-        <button class="btn btn--secondary">엑셀/CSV 불러오기</button>
-        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="importFile(this)"/>
-      </div>
-      <div class="upload-area__info">
-        <code>날짜</code> <code>구분</code> 열이 포함된 파일. 날짜 형식: <code>2025-01-01</code> 또는 <code>2025.01.01</code>
-      </div>
-    </div>
-    <div class="upload-area" style="border-top:1px dashed var(--krds-g200)">
-      <div class="file-input-wrap">
         <button class="btn btn--secondary">휴가대장(.xlsx)에서 불러오기</button>
         <input type="file" id="fileInputLedger" accept=".xlsx" onchange="importLedger(this)"/>
       </div>
