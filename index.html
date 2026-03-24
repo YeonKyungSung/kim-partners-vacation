@@ -598,6 +598,7 @@ function addVacation(){
     const used0=load(KEYS.used,DEFAULT_USED);
     const selYear=dateVal.split('-')[0];
     if(used0.some(u=>u.type==='생일연차'&&u.date.startsWith(selYear))){alert(selYear+'년 생일연차는 이미 사용했습니다.');return}
+    alert('📌 생일 휴가 등록 안내\n\n1. 휴가 대장 스프레드에 기재해주세요.\n   예) '+st.name+'(생일 휴가)\n\n2. 네이버 웍스에도 기재해주세요.\n   예) '+st.name+'(생일 휴가)\n\n※ 생일 당월 미사용 시 소멸됩니다.');
   }
   const used=load(KEYS.used,DEFAULT_USED);
   if(used.find(u=>u.date===dateVal&&u.type===typeVal)){alert('이미 등록된 내역입니다.');return}
@@ -615,7 +616,7 @@ function removeVacation(date,type){
 function exportCSV(){
   const s=load(KEYS.settings,DEFAULT_SETTINGS),used=load(KEYS.used,DEFAULT_USED);
   let csv='\uFEFF성명,부서,입사일\n'+`${s.name},${s.dept},${s.hireDate}\n\n날짜,구분,차감일수\n`;
-  used.forEach(u=>{csv+=`${u.date},${u.type},${dayVal(u)}\n`});
+  used.forEach(u=>{const label=u.type==='생일연차'?s.name+'(생일 휴가)':u.type;csv+=`${u.date},${label},${u.type==='생일연차'?'별도':dayVal(u)}\n`});
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
   a.download=`연차사용내역_${s.name||'export'}_${fmtISO(getToday())}.csv`;a.click();
 }
@@ -731,7 +732,7 @@ function render(){
   document.getElementById('usedCount').textContent=`연차 ${numFmt(totalUsedDays)}일` + (totalBirthdayDays>0?` + 생일연차 ${totalBirthdayDays}일`:'') + ' 사용';
   document.getElementById('usedList').innerHTML=used.length===0
     ?'<tr class="empty-row"><td colspan="4">등록된 사용 내역이 없습니다.</td></tr>'
-    :used.map((u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';return `<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${u.type}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`}).join('');
+    :used.map((u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';const label=u.type==='생일연차'&&settings.name?settings.name+'(생일 휴가)':u.type;return `<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${label}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`}).join('');
 
   const y1All=[];
   for(let m=1;m<=11;m++){const d=new Date(hireDate);d.setMonth(d.getMonth()+m);y1All.push({date:d,type:'accrual',label:m+'개월 만근',delta:1})}
@@ -771,7 +772,15 @@ function render(){
   // 생일연차 상태
   const thisYear=String(today.getFullYear());
   const bdUsedThisYear=used.some(u=>u.type==='생일연차'&&u.date.startsWith(thisYear));
-  const bdStatus=settings.birthday?(bdUsedThisYear?'사용완료':'미사용'):'미설정';
+  let bdStatus='미설정';
+  if(settings.birthday){
+    const bMonth=parseInt(settings.birthday.split('-')[0],10);
+    const curMonth=today.getMonth()+1;
+    if(bdUsedThisYear) bdStatus='사용완료';
+    else if(curMonth>bMonth) bdStatus='소멸';
+    else if(curMonth===bMonth) bdStatus=bMonth+'월 사용가능';
+    else bdStatus=bMonth+'월 예정';
+  }
   const bdMini=`<div class="dash-mini"><div class="dash-mini__label">생일연차</div><div class="dash-mini__val">${bdStatus}</div></div>`;
 
   let dash='';
