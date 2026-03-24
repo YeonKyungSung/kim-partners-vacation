@@ -218,7 +218,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 .dash-summary__val--error{color:var(--krds-error)}
 .dash-summary__val--success{color:var(--krds-primary)}
 
-.dash-bottom{display:grid;grid-template-columns:repeat(4,1fr)}
+.dash-bottom{display:grid;grid-template-columns:repeat(5,1fr)}
 .dash-mini{
   padding:12px 16px;text-align:center;
   border-right:1px solid var(--krds-g200);
@@ -324,6 +324,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 .badge--used{background:var(--krds-primary);color:var(--krds-white);border:1px solid var(--krds-primary-dark)}
 .badge--grant{background:var(--krds-primary-light);color:var(--krds-primary-dark);border:1px solid #CDD6CE}
 .badge--pending{background:var(--krds-g50);color:var(--krds-g400);border:1px solid var(--krds-g200)}
+.badge--birthday{background:var(--krds-warning-bg);color:var(--krds-warning);border:1px solid #D4C8A0}
 .val-plus{color:var(--krds-primary);font-weight:800}
 .val-minus{color:var(--krds-error);font-weight:700}
 .val-balance{color:var(--krds-g800);font-weight:800}
@@ -402,7 +403,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
   .container{padding:12px}
   .dash-row{grid-template-columns:1fr}
   .dash-top{flex-direction:column;gap:16px;padding:20px;text-align:center}
-  .dash-bottom{grid-template-columns:repeat(2,1fr)}
+  .dash-bottom{grid-template-columns:repeat(3,1fr)}
   .dash-mini{border-bottom:1px solid var(--krds-g200)}
   .header__inner{flex-direction:column;gap:8px}
   .form-row{flex-direction:column}
@@ -415,7 +416,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 }
 @media(min-width:768px) and (max-width:1023px){
   .dash-row{grid-template-columns:1fr 280px}
-  .dash-bottom{grid-template-columns:repeat(4,1fr)}
+  .dash-bottom{grid-template-columns:repeat(5,1fr)}
 }
 </style>
 </head>
@@ -465,6 +466,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
         <option value="연차">연차 (1일)</option>
         <option value="오전반차">오전반차 (0.5일)</option>
         <option value="오후반차">오후반차 (0.5일)</option>
+        <option value="생일연차">생일연차 (1일, 별도)</option>
       </select>
       <button class="btn btn--primary" onclick="addVacation()">등록</button>
     </div>
@@ -533,6 +535,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
       <div class="form-group"><label for="setName">성명</label><input type="text" id="setName" class="input" placeholder="홍길동"/></div>
       <div class="form-group"><label for="setDept">부서</label><input type="text" id="setDept" class="input" placeholder="개발팀"/></div>
       <div class="form-group"><label for="setHireDate">입사일</label><input type="date" id="setHireDate" class="input"/></div>
+      <div class="form-group"><label for="setBirthday">생일 (월/일)</label><input type="text" id="setBirthday" class="input" placeholder="03-15 (월-일)"/></div>
     </div>
     <div class="modal__foot">
       <button class="btn btn--danger btn--sm" onclick="resetAllData()">데이터 초기화</button>
@@ -546,7 +549,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 const KEYS={settings:'vac_settings',used:'vac_used'};
-const DEFAULT_SETTINGS={name:'',dept:'',hireDate:'2025-08-25'};
+const DEFAULT_SETTINGS={name:'',dept:'',hireDate:'2025-08-25',birthday:''};
 const DEFAULT_USED=[
   {date:'2025-10-10',type:'연차'},{date:'2025-12-01',type:'연차'},
   {date:'2026-01-08',type:'연차'},{date:'2026-01-09',type:'연차'},
@@ -558,6 +561,7 @@ function toDate(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
 function fmt(d){return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
 function fmtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function dayVal(i){return i.type==='오전반차'||i.type==='오후반차'?0.5:1}
+function isBirthdayLeave(i){return i.type==='생일연차'}
 function getToday(){const d=new Date();d.setHours(0,0,0,0);return d}
 function getAnnualDays(y){if(y<2)return 0;return Math.min(15+Math.floor((y-1)/2),25)}
 function numFmt(n){return n%1===0?String(n):n.toFixed(1)}
@@ -567,11 +571,12 @@ function openSettings(){
   document.getElementById('setName').value=s.name;
   document.getElementById('setDept').value=s.dept;
   document.getElementById('setHireDate').value=s.hireDate;
+  document.getElementById('setBirthday').value=s.birthday||'';
   document.getElementById('settingsModal').classList.add('active');
 }
 function closeSettings(){document.getElementById('settingsModal').classList.remove('active')}
 function saveSettings(){
-  const s={name:document.getElementById('setName').value.trim(),dept:document.getElementById('setDept').value.trim(),hireDate:document.getElementById('setHireDate').value};
+  const s={name:document.getElementById('setName').value.trim(),dept:document.getElementById('setDept').value.trim(),hireDate:document.getElementById('setHireDate').value,birthday:document.getElementById('setBirthday').value.trim()};
   if(!s.hireDate){alert('입사일을 입력하세요.');return}
   save(KEYS.settings,s);closeSettings();render();
 }
@@ -584,6 +589,16 @@ function addVacation(){
   const dateVal=document.getElementById('inputDate').value;
   const typeVal=document.getElementById('inputType').value;
   if(!dateVal){alert('날짜를 선택하세요.');return}
+  if(typeVal==='생일연차'){
+    const st=load(KEYS.settings,DEFAULT_SETTINGS);
+    if(!st.birthday){alert('설정에서 생일(월/일)을 먼저 입력하세요.');return}
+    const bMonth=parseInt(st.birthday.split('-')[0],10);
+    const selMonth=parseInt(dateVal.split('-')[1],10);
+    if(bMonth!==selMonth){alert('생일연차는 생일 당월('+bMonth+'월)에만 사용할 수 있습니다.');return}
+    const used0=load(KEYS.used,DEFAULT_USED);
+    const selYear=dateVal.split('-')[0];
+    if(used0.some(u=>u.type==='생일연차'&&u.date.startsWith(selYear))){alert(selYear+'년 생일연차는 이미 사용했습니다.');return}
+  }
   const used=load(KEYS.used,DEFAULT_USED);
   if(used.find(u=>u.date===dateVal&&u.type===typeVal)){alert('이미 등록된 내역입니다.');return}
   if(typeVal==='연차'&&used.some(u=>u.date===dateVal)){
@@ -709,15 +724,18 @@ function render(){
   document.getElementById('year2Period').textContent=fmt(y1End)+' ~ '+fmt(dayBefore(y2End));
   document.getElementById('year3Period').textContent=fmt(y2End)+' ~ '+fmt(dayBefore(y3End));
 
-  const totalUsedDays=used.reduce((s,u)=>s+dayVal(u),0);
-  document.getElementById('usedCount').textContent=`총 ${numFmt(totalUsedDays)}일 사용`;
+  const regularUsed=used.filter(u=>!isBirthdayLeave(u));
+  const birthdayUsed=used.filter(u=>isBirthdayLeave(u));
+  const totalUsedDays=regularUsed.reduce((s,u)=>s+dayVal(u),0);
+  const totalBirthdayDays=birthdayUsed.length;
+  document.getElementById('usedCount').textContent=`연차 ${numFmt(totalUsedDays)}일` + (totalBirthdayDays>0?` + 생일연차 ${totalBirthdayDays}일`:'') + ' 사용';
   document.getElementById('usedList').innerHTML=used.length===0
     ?'<tr class="empty-row"><td colspan="4">등록된 사용 내역이 없습니다.</td></tr>'
-    :used.map((u,i)=>`<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge badge--used">${u.type}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`).join('');
+    :used.map((u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';return `<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${u.type}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`}).join('');
 
   const y1All=[];
   for(let m=1;m<=11;m++){const d=new Date(hireDate);d.setMonth(d.getMonth()+m);y1All.push({date:d,type:'accrual',label:m+'개월 만근',delta:1})}
-  used.forEach(u=>{const ud=toDate(u.date);if(ud>=hireDate&&ud<y1End)y1All.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
+  used.filter(u=>!isBirthdayLeave(u)).forEach(u=>{const ud=toDate(u.date);if(ud>=hireDate&&ud<y1End)y1All.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
   y1All.sort((a,b)=>a.date-b.date||(a.type==='accrual'?-1:1));
 
   let y1Bal=0;
@@ -733,7 +751,7 @@ function render(){
 
   function renderYear(elId,start,end,yi){
     const days=getAnnualDays(yi),evts=[{date:new Date(start),type:'grant',label:yi+'년차 연차 '+days+'일 부여',delta:days}];
-    used.forEach(u=>{const ud=toDate(u.date);if(ud>=start&&ud<end)evts.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
+    used.filter(u=>!isBirthdayLeave(u)).forEach(u=>{const ud=toDate(u.date);if(ud>=start&&ud<end)evts.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
     evts.sort((a,b)=>a.date-b.date||(a.type==='grant'?-1:1));let bal=0;
     const rows=evts.map(e=>{bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
     if(e.type==='grant')return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--grant">부여</span></td><td class="text-left">${e.label}</td><td class="val-plus">+${e.delta}</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
@@ -750,6 +768,12 @@ function render(){
     return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="#E0DCD4" stroke-width="${sw}"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round" transform="rotate(-90 ${sz/2} ${sz/2})" style="transition:stroke-dashoffset .6s ease-in-out"/></svg>`;
   }
 
+  // 생일연차 상태
+  const thisYear=String(today.getFullYear());
+  const bdUsedThisYear=used.some(u=>u.type==='생일연차'&&u.date.startsWith(thisYear));
+  const bdStatus=settings.birthday?(bdUsedThisYear?'사용완료':'미사용'):'미설정';
+  const bdMini=`<div class="dash-mini"><div class="dash-mini__label">생일연차</div><div class="dash-mini__val">${bdStatus}</div></div>`;
+
   let dash='';
   if(today<y1End){
     const rem=y1Accrued-y1Used,pend=11-y1Accrued;
@@ -762,7 +786,8 @@ function render(){
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">총 발생</div><div class="dash-mini__val">${y1Accrued} / 11일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y1Used)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">발생 예정</div><div class="dash-mini__val">${pend}일</div></div>
-    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y1End))}</div></div></div>`;
+    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y1End))}</div></div>
+    ${bdMini}</div>`;
   }else if(today<y2End){
     const gc=y2.remaining<=3?'#9B4D4D':y2.remaining<=7?'#A68B5B':'#4A5D4F';
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y2.used,y2.total,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y2.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
@@ -773,7 +798,8 @@ function render(){
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${y2.total}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y2.used)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">누적 사용</div><div class="dash-mini__val">${numFmt(totalUsedDays)}일</div></div>
-    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y2End))}</div></div></div>`;
+    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y2End))}</div></div>
+    ${bdMini}</div>`;
   }else{
     const gc=y3.remaining<=3?'#9B4D4D':y3.remaining<=7?'#A68B5B':'#4A5D4F';
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y3.used,y3.total,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y3.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
@@ -784,7 +810,8 @@ function render(){
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${y3.total}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y3.used)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">누적 사용</div><div class="dash-mini__val">${numFmt(totalUsedDays)}일</div></div>
-    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y3End))}</div></div></div>`;
+    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y3End))}</div></div>
+    ${bdMini}</div>`;
   }
   document.getElementById('dashboard').innerHTML=dash;
   renderCal();
