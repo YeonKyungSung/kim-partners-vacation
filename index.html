@@ -476,7 +476,16 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
         <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="importFile(this)"/>
       </div>
       <div class="upload-area__info">
-        <code>날짜</code> <code>구분</code> 열이 포함된 파일을 선택하세요. 구분은 연차/오전반차/오후반차. 날짜 형식: <code>2025-01-01</code> 또는 <code>2025.01.01</code> 또는 <code>2025/01/01</code>
+        <code>날짜</code> <code>구분</code> 열이 포함된 파일. 날짜 형식: <code>2025-01-01</code> 또는 <code>2025.01.01</code>
+      </div>
+    </div>
+    <div class="upload-area" style="border-top:1px dashed var(--krds-g200)">
+      <div class="file-input-wrap">
+        <button class="btn btn--secondary">휴가대장(.xlsx)에서 불러오기</button>
+        <input type="file" id="fileInputLedger" accept=".xlsx" onchange="importLedger(this)"/>
+      </div>
+      <div class="upload-area__info">
+        서울사무소 휴가대장 엑셀 파일을 선택하면 <strong>설정된 이름</strong>의 휴가 내역을 자동으로 추출합니다. 설정에서 이름을 먼저 입력하세요.
       </div>
     </div>
   </section>
@@ -549,7 +558,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 const KEYS={settings:'vac_settings',used:'vac_used'};
-const DEFAULT_SETTINGS={name:'',dept:'',hireDate:'2025-08-25',birthday:''};
+const DEFAULT_SETTINGS={name:'',dept:'마케팅',hireDate:'2025-08-25',birthday:''};
 const DEFAULT_USED=[
   {date:'2025-10-10',type:'연차'},{date:'2025-12-01',type:'연차'},
   {date:'2026-01-08',type:'연차'},{date:'2026-01-09',type:'연차'},
@@ -702,6 +711,127 @@ function normalizeType(s){
   if(/오후/.test(s))return '오후반차';
   if(/반차/.test(s))return '오전반차';
   return '연차';
+}
+
+function importLedger(input){
+  const file=input.files[0];if(!file)return;
+  const st=load(KEYS.settings,DEFAULT_SETTINGS);
+  if(!st.name){alert('설정에서 이름을 먼저 입력하세요.');input.value='';return}
+  const targetName=st.name.trim();
+
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      if(typeof XLSX==='undefined'){alert('Excel 라이브러리 로딩 중입니다. 잠시 후 다시 시도해주세요.');return}
+      const data=new Uint8Array(e.target.result);
+      const wb=XLSX.read(data,{type:'array',cellDates:true});
+
+      // 연도별 시트 탐색
+      const holidays=['신정','설날','설날연휴','설날임시공휴일','삼일절','어린이날','부처님오신날',
+        '현충일','광복절','추석','추석연휴','추석임시공휴일','개천절','한글날','크리스마스',
+        '대체공휴일','대체휴일','근로자의날','대통령선거일','국회의원선거일','대통령 선거일'];
+      const entries=[];
+
+      wb.SheetNames.forEach(sn=>{
+        const ym=sn.match(/(\d{4})년/);
+        if(!ym)return;
+        const year=parseInt(ym[1]);
+        const ws=wb.Sheets[sn];
+        const range=XLSX.utils.decode_range(ws['!ref']||'A1');
+
+        // 날짜행 탐색: B~H열에 1~31 숫자가 있는 행
+        let currentMonth=1,prevDay=0;
+        const dateRows={};
+
+        for(let r=range.s.r;r<=range.e.r;r++){
+          const daysInRow={};
+          for(let c=1;c<=7;c++){// B=1 ~ H=7
+            const addr=XLSX.utils.encode_cell({r,c});
+            const cell=ws[addr];
+            if(cell&&typeof cell.v==='number'&&cell.v>=1&&cell.v<=31){
+              daysInRow[c]=Math.floor(cell.v);
+            }
+          }
+          const dayVals=Object.values(daysInRow);
+          if(dayVals.length>=2){
+            const minD=Math.min(...dayVals);
+            if(minD<prevDay&&minD<=7){currentMonth++;if(currentMonth>12)return}
+            prevDay=Math.max(...dayVals);
+            const rowDates={};
+            for(const[col,day] of Object.entries(daysInRow)){
+              let m=currentMonth;
+              if(day>20&&minD<=7)m=currentMonth-1<1?12:currentMonth-1;
+              try{rowDates[parseInt(col)]={y:year,m,d:day}}catch(e){}
+            }
+            dateRows[r]=rowDates;
+          }
+        }
+
+        // 날짜행 아래 6행에서 이름 검색
+        for(const[drStr,colDates] of Object.entries(dateRows)){
+          const dr=parseInt(drStr);
+          for(let off=1;off<=6;off++){
+            const dataRow=dr+off;
+            for(const[colStr,dt] of Object.entries(colDates)){
+              const col=parseInt(colStr);
+              const addr=XLSX.utils.encode_cell({r:dataRow,c:col});
+              const cell=ws[addr];
+              if(!cell||!cell.v||typeof cell.v!=='string')continue;
+              const cellVal=cell.v.trim();
+              if(!cellVal)continue;
+
+              // 공휴일 필터
+              if(holidays.some(h=>cellVal.includes(h)))continue;
+
+              // 쉼표/줄바꿈 분리
+              const parts=cellVal.replace(/\n/g,',').split(',');
+              for(let part of parts){
+                part=part.trim();if(!part||part.length<2)continue;
+
+                // 슬래시 분리 (안희진 / 성연경)
+                const slashParts=part.split('/').map(s=>s.trim()).filter(s=>s.length>=2);
+                const namesToCheck=slashParts.length>=2?slashParts:[part];
+
+                for(let np of namesToCheck){
+                  let lType='연차',name=np;
+                  if(np.includes('(')){
+                    name=np.substring(0,np.indexOf('(')).trim();
+                    const note=np.substring(np.indexOf('(')+1).replace(')','').trim();
+                    if(note.includes('오전'))lType='오전반차';
+                    else if(note.includes('오후'))lType='오후반차';
+                    else if(note.includes('생일'))lType='생일연차';
+                  }
+                  if(name===targetName){
+                    const mm=String(dt.m).padStart(2,'0');
+                    const dd=String(dt.d).padStart(2,'0');
+                    const dateStr=dt.y+'-'+mm+'-'+dd;
+                    entries.push({date:dateStr,type:lType});
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if(entries.length===0){alert(targetName+'님의 휴가 내역을 찾을 수 없습니다.\n이름이 휴가대장과 정확히 일치하는지 확인하세요.');input.value='';return}
+
+      // 기존 데이터에 병합
+      const used=load(KEYS.used,DEFAULT_USED);
+      let added=0,skipped=0;
+      entries.forEach(r=>{
+        if(used.some(u=>u.date===r.date&&u.type===r.type)){skipped++;return}
+        used.push(r);added++;
+      });
+      used.sort((a,b)=>a.date.localeCompare(b.date));
+      save(KEYS.used,used);
+      input.value='';
+      render();
+      alert(`${targetName}님 휴가대장 불러오기 완료!\n\n추가: ${added}건\n중복 건너뜀: ${skipped}건\n총 발견: ${entries.length}건`);
+
+    }catch(err){alert('파일 파싱 오류: '+err.message)}
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function render(){
