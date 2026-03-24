@@ -712,6 +712,7 @@ function render(){
   if(settings.name)info.push(`<div class="info-bar__item"><strong>성명</strong>${settings.name}</div>`);
   if(settings.dept)info.push(`<div class="info-bar__item"><strong>부서</strong>${settings.dept}</div>`);
   info.push(`<div class="info-bar__item"><strong>입사일</strong>${fmt(hireDate)}</div>`);
+  if(settings.birthday)info.push(`<div class="info-bar__item"><strong>생일</strong>${settings.birthday.replace('-','월 ')}일</div>`);
   const dd=Math.floor((today-hireDate)/86400000),dY=Math.floor(dd/365),dM=Math.floor((dd%365)/30);
   info.push(`<div class="info-bar__item"><strong>근속</strong>${dY>0?dY+'년 ':''}${dM}개월</div>`);
   document.getElementById('employeeBar').innerHTML=info.join('');
