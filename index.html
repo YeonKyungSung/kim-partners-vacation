@@ -792,7 +792,8 @@ function render(){
     <div class="dash-summary"><div class="dash-summary__title">1년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">발생 (현재까지)</span><span class="dash-summary__val dash-summary__val--primary">${y1Accrued}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y1Used)}일</span></div>
-    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(rem)}일</span></div></div></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(rem)}일</span></div>
+    <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">총 발생</div><div class="dash-mini__val">${y1Accrued} / 11일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y1Used)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">발생 예정</div><div class="dash-mini__val">${pend}일</div></div>
@@ -804,7 +805,8 @@ function render(){
     <div class="dash-summary"><div class="dash-summary__title">2년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y2.total}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y2.used)}일</span></div>
-    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(y2.remaining)}일</span></div></div></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(y2.remaining)}일</span></div>
+    <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${y2.total}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y2.used)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">누적 사용</div><div class="dash-mini__val">${numFmt(totalUsedDays)}일</div></div>
@@ -816,7 +818,8 @@ function render(){
     <div class="dash-summary"><div class="dash-summary__title">3년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y3.total}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y3.used)}일</span></div>
-    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(y3.remaining)}일</span></div></div></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(y3.remaining)}일</span></div>
+    <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${y3.total}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y3.used)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">누적 사용</div><div class="dash-mini__val">${numFmt(totalUsedDays)}일</div></div>
