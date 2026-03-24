@@ -533,7 +533,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
     <div class="modal__head"><h3>설정</h3></div>
     <div class="modal__body">
       <div class="form-group"><label for="setName">성명</label><input type="text" id="setName" class="input" placeholder="홍길동"/></div>
-      <div class="form-group"><label for="setDept">부서</label><input type="text" id="setDept" class="input" placeholder="개발팀"/></div>
+      <div class="form-group"><label for="setDept">부서</label><input type="text" id="setDept" class="input" placeholder="마케팅"/></div>
       <div class="form-group"><label for="setHireDate">입사일</label><input type="date" id="setHireDate" class="input"/></div>
       <div class="form-group"><label for="setBirthday">생일 (월/일)</label><input type="text" id="setBirthday" class="input" placeholder="03-15 (월-일)"/></div>
     </div>
@@ -746,7 +746,7 @@ function importLedger(input){
           const dayVals=Object.values(daysInRow);
           if(dayVals.length>=2){
             const minD=Math.min(...dayVals);
-            if(minD<prevDay&&minD<=7){currentMonth++;if(currentMonth>12)return}
+            if(minD<prevDay&&minD<=7){currentMonth++;if(currentMonth>12)break}
             prevDay=Math.max(...dayVals);
             const rowDates={};
             for(const[col,day] of Object.entries(daysInRow)){
