@@ -284,10 +284,11 @@ function calcEmployee(emp){
     return {emp,yi,total:11,accrued,carryover:0,used:y1Used,remaining:accrued-y1Used,totalWithCarry:11,remainingAll:11-y1Used,birthdayUsed,regularUsed};
   }
 
-  // Year 1 carryover
+  // Year 1 carryover (2025-01-01 이후 시작하는 연차년도부터만 이월)
+  const CARRYOVER_START=new Date(2025,0,1);
   const y1End=yearEnds[0];
   const y1Used=regularUsed.filter(u=>{const d=toDate(u.date);return d>=hireDate&&d<y1End}).reduce((s,u)=>s+dayVal(u),0);
-  carryover=Math.max(0,11-y1Used);
+  carryover=(y1End>=CARRYOVER_START)?Math.max(0,11-y1Used):0;
 
   // Year 2+ carryover chain
   for(let y=2;y<yi;y++){
@@ -295,7 +296,7 @@ function calcEmployee(emp){
     const days=getAnnualDays(y);
     const totalWithCarry=days+carryover;
     const yUsed=regularUsed.filter(u=>{const d=toDate(u.date);return d>=start&&d<end}).reduce((s,u)=>s+dayVal(u),0);
-    carryover=Math.max(0,totalWithCarry-yUsed);
+    carryover=(yearEnds[y-1]>=CARRYOVER_START)?Math.max(0,totalWithCarry-yUsed):0;
   }
 
   // Current year
