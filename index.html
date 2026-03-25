@@ -1057,10 +1057,13 @@ function render(){
   }
   document.getElementById('dashboard').innerHTML=dash;
 
-  // 현재 년차만 표시, 나머지 숨김
-  document.getElementById('year1Section').style.display=(today<y1End)?'':'none';
-  document.getElementById('year2Section').style.display=(today>=y1End&&today<y2End)?'':'none';
-  document.getElementById('year3Section').style.display=(today>=y2End)?'':'none';
+  // 현재 년차는 펼침, 이전 년차는 접혀있음 (클릭으로 펼침 가능)
+  const curSec=today<y1End?'year1Section':today<y2End?'year2Section':'year3Section';
+  ['year1Section','year2Section','year3Section'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(id===curSec)el.classList.remove('section--collapsed');
+    else el.classList.add('section--collapsed');
+  });
 
   renderCal();
 }
@@ -1091,7 +1094,9 @@ function renderCal(){
     // 링크 모드: 항상 링크 데이터로 설정 덮어쓰기 (테마는 유지)
     const existing=load(KEYS.settings,DEFAULT_SETTINGS);
     save(KEYS.settings,{...DEFAULT_SETTINGS,theme:existing.theme||'sage'});
-    if(!localStorage.getItem(KEYS.used))save(KEYS.used,[]);
+    // 내장 데이터가 있는데 localStorage가 비어있으면 내장 데이터로 초기화
+    const storedUsed=localStorage.getItem(KEYS.used);
+    if(!storedUsed||JSON.parse(storedUsed).length===0&&DEFAULT_USED.length>0)save(KEYS.used,DEFAULT_USED);
   }else{
     if(!localStorage.getItem(KEYS.settings))save(KEYS.settings,DEFAULT_SETTINGS);
     if(!localStorage.getItem(KEYS.used))save(KEYS.used,DEFAULT_USED);
