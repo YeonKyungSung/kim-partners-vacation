@@ -724,9 +724,12 @@ function render(){
   document.getElementById('year3Period').textContent=fmt(y2End)+' ~ '+fmt(dayBefore(y3End));
 
   // 근속 기준 년차 라벨 (1년 미만=월차, N년 이상=N년차)
+  // 근속 기준 동적 라벨
+  const y2Label=Math.max(1,Math.floor((y1End-hireDate)/86400000/365));
+  const y3Label=Math.max(2,Math.floor((y2End-hireDate)/86400000/365));
   document.getElementById('year1Title').textContent='1년 미만 월차 발생 / 사용 내역';
-  document.getElementById('year2Title').textContent='1년 이상 연차 발생 / 사용 내역';
-  document.getElementById('year3Title').textContent='2년 이상 연차 발생 / 사용 내역';
+  document.getElementById('year2Title').textContent=y2Label+'년 이상 연차 발생 / 사용 내역';
+  document.getElementById('year3Title').textContent=y3Label+'년 이상 연차 발생 / 사용 내역';
 
   const regularUsed=used.filter(u=>!isBirthdayLeave(u));
   const birthdayUsed=used.filter(u=>isBirthdayLeave(u));
@@ -772,7 +775,8 @@ function render(){
     carryover=carryover||0;
     const days=getAnnualDays(yi),evts=[];
     if(carryover!==0)evts.push({date:new Date(start),type:'carryover',label:'전년도 이월 '+(carryover<0?'':'')+numFmt(carryover)+'일',delta:carryover});
-    evts.push({date:new Date(start),type:'grant',label:(yi-1)+'년 이상 연차 '+days+'일 부여',delta:days});
+    const yrsFromHire=Math.max(1,Math.round((start-hireDate)/86400000/365));
+    evts.push({date:new Date(start),type:'grant',label:yrsFromHire+'년 이상 연차 '+days+'일 부여',delta:days});
     used.filter(u=>!isBirthdayLeave(u)).forEach(u=>{const ud=toDate(u.date);if(ud>=start&&ud<end)evts.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
     evts.sort((a,b)=>a.date-b.date||(a.type==='carryover'?-2:a.type==='grant'?-1:1));let bal=0;
     const rows=evts.map(e=>{bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
@@ -830,7 +834,7 @@ function render(){
   }else if(today<y2End){
     const gc=y2.remaining<=3?THEMES[selectedTheme].gaugeDanger:y2.remaining<=7?THEMES[selectedTheme].gaugeWarn:THEMES[selectedTheme].gauge;
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y2.used,y2.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y2.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
-    <div class="dash-summary"><div class="dash-summary__title">1년 이상 연차 현황</div>
+    <div class="dash-summary"><div class="dash-summary__title">${dY}년 이상 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y2.total}일</span></div>
     ${y2.carryover!==0?`<div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:${y2.carryover<0?'var(--krds-error)':'#6B5B95'}">${y2.carryover>0?'+':''}${numFmt(y2.carryover)}일</span></div>`:''}
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y2.used)}일</span></div>
@@ -844,7 +848,7 @@ function render(){
   }else{
     const gc=y3.remaining<=3?THEMES[selectedTheme].gaugeDanger:y3.remaining<=7?THEMES[selectedTheme].gaugeWarn:THEMES[selectedTheme].gauge;
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y3.used,y3.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y3.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
-    <div class="dash-summary"><div class="dash-summary__title">2년 이상 연차 현황</div>
+    <div class="dash-summary"><div class="dash-summary__title">${dY}년 이상 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y3.total}일</span></div>
     ${y3.carryover!==0?`<div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:${y3.carryover<0?'var(--krds-error)':'#6B5B95'}">${y3.carryover>0?'+':''}${numFmt(y3.carryover)}일</span></div>`:''}
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y3.used)}일</span></div>
