@@ -810,12 +810,12 @@ function render(){
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(curDashUsed,Math.max(dashTotal,0),gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(curDashRemaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
     <div class="dash-summary"><div class="dash-summary__title">${dY}년 이상 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${curDashTotal}일</span></div>
-    `<div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:${carryover<0?'var(--krds-error)':carryover>0?'#6B5B95':'var(--krds-g400)'}">${carryover>0?'+':''}${numFmt(carryover)}일</span></div>`
+    <div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:${carryover<0?'var(--krds-error)':carryover>0?'#6B5B95':'var(--krds-g400)'}">${carryover>0?'+':''}${numFmt(carryover)}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(curDashUsed)}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(curDashRemaining)}일</span></div>
     <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${curDashTotal}일</div></div>
-    `<div class="dash-mini"><div class="dash-mini__label">이월</div><div class="dash-mini__val" style="color:${carryover<0?'var(--krds-error)':carryover>0?'#6B5B95':'var(--krds-g400)'}">${carryover>0?'+':''}${numFmt(carryover)}일</div></div>`
+    <div class="dash-mini"><div class="dash-mini__label">이월</div><div class="dash-mini__val" style="color:${carryover<0?'var(--krds-error)':carryover>0?'#6B5B95':'var(--krds-g400)'}">${carryover>0?'+':''}${numFmt(carryover)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(curDashUsed)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(curEnd))}</div></div>
     ${bdMini}</div>`;
