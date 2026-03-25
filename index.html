@@ -383,6 +383,13 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
   margin-top:8px;
 }
 
+/* Collapsible sections */
+.section__toggle{cursor:pointer;user-select:none}
+.section__toggle:hover{background:var(--krds-g50)}
+.section__arrow{font-size:14px;color:var(--krds-g400);transition:transform 200ms}
+.section--collapsed .section__arrow{transform:rotate(-90deg)}
+.section--collapsed .section__body{display:none}
+
 /* Theme swatches */
 .swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 150ms;position:relative}
 .swatch:hover{transform:scale(1.15)}
@@ -499,37 +506,43 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
     </table>
   </section>
 
-  <section class="section" id="year1Section">
-    <div class="section__head">
+  <section class="section section--collapsible" id="year1Section">
+    <div class="section__head section__toggle" onclick="toggleSection('year1Section')">
       <h2 class="section__title">1년차 월차 발생 / 사용 내역</h2>
-      <span class="section__meta" id="year1Period"></span>
+      <span style="display:flex;align-items:center;gap:8px"><span class="section__meta" id="year1Period"></span><span class="section__arrow">▾</span></span>
     </div>
+    <div class="section__body">
     <table class="tbl">
       <thead><tr><th>날짜</th><th>구분</th><th class="text-left">내용</th><th>발생</th><th>사용</th><th>잔여</th></tr></thead>
       <tbody id="year1Detail"></tbody>
     </table>
+    </div>
   </section>
 
-  <section class="section" id="year2Section">
-    <div class="section__head">
+  <section class="section section--collapsible" id="year2Section">
+    <div class="section__head section__toggle" onclick="toggleSection('year2Section')">
       <h2 class="section__title">2년차 연차 발생 / 사용 내역</h2>
-      <span class="section__meta" id="year2Period"></span>
+      <span style="display:flex;align-items:center;gap:8px"><span class="section__meta" id="year2Period"></span><span class="section__arrow">▾</span></span>
     </div>
+    <div class="section__body">
     <table class="tbl">
       <thead><tr><th>날짜</th><th>구분</th><th class="text-left">내용</th><th>발생</th><th>사용</th><th>잔여</th></tr></thead>
       <tbody id="year2Detail"></tbody>
     </table>
+    </div>
   </section>
 
-  <section class="section" id="year3Section">
-    <div class="section__head">
+  <section class="section section--collapsible" id="year3Section">
+    <div class="section__head section__toggle" onclick="toggleSection('year3Section')">
       <h2 class="section__title">3년차 연차 발생 / 사용 내역</h2>
-      <span class="section__meta" id="year3Period"></span>
+      <span style="display:flex;align-items:center;gap:8px"><span class="section__meta" id="year3Period"></span><span class="section__arrow">▾</span></span>
     </div>
+    <div class="section__body">
     <table class="tbl">
       <thead><tr><th>날짜</th><th>구분</th><th class="text-left">내용</th><th>발생</th><th>사용</th><th>잔여</th></tr></thead>
       <tbody id="year3Detail"></tbody>
     </table>
+    </div>
   </section>
 
   <footer class="footer">근로기준법 제60조에 의거한 연차유급휴가 산정 &middot; 데이터는 브라우저(localStorage)에 저장됩니다.</footer>
@@ -629,6 +642,10 @@ function previewTheme(id){
   applyTheme(id);
   renderSwatches();
   render();
+}
+
+function toggleSection(id){
+  document.getElementById(id).classList.toggle('section--collapsed');
 }
 
 function openSettings(){
@@ -1034,6 +1051,18 @@ function render(){
     ${bdMini}</div>`;
   }
   document.getElementById('dashboard').innerHTML=dash;
+
+  // 현재 년차만 펼치기, 나머지 접기
+  const sections=['year1Section','year2Section','year3Section'];
+  let currentSection='year1Section';
+  if(today>=y2End) currentSection='year3Section';
+  else if(today>=y1End) currentSection='year2Section';
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(id===currentSection) el.classList.remove('section--collapsed');
+    else el.classList.add('section--collapsed');
+  });
+
   renderCal();
 }
 
