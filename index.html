@@ -733,9 +733,24 @@ function render(){
   const totalUsedDays=regularUsed.reduce((s,u)=>s+dayVal(u),0);
   const totalBirthdayDays=birthdayUsed.length;
   document.getElementById('usedCount').textContent=`연차 ${numFmt(totalUsedDays)}일` + (totalBirthdayDays>0?` + 생일연차 ${totalBirthdayDays}일`:'') + ' 사용';
-  document.getElementById('usedList').innerHTML=used.length===0
-    ?'<tr class="empty-row"><td colspan="4">등록된 사용 내역이 없습니다.</td></tr>'
-    :used.map((u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';const label=u.type==='생일연차'&&settings.name?settings.name+'(생일 휴가)':u.type;return `<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${label}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`}).join('');
+  // 현재 연차년도 시작일
+  const curYearStart=today<y1End?hireDate:today<y2End?y1End:y2End;
+  const curYearUsed=used.filter(u=>toDate(u.date)>=curYearStart);
+  const prevYearUsed=used.filter(u=>toDate(u.date)<curYearStart);
+
+  const renderRow=(u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';const label=u.type==='생일연차'&&settings.name?settings.name+'(생일 휴가)':u.type;return `<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${label}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`};
+
+  if(used.length===0){
+    document.getElementById('usedList').innerHTML='<tr class="empty-row"><td colspan="4">등록된 사용 내역이 없습니다.</td></tr>';
+  }else{
+    let html='';
+    if(prevYearUsed.length>0){
+      html+=`<tr class="no-print"><td colspan="4" style="text-align:center;padding:8px"><button class="btn btn--secondary btn--sm" id="prevToggleBtn" onclick="document.querySelectorAll('.prev-year-row').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.textContent=this.textContent.includes('보기')?'이전 내역 숨기기':'이전 내역 보기 (${prevYearUsed.length}건)'">이전 내역 보기 (${prevYearUsed.length}건)</button></td></tr>`;
+      html+=prevYearUsed.map((u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';const label=u.type==='생일연차'&&settings.name?settings.name+'(생일 휴가)':u.type;return `<tr class="prev-year-row" style="display:none"><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${label}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`}).join('');
+    }
+    html+=curYearUsed.map((u,i)=>renderRow(u,prevYearUsed.length+i+1)).join('');
+    document.getElementById('usedList').innerHTML=html;
+  }
 
   const y1All=[];
   for(let m=1;m<=11;m++){const d=new Date(hireDate);d.setMonth(d.getMonth()+m);y1All.push({date:d,type:'accrual',label:m+'개월 만근',delta:1})}
