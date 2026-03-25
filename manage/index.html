@@ -248,7 +248,7 @@ function fmtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,
 function dayVal(u){return u.type==='오전반차'||u.type==='오후반차'?0.5:1}
 function isBirthday(u){return u.type==='생일연차'}
 function getToday(){const d=new Date();d.setHours(0,0,0,0);return d}
-function getAnnualDays(y){if(y<2)return 0;return Math.min(15+Math.floor((y-1)/2),25)}
+function getAnnualDays(y){if(y<2)return 0;return Math.min(15+Math.floor((y-2)/2),25)}
 function numFmt(n){return n%1===0?String(n):n.toFixed(1)}
 
 /* ═══════════════════════════════════════════════
