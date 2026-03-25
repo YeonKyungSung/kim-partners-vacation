@@ -7,22 +7,22 @@
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <style>
 :root {
-  --primary: #4A4E6A;
-  --primary-dark: #3B3F58;
-  --primary-deep: #2C2F42;
-  --primary-light: #E8E9F0;
-  --bg: #F0F1F4;
-  --surface: #FAFAFE;
-  --g50: #F5F5F8;
-  --g100: #ECECF0;
-  --g200: #DDDDE4;
-  --g300: #B0B0BC;
-  --g400: #858594;
-  --g500: #62627A;
-  --g700: #353546;
-  --g800: #232333;
-  --success: #4A7A6B;
-  --warning: #8B7A4A;
+  --primary: #4A5D4F;
+  --primary-dark: #3B4B3F;
+  --primary-deep: #2C3830;
+  --primary-light: #E8EDE9;
+  --bg: #F5F2ED;
+  --surface: #FDFCFA;
+  --g50: #F8F6F2;
+  --g100: #EFECE6;
+  --g200: #E0DCD4;
+  --g300: #B5AFA5;
+  --g400: #8A847B;
+  --g500: #6B665E;
+  --g700: #3A3733;
+  --g800: #262421;
+  --success: #5A7A5E;
+  --warning: #A68B5B;
   --error: #8B6B3D;
   --font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --radius: 4px;
@@ -63,11 +63,11 @@ body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;colo
 
 /* Badges */
 .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
-.badge--ok{background:#EDF5F1;color:var(--success);border:1px solid #B5D4C5}
-.badge--warn{background:#F5F2E8;color:var(--warning);border:1px solid #C9BF9A}
-.badge--danger{background:#F5F2E8;color:var(--error);border:1px solid #C9B68E}
+.badge--ok{background:#EDF3EE;color:var(--success);border:1px solid #C0D4C2}
+.badge--warn{background:#F8F3EB;color:var(--warning);border:1px solid #D4C8A0}
+.badge--danger{background:#F8F3EB;color:var(--error);border:1px solid #C9B68E}
 .badge--used{background:var(--primary);color:#fff;border:1px solid var(--primary-dark)}
-.badge--birthday{background:#F5F2E8;color:var(--warning);border:1px solid #C9BF9A}
+.badge--birthday{background:#F8F3EB;color:var(--warning);border:1px solid #D4C8A0}
 .badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
 .badge--resigned{background:var(--g50);color:var(--g300);border:1px solid var(--g200)}
 .tbl tr.resigned-row td{color:var(--g300);background:var(--g50)}
@@ -374,7 +374,7 @@ function render(){
         <td style="color:var(--success);font-weight:700">${r.noHireDate?'-':numFmt(r.remaining)}</td>
         <td>${bdStatus}</td>
         <td>${statusBadge}</td>
-        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> ${r.emp.resigned?'<button class="btn btn--secondary btn--sm" onclick="reinstateEmployee(\''+r.emp.id+'\')">복직</button> <button class="btn btn--danger btn--sm" onclick="deleteEmployee(\''+r.emp.id+'\')">삭제</button>':'<button class="btn btn--danger btn--sm" onclick="resignEmployee(\''+r.emp.id+'\')">퇴사</button>'}</td>
+        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> ${r.emp.resigned?'<button class="btn btn--secondary btn--sm" onclick="reinstateEmployee(\''+r.emp.id+'\')">복직</button> <button class="btn btn--danger btn--sm" onclick="deleteEmployee(\''+r.emp.id+'\')">삭제</button>':'<button class="btn btn--export btn--sm" onclick="copyLink(\''+r.emp.id+'\')">링크</button> <button class="btn btn--danger btn--sm" onclick="resignEmployee(\''+r.emp.id+'\')">퇴사</button>'}</td>
       </tr>`);
     });
   });
@@ -589,6 +589,21 @@ function saveEmployee(){
   closeEmpForm();
   render();
 }
+function copyLink(id){
+  const emp=getEmployees().find(e=>e.id===id);
+  if(!emp)return;
+  if(!emp.hireDate){alert('입사일을 먼저 설정해주세요.');return}
+  const data={name:emp.name,dept:emp.dept,hireDate:emp.hireDate,birthday:emp.birthday||''};
+  const token=btoa(encodeURIComponent(JSON.stringify(data)));
+  const baseUrl=location.href.replace(/\/admin\/?.*$/,'').replace(/\/manage\/?.*$/,'');
+  const link=baseUrl+'/?t='+token;
+  navigator.clipboard.writeText(link).then(()=>{
+    alert(emp.name+'님의 개인 링크가 복사되었습니다.\n\n'+link);
+  }).catch(()=>{
+    prompt(emp.name+'님의 개인 링크:', link);
+  });
+}
+
 function resignEmployee(id){
   const emp=getEmployees().find(e=>e.id===id);
   if(!emp)return;
