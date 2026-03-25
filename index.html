@@ -733,10 +733,10 @@ function render(){
   const totalUsedDays=regularUsed.reduce((s,u)=>s+dayVal(u),0);
   const totalBirthdayDays=birthdayUsed.length;
   document.getElementById('usedCount').textContent=`연차 ${numFmt(totalUsedDays)}일` + (totalBirthdayDays>0?` + 생일연차 ${totalBirthdayDays}일`:'') + ' 사용';
-  // 현재 연차년도 시작일
-  const curYearStart=today<y1End?hireDate:today<y2End?y1End:y2End;
-  const curYearUsed=used.filter(u=>toDate(u.date)>=curYearStart);
-  const prevYearUsed=used.filter(u=>toDate(u.date)<curYearStart);
+  // 올해(1/1~) 사용분만 기본 표시
+  const thisJan1=new Date(today.getFullYear(),0,1);
+  const curYearUsed=used.filter(u=>toDate(u.date)>=thisJan1);
+  const prevYearUsed=used.filter(u=>toDate(u.date)<thisJan1);
 
   const renderRow=(u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';const label=u.type==='생일연차'&&settings.name?settings.name+'(생일 휴가)':u.type;return `<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${label}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`};
 
