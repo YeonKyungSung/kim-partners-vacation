@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연차휴가 관리 — 관리자</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+:root {
+  --primary: #4A5D4F;
+  --primary-dark: #3B4B3F;
+  --primary-deep: #2C3830;
+  --primary-light: #E8EDE9;
+  --bg: #F5F2ED;
+  --surface: #FDFCFA;
+  --g50: #F8F6F2;
+  --g100: #EFECE6;
+  --g200: #E0DCD4;
+  --g300: #B5AFA5;
+  --g400: #8A847B;
+  --g500: #6B665E;
+  --g700: #3A3733;
+  --g800: #262421;
+  --success: #5A7A5E;
+  --warning: #A68B5B;
+  --error: #9B4D4D;
+  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --radius: 4px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;color:var(--g800);background:var(--bg)}
+
+/* Header */
+.header{background:var(--primary-deep);padding:16px 24px;color:#fff}
+.header__inner{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.header__title{font-size:20px;font-weight:800;letter-spacing:-.03em}
+.header__date{font-size:13px;opacity:.7}
+
+/* Layout */
+.container{max-width:1400px;margin:0 auto;padding:20px 24px}
+.summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.card{background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card__label{font-size:12px;color:var(--g400);margin-bottom:4px}
+.card__val{font-size:28px;font-weight:800;color:var(--primary)}
+.card__val--warn{color:var(--warning)}
+.card__val--err{color:var(--error)}
+
+/* Table */
+.panel{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.panel__head{padding:14px 18px;border-bottom:1px solid var(--g200);display:flex;justify-content:space-between;align-items:center}
+.panel__title{font-size:15px;font-weight:700}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{background:var(--primary-deep);color:#fff;font-size:12px;font-weight:600;padding:10px 12px;text-align:center;white-space:nowrap}
+.tbl td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--g100);font-size:13px}
+.tbl tr:hover{background:var(--g50)}
+.tbl tr.selected{background:var(--primary-light)}
+.tbl tr{cursor:pointer}
+.tbl td.dept-cell{background:var(--g50);font-weight:700;color:var(--primary-dark);vertical-align:middle;border-right:3px solid var(--primary);font-size:13px;letter-spacing:-.02em}
+.tbl tr.dept-first td{border-top:2px solid var(--g300)}
+.text-left{text-align:left}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.badge--ok{background:#EDF3EE;color:var(--success);border:1px solid #C0D4C2}
+.badge--warn{background:#F8F3EB;color:var(--warning);border:1px solid #D4C8A0}
+.badge--danger{background:#F5EDED;color:var(--error);border:1px solid #D4AAAA}
+.badge--used{background:var(--primary);color:#fff;border:1px solid var(--primary-dark)}
+.badge--birthday{background:#F8F3EB;color:var(--warning);border:1px solid #D4C8A0}
+.badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
+.badge--resigned{background:var(--g100);color:var(--g400);border:1px solid var(--g200)}
+.tbl tr.resigned-row td{color:var(--g400);background:var(--g50)}
+
+/* Detail panel */
+.detail{display:none}
+.detail.active{display:block}
+.detail__header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.detail__name{font-size:18px;font-weight:800}
+.detail__info{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.detail__info span{font-size:13px;color:var(--g500)}
+.detail__info strong{color:var(--g800)}
+
+/* Stats row */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.stat{background:var(--g50);border-radius:var(--radius);padding:12px;text-align:center}
+.stat__label{font-size:11px;color:var(--g400);margin-bottom:2px}
+.stat__val{font-size:22px;font-weight:800;color:var(--primary)}
+.stat__val--carry{color:#6B5B95}
+.stat__val--used{color:var(--error)}
+.stat__val--remain{color:var(--success)}
+
+/* Form */
+.form-row{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.input{padding:7px 12px;border:1px solid var(--g200);border-radius:var(--radius);font-family:var(--font);font-size:13px;background:#fff}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(74,93,79,.15)}
+select.input{min-width:120px}
+.btn{padding:7px 16px;border:none;border-radius:var(--radius);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 150ms}
+.btn--primary{background:var(--primary);color:#fff}
+.btn--primary:hover{background:var(--primary-dark)}
+.btn--secondary{background:var(--g100);color:var(--g700)}
+.btn--danger{background:var(--error);color:#fff}
+.btn--sm{padding:4px 10px;font-size:12px}
+.btn--export{background:var(--primary-light);color:var(--primary);border:1px solid #CDD6CE}
+
+/* Detail table */
+.detail-tbl{width:100%;border-collapse:collapse}
+.detail-tbl th{background:var(--g50);color:var(--g700);font-size:12px;font-weight:600;padding:8px 10px;text-align:center;border-bottom:2px solid var(--g200)}
+.detail-tbl td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--g100);font-size:13px}
+
+/* Responsive */
+@media(max-width:900px){
+  .summary-cards{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:600px){
+  .summary-cards{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .form-row{flex-direction:column;align-items:stretch}
+}
+
+/* Print */
+@media print{
+  body{background:#fff;font-size:11px}
+  .header{background:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tbl th,.detail-tbl th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .btn,.form-row,.no-print{display:none!important}
+  .detail.active{display:block}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header__inner">
+    <div class="header__title">법무법인 김앤파트너스 · 연차휴가 관리 (관리자)</div>
+    <div class="header__date" id="todayBadge"></div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Summary Cards -->
+  <div class="summary-cards" id="summaryCards"></div>
+
+  <!-- Employee Overview Table -->
+  <div class="panel">
+    <div class="panel__head">
+      <div class="panel__title">전 직원 연차 현황</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn--primary no-print" onclick="openEmpForm()">직원 추가</button>
+        <button class="btn btn--export" onclick="exportAllCSV()">전체 CSV 내보내기</button>
+        <button class="btn btn--secondary" onclick="window.print()">인쇄</button>
+      </div>
+    </div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>부서</th>
+          <th>성명</th>
+          <th>입사일</th>
+          <th>년차</th>
+          <th>부여</th>
+          <th>이월</th>
+          <th>총 일수</th>
+          <th>사용</th>
+          <th>잔여</th>
+          <th>생일연차</th>
+          <th>상태</th>
+          <th class="no-print">관리</th>
+        </tr>
+      </thead>
+      <tbody id="empTable"></tbody>
+    </table>
+  </div>
+
+  <!-- Employee Management -->
+  <div class="panel no-print" id="empMgmtPanel" style="display:none">
+    <div class="panel__head">
+      <div class="panel__title" id="empMgmtTitle">직원 등록</div>
+      <button class="btn btn--secondary" onclick="closeEmpForm()">닫기</button>
+    </div>
+    <div style="padding:18px">
+      <input type="hidden" id="empEditId"/>
+      <div class="form-row">
+        <div style="flex:1"><label style="font-size:12px;color:var(--g500)">성명</label><input type="text" id="empName" class="input" style="width:100%" placeholder="홍길동"/></div>
+        <div style="flex:1"><label style="font-size:12px;color:var(--g500)">부서</label><select id="empDept" class="input" style="width:100%"></select></div>
+        <div style="flex:1"><label style="font-size:12px;color:var(--g500)">입사일</label><input type="date" id="empHireDate" class="input" style="width:100%"/></div>
+        <div style="flex:1"><label style="font-size:12px;color:var(--g500)">생일 (월-일)</label><input type="text" id="empBirthday" class="input" style="width:100%" placeholder="03-15"/></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn btn--primary" onclick="saveEmployee()">저장</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail" id="detailPanel">
+    <div class="panel">
+      <div class="panel__head">
+        <div>
+          <div class="detail__name" id="detailName"></div>
+          <div class="detail__info" id="detailInfo"></div>
+        </div>
+        <button class="btn btn--secondary" onclick="closeDetail()">닫기</button>
+      </div>
+      <div style="padding:18px">
+        <!-- Stats -->
+        <div class="stats" id="detailStats"></div>
+
+        <!-- Add vacation form -->
+        <div class="form-row no-print">
+          <input type="date" id="addDate" class="input"/>
+          <select id="addType" class="input">
+            <option value="연차">연차 (1일)</option>
+            <option value="오전반차">오전반차 (0.5일)</option>
+            <option value="오후반차">오후반차 (0.5일)</option>
+            <option value="생일연차">생일연차 (별도)</option>
+          </select>
+          <button class="btn btn--primary" onclick="addVacation()">휴가 등록</button>
+        </div>
+
+        <!-- Vacation list -->
+        <table class="detail-tbl">
+          <thead><tr><th>#</th><th>날짜</th><th>구분</th><th>차감</th><th class="no-print">관리</th></tr></thead>
+          <tbody id="detailUsedList"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   직원 목록 — localStorage 기반
+   ═══════════════════════════════════════════════ */
+const EMP_KEY='vac_admin_employees';
+function loadEmployees(){try{const v=localStorage.getItem(EMP_KEY);return v?JSON.parse(v):[]}catch{return[]}}
+function saveEmployees(list){localStorage.setItem(EMP_KEY,JSON.stringify(list))}
+function getEmployees(){return loadEmployees()}
+
+/* ═══════════════════════════════════════════════
+   Core functions
+   ═══════════════════════════════════════════════ */
+function storageKey(empId){ return 'vac_admin_'+empId; }
+function loadUsed(empId){ try{const v=localStorage.getItem(storageKey(empId));return v?JSON.parse(v):[]}catch{return[]} }
+function saveUsed(empId,arr){ localStorage.setItem(storageKey(empId),JSON.stringify(arr)); }
+function toDate(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function fmt(d){return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
+function fmtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dayVal(u){return u.type==='오전반차'||u.type==='오후반차'?0.5:1}
+function isBirthday(u){return u.type==='생일연차'}
+function getToday(){const d=new Date();d.setHours(0,0,0,0);return d}
+function getAnnualDays(y){if(y<2)return 0;return Math.min(15+Math.floor((y-1)/2),25)}
+function numFmt(n){return n%1===0?String(n):n.toFixed(1)}
+
+/* ═══════════════════════════════════════════════
+   Calculate vacation status for one employee
+   ═══════════════════════════════════════════════ */
+function calcEmployee(emp){
+  const today=getToday();
+  if(!emp.hireDate)return {emp,yi:0,total:0,accrued:0,carryover:0,used:0,remaining:0,totalWithCarry:0,remainingAll:0,birthdayUsed:[],regularUsed:[],noHireDate:true};
+  const hireDate=toDate(emp.hireDate);
+  const used=loadUsed(emp.id);
+  const regularUsed=used.filter(u=>!isBirthday(u));
+  const birthdayUsed=used.filter(u=>isBirthday(u));
+
+  // Year boundaries
+  const yearEnds=[];
+  for(let i=1;i<=10;i++){const d=new Date(hireDate);d.setFullYear(d.getFullYear()+i);yearEnds.push(d)}
+
+  // Determine current year index (0-based: 0=1년차)
+  let currentYearIdx=0;
+  for(let i=0;i<yearEnds.length;i++){if(today<yearEnds[i]){currentYearIdx=i;break}}
+
+  const yi=currentYearIdx+1; // 1-based year
+
+  // Calculate carryover chain
+  let carryover=0;
+
+  if(yi===1){
+    // Year 1: monthly accrual
+    const y1End=yearEnds[0];
+    let accrued=0;
+    for(let m=1;m<=11;m++){const d=new Date(hireDate);d.setMonth(d.getMonth()+m);if(d<=today)accrued++}
+    const y1Used=regularUsed.filter(u=>{const d=toDate(u.date);return d>=hireDate&&d<y1End}).reduce((s,u)=>s+dayVal(u),0);
+    return {emp,yi,total:11,accrued,carryover:0,used:y1Used,remaining:accrued-y1Used,totalWithCarry:11,remainingAll:11-y1Used,birthdayUsed,regularUsed};
+  }
+
+  // Year 1 carryover
+  const y1End=yearEnds[0];
+  const y1Used=regularUsed.filter(u=>{const d=toDate(u.date);return d>=hireDate&&d<y1End}).reduce((s,u)=>s+dayVal(u),0);
+  carryover=Math.max(0,11-y1Used);
+
+  // Year 2+ carryover chain
+  for(let y=2;y<yi;y++){
+    const start=yearEnds[y-2],end=yearEnds[y-1];
+    const days=getAnnualDays(y);
+    const totalWithCarry=days+carryover;
+    const yUsed=regularUsed.filter(u=>{const d=toDate(u.date);return d>=start&&d<end}).reduce((s,u)=>s+dayVal(u),0);
+    carryover=Math.max(0,totalWithCarry-yUsed);
+  }
+
+  // Current year
+  const start=yearEnds[yi-2],end=yearEnds[yi-1];
+  const days=getAnnualDays(yi);
+  const totalWithCarry=days+carryover;
+  const curUsed=regularUsed.filter(u=>{const d=toDate(u.date);return d>=start&&d<end}).reduce((s,u)=>s+dayVal(u),0);
+  const remaining=totalWithCarry-curUsed;
+
+  return {emp,yi,total:days,accrued:days,carryover,used:curUsed,remaining,totalWithCarry,remainingAll:remaining,birthdayUsed,regularUsed};
+}
+
+/* ═══════════════════════════════════════════════
+   Render overview
+   ═══════════════════════════════════════════════ */
+let selectedEmpId=null;
+
+function render(){
+  const today=getToday();
+  document.getElementById('todayBadge').textContent=fmt(today)+' 기준';
+
+  const allResults=getEmployees().map(calcEmployee);
+  const results=allResults.filter(r=>!r.emp.resigned);
+  const resignedResults=allResults.filter(r=>r.emp.resigned);
+  let totalEmp=results.length, lowCount=0, zeroCount=0, totalUsed=0;
+
+  // Group by department, preserve order
+  const deptOrder=[];const deptMap={};
+  results.forEach(r=>{
+    const d=r.emp.dept||'미지정';
+    if(!deptMap[d]){deptMap[d]=[];deptOrder.push(d)}
+    deptMap[d].push(r);
+  });
+
+  const rows=[];
+  const thisYear=String(today.getFullYear());
+  deptOrder.forEach(dept=>{
+    const group=deptMap[dept];
+    group.forEach((r,idx)=>{
+      totalUsed+=r.used;
+      if(!r.noHireDate){
+        if(r.remaining<=0)zeroCount++;
+        else if(r.remaining<=3)lowCount++;
+      }
+
+      let bdStatus='-';
+      if(r.emp.birthday){
+        const bMonth=parseInt(r.emp.birthday.split('-')[0],10);
+        const curMonth=today.getMonth()+1;
+        const bdUsed=r.birthdayUsed.some(u=>u.date.startsWith(thisYear));
+        if(bdUsed) bdStatus='사용완료';
+        else if(curMonth>bMonth) bdStatus='소멸';
+        else if(curMonth===bMonth) bdStatus='사용가능';
+        else bdStatus=bMonth+'월';
+      }
+
+      let statusBadge;
+      if(r.noHireDate) statusBadge='<span class="badge badge--warn">입사일 미설정</span>';
+      else if(r.remaining<=0) statusBadge='<span class="badge badge--danger">소진</span>';
+      else if(r.remaining<=3) statusBadge='<span class="badge badge--warn">부족</span>';
+      else statusBadge='<span class="badge badge--ok">양호</span>';
+
+      const sel=r.emp.id===selectedEmpId?' selected':'';
+      const firstClass=idx===0?' dept-first':'';
+      const deptCell=idx===0?`<td class="dept-cell" rowspan="${group.length}">${dept}</td>`:'';
+
+      rows.push(`<tr class="${sel}${firstClass}" onclick="selectEmp('${r.emp.id}')">
+        ${deptCell}
+        <td class="text-left" style="font-weight:700">${r.emp.name}</td>
+        <td>${r.emp.hireDate||'<span style="color:var(--g300)">미설정</span>'}</td>
+        <td>${r.noHireDate?'-':r.yi+'년차'}</td>
+        <td>${r.noHireDate?'-':(r.yi===1?numFmt(r.accrued)+'/11':r.total)}</td>
+        <td style="color:#6B5B95;font-weight:600">${r.carryover>0?'+'+numFmt(r.carryover):'-'}</td>
+        <td style="font-weight:700">${r.noHireDate?'-':numFmt(r.totalWithCarry)}</td>
+        <td style="color:var(--error)">${r.noHireDate?'-':numFmt(r.used)}</td>
+        <td style="color:var(--success);font-weight:700">${r.noHireDate?'-':numFmt(r.remaining)}</td>
+        <td>${bdStatus}</td>
+        <td>${statusBadge}</td>
+        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> ${r.emp.resigned?'<button class="btn btn--secondary btn--sm" onclick="reinstateEmployee(\''+r.emp.id+'\')">복직</button> <button class="btn btn--danger btn--sm" onclick="deleteEmployee(\''+r.emp.id+'\')">삭제</button>':'<button class="btn btn--danger btn--sm" onclick="resignEmployee(\''+r.emp.id+'\')">퇴사</button>'}</td>
+      </tr>`);
+    });
+  });
+
+  // Resigned employees at the bottom
+  if(resignedResults.length>0){
+    resignedResults.forEach((r,idx)=>{
+      const statusBadge='<span class="badge badge--resigned">퇴사</span>';
+      rows.push(`<tr class="resigned-row${idx===0?' dept-first':''}" onclick="selectEmp('${r.emp.id}')">
+        ${idx===0?`<td class="dept-cell" rowspan="${resignedResults.length}" style="color:var(--g400)">퇴사자</td>`:''}
+        <td class="text-left">${r.emp.name}</td>
+        <td>${r.emp.hireDate||'-'}</td>
+        <td>${r.emp.resignedDate||'-'}</td>
+        <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+        <td>-</td>
+        <td>${statusBadge}</td>
+        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> <button class="btn btn--secondary btn--sm" onclick="reinstateEmployee('${r.emp.id}')">복직</button> <button class="btn btn--danger btn--sm" onclick="deleteEmployee('${r.emp.id}')">삭제</button></td>
+      </tr>`);
+    });
+  }
+
+  document.getElementById('empTable').innerHTML=rows.join('');
+
+  // Summary cards
+  document.getElementById('summaryCards').innerHTML=`
+    <div class="card"><div class="card__label">전체 직원</div><div class="card__val">${totalEmp}명</div></div>
+    <div class="card"><div class="card__label">전체 사용일수</div><div class="card__val">${numFmt(totalUsed)}일</div></div>
+    <div class="card"><div class="card__label">잔여 부족 (3일 이하)</div><div class="card__val card__val--warn">${lowCount}명</div></div>
+    <div class="card"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}명</div></div>`;
+
+  if(selectedEmpId) renderDetail(selectedEmpId);
+}
+
+/* ═══════════════════════════════════════════════
+   Detail panel
+   ═══════════════════════════════════════════════ */
+function selectEmp(id){
+  selectedEmpId=id;
+  render();
+  document.getElementById('detailPanel').classList.add('active');
+  document.getElementById('detailPanel').scrollIntoView({behavior:'smooth'});
+}
+function closeDetail(){
+  selectedEmpId=null;
+  document.getElementById('detailPanel').classList.remove('active');
+  render();
+}
+
+function renderDetail(empId){
+  const emp=getEmployees().find(e=>e.id===empId);
+  if(!emp)return;
+  const r=calcEmployee(emp);
+  const used=loadUsed(empId);
+  const today=getToday();
+
+  document.getElementById('detailName').textContent=emp.name;
+
+  const hireDate=toDate(emp.hireDate);
+  const dd=Math.floor((today-hireDate)/86400000),dY=Math.floor(dd/365),dM=Math.floor((dd%365)/30);
+  document.getElementById('detailInfo').innerHTML=`
+    <span><strong>부서</strong> ${emp.dept}</span>
+    <span><strong>입사일</strong> ${emp.hireDate}</span>
+    <span><strong>생일</strong> ${emp.birthday?emp.birthday.replace('-','월 ')+'일':'미설정'}</span>
+    <span><strong>근속</strong> ${dY>0?dY+'년 ':''}${dM}개월</span>
+    <span><strong>현재</strong> ${r.yi}년차</span>`;
+
+  // Stats
+  document.getElementById('detailStats').innerHTML=`
+    <div class="stat"><div class="stat__label">${r.yi===1?'발생':'부여'}</div><div class="stat__val">${r.yi===1?numFmt(r.accrued):r.total}</div></div>
+    <div class="stat"><div class="stat__label">이월</div><div class="stat__val stat__val--carry">${r.carryover>0?'+'+numFmt(r.carryover):'-'}</div></div>
+    <div class="stat"><div class="stat__label">총 일수</div><div class="stat__val">${numFmt(r.totalWithCarry)}</div></div>
+    <div class="stat"><div class="stat__label">사용</div><div class="stat__val stat__val--used">${numFmt(r.used)}</div></div>
+    <div class="stat"><div class="stat__label">잔여</div><div class="stat__val stat__val--remain">${numFmt(r.remaining)}</div></div>`;
+
+  // Used list
+  if(used.length===0){
+    document.getElementById('detailUsedList').innerHTML='<tr><td colspan="5" style="color:var(--g400);padding:20px">등록된 사용 내역이 없습니다.</td></tr>';
+  }else{
+    document.getElementById('detailUsedList').innerHTML=used.map((u,i)=>{
+      const bc=isBirthday(u)?'badge--birthday':'badge--used';
+      const label=isBirthday(u)?emp.name+'(생일 휴가)':u.type;
+      const dv=isBirthday(u)?'별도':numFmt(dayVal(u));
+      return `<tr>
+        <td>${i+1}</td><td>${u.date}</td>
+        <td><span class="badge ${bc}">${label}</span></td>
+        <td>${dv}</td>
+        <td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${empId}','${u.date}','${u.type}')">삭제</button></td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   Add / Remove vacation
+   ═══════════════════════════════════════════════ */
+function addVacation(){
+  if(!selectedEmpId){alert('직원을 먼저 선택하세요.');return}
+  const emp=getEmployees().find(e=>e.id===selectedEmpId);
+  const dateVal=document.getElementById('addDate').value;
+  const typeVal=document.getElementById('addType').value;
+  if(!dateVal){alert('날짜를 선택하세요.');return}
+
+  const used=loadUsed(selectedEmpId);
+
+  if(typeVal==='생일연차'){
+    if(!emp.birthday){alert('해당 직원의 생일이 설정되지 않았습니다.');return}
+    const bMonth=parseInt(emp.birthday.split('-')[0],10);
+    const selMonth=parseInt(dateVal.split('-')[1],10);
+    if(bMonth!==selMonth){alert('생일연차는 생일 당월('+bMonth+'월)에만 사용할 수 있습니다.');return}
+    const selYear=dateVal.split('-')[0];
+    if(used.some(u=>u.type==='생일연차'&&u.date.startsWith(selYear))){alert(selYear+'년 생일연차는 이미 사용했습니다.');return}
+  }
+
+  if(used.find(u=>u.date===dateVal&&u.type===typeVal)){alert('이미 등록된 내역입니다.');return}
+
+  if(typeVal==='연차'&&used.some(u=>u.date===dateVal)){
+    if(!confirm(dateVal+'에 이미 반차가 등록되어 있습니다. 연차로 덮어쓰시겠습니까?'))return;
+    const f=used.filter(u=>u.date!==dateVal);
+    f.push({date:dateVal,type:typeVal});
+    f.sort((a,b)=>a.date.localeCompare(b.date));
+    saveUsed(selectedEmpId,f);
+  }else{
+    used.push({date:dateVal,type:typeVal});
+    used.sort((a,b)=>a.date.localeCompare(b.date));
+    saveUsed(selectedEmpId,used);
+  }
+  document.getElementById('addDate').value='';
+  render();
+}
+
+function removeVacation(empId,date,type){
+  if(!confirm(date+' '+type+'을(를) 삭제하시겠습니까?'))return;
+  const used=loadUsed(empId).filter(u=>!(u.date===date&&u.type===type));
+  saveUsed(empId,used);
+  render();
+}
+
+/* ═══════════════════════════════════════════════
+   Export all employees CSV
+   ═══════════════════════════════════════════════ */
+function exportAllCSV(){
+  const today=getToday();
+  let csv='\uFEFF성명,부서,입사일,년차,부여,이월,총일수,사용,잔여\n';
+  getEmployees().forEach(emp=>{
+    const r=calcEmployee(emp);
+    csv+=`${emp.name},${emp.dept},${emp.hireDate},${r.yi}년차,${r.yi===1?r.accrued:r.total},${r.carryover},${r.totalWithCarry},${numFmt(r.used)},${numFmt(r.remaining)}\n`;
+  });
+  csv+='\n\n상세 사용 내역\n성명,날짜,구분,차감일수\n';
+  getEmployees().forEach(emp=>{
+    const used=loadUsed(emp.id);
+    used.forEach(u=>{
+      csv+=`${emp.name},${u.date},${u.type},${isBirthday(u)?'별도':dayVal(u)}\n`;
+    });
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='연차관리_전체_'+fmtISO(today)+'.csv';
+  a.click();
+}
+
+/* ═══════════════════════════════════════════════
+   Employee management (CRUD)
+   ═══════════════════════════════════════════════ */
+function populateDeptSelect(selectedDept){
+  const sel=document.getElementById('empDept');
+  const depts=[];
+  getEmployees().forEach(e=>{if(e.dept&&!depts.includes(e.dept))depts.push(e.dept)});
+  sel.innerHTML=depts.map(d=>`<option value="${d}"${d===selectedDept?' selected':''}>${d}</option>`).join('');
+}
+function openEmpForm(){
+  document.getElementById('empEditId').value='';
+  document.getElementById('empName').value='';
+  populateDeptSelect('');
+  document.getElementById('empHireDate').value='';
+  document.getElementById('empBirthday').value='';
+  document.getElementById('empMgmtTitle').textContent='직원 등록';
+  document.getElementById('empMgmtPanel').style.display='block';
+  document.getElementById('empName').focus();
+}
+function editEmployee(id){
+  const emp=getEmployees().find(e=>e.id===id);
+  if(!emp)return;
+  document.getElementById('empEditId').value=id;
+  document.getElementById('empName').value=emp.name;
+  populateDeptSelect(emp.dept);
+  document.getElementById('empHireDate').value=emp.hireDate;
+  document.getElementById('empBirthday').value=emp.birthday||'';
+  document.getElementById('empMgmtTitle').textContent='직원 정보 수정 — '+emp.name;
+  document.getElementById('empMgmtPanel').style.display='block';
+  document.getElementById('empName').focus();
+}
+function closeEmpForm(){
+  document.getElementById('empMgmtPanel').style.display='none';
+}
+function saveEmployee(){
+  const editId=document.getElementById('empEditId').value;
+  const name=document.getElementById('empName').value.trim();
+  const dept=document.getElementById('empDept').value.trim();
+  const hireDate=document.getElementById('empHireDate').value;
+  const birthday=document.getElementById('empBirthday').value.trim();
+  if(!name){alert('성명을 입력하세요.');return}
+  if(!hireDate){alert('입사일을 입력하세요.');return}
+  const list=getEmployees();
+  if(editId){
+    const idx=list.findIndex(e=>e.id===editId);
+    if(idx>=0){list[idx]={...list[idx],name,dept,hireDate,birthday}}
+  }else{
+    const id='emp_'+Date.now();
+    list.push({id,name,dept,hireDate,birthday});
+  }
+  saveEmployees(list);
+  closeEmpForm();
+  render();
+}
+function resignEmployee(id){
+  const emp=getEmployees().find(e=>e.id===id);
+  if(!emp)return;
+  if(!confirm(emp.name+'을(를) 퇴사 처리하시겠습니까?'))return;
+  const list=getEmployees();
+  const idx=list.findIndex(e=>e.id===id);
+  if(idx>=0){list[idx].resigned=true;list[idx].resignedDate=fmtISO(getToday())}
+  saveEmployees(list);
+  if(selectedEmpId===id){selectedEmpId=null;document.getElementById('detailPanel').classList.remove('active')}
+  render();
+}
+function reinstateEmployee(id){
+  const emp=getEmployees().find(e=>e.id===id);
+  if(!emp)return;
+  if(!confirm(emp.name+'을(를) 복직 처리하시겠습니까?'))return;
+  const list=getEmployees();
+  const idx=list.findIndex(e=>e.id===id);
+  if(idx>=0){delete list[idx].resigned;delete list[idx].resignedDate}
+  saveEmployees(list);
+  render();
+}
+function deleteEmployee(id){
+  const emp=getEmployees().find(e=>e.id===id);
+  if(!emp)return;
+  if(!emp.resigned){alert('퇴사 처리 후 삭제할 수 있습니다.');return}
+  if(!confirm(emp.name+'을(를) 완전히 삭제하시겠습니까?\n해당 직원의 휴가 기록도 함께 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'))return;
+  saveEmployees(getEmployees().filter(e=>e.id!==id));
+  localStorage.removeItem(storageKey(id));
+  if(selectedEmpId===id){selectedEmpId=null;document.getElementById('detailPanel').classList.remove('active')}
+  render();
+}
+
+/* ═══════════════════════════════════════════════
+   초기 직원 데이터 (최초 1회 자동 등록)
+   ═══════════════════════════════════════════════ */
+function initDefaultEmployees(){
+  const existing=loadEmployees();
+  if(existing.length>0)return;
+  const defaults=[
+    // 도산팀 — 상담팀
+    {id:'e01',name:'안희공',dept:'상담팀',hireDate:'',birthday:''},
+    {id:'e02',name:'여현정',dept:'상담팀',hireDate:'',birthday:''},
+    {id:'e03',name:'손승웅',dept:'상담팀',hireDate:'',birthday:''},
+    {id:'e04',name:'김태희',dept:'상담팀',hireDate:'',birthday:''},
+    {id:'e05',name:'윤승빈',dept:'상담팀',hireDate:'',birthday:''},
+    // 도산팀 — 작성1팀
+    {id:'e06',name:'유예람',dept:'작성1팀',hireDate:'',birthday:''},
+    {id:'e07',name:'임동욱',dept:'작성1팀',hireDate:'',birthday:''},
+    // 도산팀 — 작성2팀
+    {id:'e08',name:'김태훈',dept:'작성2팀',hireDate:'',birthday:''},
+    {id:'e09',name:'유승아',dept:'작성2팀',hireDate:'',birthday:''},
+    {id:'e10',name:'정지인',dept:'작성2팀',hireDate:'',birthday:''},
+    {id:'e11',name:'김대영',dept:'작성2팀',hireDate:'',birthday:''},
+    // 도산팀 — 작성3팀
+    {id:'e12',name:'백운선',dept:'작성3팀',hireDate:'',birthday:''},
+    {id:'e13',name:'박하람',dept:'작성3팀',hireDate:'',birthday:''},
+    {id:'e14',name:'명지숙',dept:'작성3팀',hireDate:'',birthday:''},
+    {id:'e15',name:'김혜진',dept:'작성3팀',hireDate:'',birthday:''},
+    // 송무팀
+    {id:'e16',name:'김유진',dept:'송무팀',hireDate:'',birthday:''},
+    {id:'e17',name:'이진호',dept:'송무팀',hireDate:'',birthday:''},
+    {id:'e18',name:'구혜수',dept:'송무팀',hireDate:'',birthday:''},
+    {id:'e19',name:'문희원',dept:'송무팀',hireDate:'',birthday:''},
+    // 마케팅팀
+    {id:'e20',name:'한성종',dept:'마케팅팀',hireDate:'',birthday:''},
+    {id:'e21',name:'안희진',dept:'마케팅팀',hireDate:'',birthday:''},
+    {id:'e22',name:'이세림',dept:'마케팅팀',hireDate:'',birthday:''},
+    {id:'e23',name:'김예은',dept:'마케팅팀',hireDate:'',birthday:''},
+    {id:'e24',name:'성연경',dept:'마케팅팀',hireDate:'',birthday:''},
+    {id:'e25',name:'남진영',dept:'마케팅팀',hireDate:'',birthday:''},
+    // 회계팀
+    {id:'e26',name:'조윤미',dept:'회계팀',hireDate:'',birthday:''},
+  ];
+  saveEmployees(defaults);
+}
+
+/* Init */
+(function(){
+  // v2: 강제 재설정 (버전 올리면 다시 초기화)
+  const INIT_VER='v2';
+  if(localStorage.getItem('vac_admin_init')!==INIT_VER){
+    localStorage.removeItem(EMP_KEY);
+    localStorage.setItem('vac_admin_init',INIT_VER);
+  }
+  initDefaultEmployees();
+  render();
+})();
+</script>
+</body>
+</html>

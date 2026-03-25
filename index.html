@@ -324,6 +324,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 .badge--used{background:var(--krds-primary);color:var(--krds-white);border:1px solid var(--krds-primary-dark)}
 .badge--grant{background:var(--krds-primary-light);color:var(--krds-primary-dark);border:1px solid #CDD6CE}
 .badge--pending{background:var(--krds-g50);color:var(--krds-g400);border:1px solid var(--krds-g200)}
+.badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
 .badge--birthday{background:var(--krds-warning-bg);color:var(--krds-warning);border:1px solid #D4C8A0}
 .val-plus{color:var(--krds-primary);font-weight:800}
 .val-minus{color:var(--krds-error);font-weight:700}
@@ -872,19 +873,28 @@ function render(){
     return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--used">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(y1Bal)}</td></tr>`;
   }).join('');
 
-  function renderYear(elId,start,end,yi){
-    const days=getAnnualDays(yi),evts=[{date:new Date(start),type:'grant',label:yi+'년차 연차 '+days+'일 부여',delta:days}];
+  function renderYear(elId,start,end,yi,carryover){
+    carryover=carryover||0;
+    const days=getAnnualDays(yi),evts=[];
+    if(carryover>0)evts.push({date:new Date(start),type:'carryover',label:'전년도 이월 '+numFmt(carryover)+'일',delta:carryover});
+    evts.push({date:new Date(start),type:'grant',label:yi+'년차 연차 '+days+'일 부여',delta:days});
     used.filter(u=>!isBirthdayLeave(u)).forEach(u=>{const ud=toDate(u.date);if(ud>=start&&ud<end)evts.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
-    evts.sort((a,b)=>a.date-b.date||(a.type==='grant'?-1:1));let bal=0;
+    evts.sort((a,b)=>a.date-b.date||(a.type==='carryover'?-2:a.type==='grant'?-1:1));let bal=0;
     const rows=evts.map(e=>{bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
+    if(e.type==='carryover')return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--carryover">이월</span></td><td class="text-left">${e.label}</td><td class="val-plus">+${numFmt(e.delta)}</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
     if(e.type==='grant')return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--grant">부여</span></td><td class="text-left">${e.label}</td><td class="val-plus">+${e.delta}</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
     return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--used">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(bal)}</td></tr>`});
     if(!evts.some(e=>e.type==='used'))rows.push('<tr class="empty-row"><td colspan="6">사용 내역 없음</td></tr>');
     document.getElementById(elId).innerHTML=rows.join('');
+    const totalWithCarry=days+carryover;
     const ud=evts.filter(e=>e.type==='used').reduce((s,e)=>s+Math.abs(e.delta),0);
-    return{total:days,used:ud,remaining:days-ud};
+    return{total:days,carryover:carryover,totalWithCarry:totalWithCarry,used:ud,remaining:totalWithCarry-ud};
   }
-  const y2=renderYear('year2Detail',y1End,y2End,2),y3=renderYear('year3Detail',y2End,y3End,3);
+  const y1Remaining=11-y1All.filter(e=>e.type==='used').reduce((s,e)=>s+Math.abs(e.delta),0);
+  const y1Carryover=Math.max(0,y1Remaining);
+  const y2=renderYear('year2Detail',y1End,y2End,2,y1Carryover);
+  const y2Carryover=Math.max(0,y2.remaining);
+  const y3=renderYear('year3Detail',y2End,y3End,3,y2Carryover);
 
   function gaugeSVG(used,total,color){
     const sz=140,sw=12,r=(sz-sw)/2,circ=2*Math.PI*r,pct=total>0?Math.min(used/total,1):0,off=circ*(1-pct);
@@ -922,28 +932,30 @@ function render(){
     ${bdMini}</div>`;
   }else if(today<y2End){
     const gc=y2.remaining<=3?'#9B4D4D':y2.remaining<=7?'#A68B5B':'#4A5D4F';
-    dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y2.used,y2.total,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y2.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
+    dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y2.used,y2.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y2.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
     <div class="dash-summary"><div class="dash-summary__title">2년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y2.total}일</span></div>
+    ${y2.carryover>0?`<div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:#6B5B95">+${numFmt(y2.carryover)}일</span></div>`:''}
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y2.used)}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(y2.remaining)}일</span></div>
     <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${y2.total}일</div></div>
+    ${y2.carryover>0?`<div class="dash-mini"><div class="dash-mini__label">이월</div><div class="dash-mini__val" style="color:#6B5B95">+${numFmt(y2.carryover)}일</div></div>`:''}
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y2.used)}일</div></div>
-    <div class="dash-mini"><div class="dash-mini__label">누적 사용</div><div class="dash-mini__val">${numFmt(totalUsedDays)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y2End))}</div></div>
     ${bdMini}</div>`;
   }else{
     const gc=y3.remaining<=3?'#9B4D4D':y3.remaining<=7?'#A68B5B':'#4A5D4F';
-    dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y3.used,y3.total,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y3.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
+    dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y3.used,y3.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y3.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
     <div class="dash-summary"><div class="dash-summary__title">3년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y3.total}일</span></div>
+    ${y3.carryover>0?`<div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:#6B5B95">+${numFmt(y3.carryover)}일</span></div>`:''}
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y3.used)}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(y3.remaining)}일</span></div>
     <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
     <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${y3.total}일</div></div>
+    ${y3.carryover>0?`<div class="dash-mini"><div class="dash-mini__label">이월</div><div class="dash-mini__val" style="color:#6B5B95">+${numFmt(y3.carryover)}일</div></div>`:''}
     <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(y3.used)}일</div></div>
-    <div class="dash-mini"><div class="dash-mini__label">누적 사용</div><div class="dash-mini__val">${numFmt(totalUsedDays)}일</div></div>
     <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y3End))}</div></div>
     ${bdMini}</div>`;
   }
