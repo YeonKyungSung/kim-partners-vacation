@@ -508,7 +508,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 
   <section class="section section--collapsible" id="year1Section">
     <div class="section__head section__toggle" onclick="toggleSection('year1Section')">
-      <h2 class="section__title">1년차 월차 발생 / 사용 내역</h2>
+      <h2 class="section__title" id="year1Title">1년 미만 월차 발생 / 사용 내역</h2>
       <span style="display:flex;align-items:center;gap:8px"><span class="section__meta" id="year1Period"></span><span class="section__arrow">▾</span></span>
     </div>
     <div class="section__body">
@@ -521,7 +521,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 
   <section class="section section--collapsible" id="year2Section">
     <div class="section__head section__toggle" onclick="toggleSection('year2Section')">
-      <h2 class="section__title">2년차 연차 발생 / 사용 내역</h2>
+      <h2 class="section__title" id="year2Title">연차 발생 / 사용 내역</h2>
       <span style="display:flex;align-items:center;gap:8px"><span class="section__meta" id="year2Period"></span><span class="section__arrow">▾</span></span>
     </div>
     <div class="section__body">
@@ -534,7 +534,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 
   <section class="section section--collapsible" id="year3Section">
     <div class="section__head section__toggle" onclick="toggleSection('year3Section')">
-      <h2 class="section__title">3년차 연차 발생 / 사용 내역</h2>
+      <h2 class="section__title" id="year3Title">연차 발생 / 사용 내역</h2>
       <span style="display:flex;align-items:center;gap:8px"><span class="section__meta" id="year3Period"></span><span class="section__arrow">▾</span></span>
     </div>
     <div class="section__body">
@@ -925,7 +925,7 @@ function render(){
   info.push(`<div class="info-bar__item"><strong>입사일</strong>${fmt(hireDate)}</div>`);
   if(settings.birthday)info.push(`<div class="info-bar__item"><strong>생일</strong>${settings.birthday.replace('-','월 ')}일</div>`);
   const dd=Math.floor((today-hireDate)/86400000),dY=Math.floor(dd/365),dM=Math.floor((dd%365)/30);
-  info.push(`<div class="info-bar__item"><strong>근속</strong>${dY>0?dY+'년 ':''}${dM}개월</div>`);
+  info.push(`<div class="info-bar__item"><strong>근속</strong>${dY>0?dY+'년 ':''}${dM}개월 (${dY>0?dY+'년 이상':'1년 미만'})</div>`);
   document.getElementById('employeeBar').innerHTML=info.join('');
 
   const y1End=new Date(hireDate);y1End.setFullYear(y1End.getFullYear()+1);
@@ -936,6 +936,11 @@ function render(){
   document.getElementById('year1Period').textContent=fmt(hireDate)+' ~ '+fmt(dayBefore(y1End));
   document.getElementById('year2Period').textContent=fmt(y1End)+' ~ '+fmt(dayBefore(y2End));
   document.getElementById('year3Period').textContent=fmt(y2End)+' ~ '+fmt(dayBefore(y3End));
+
+  // 근속 기준 년차 라벨 (1년 미만=월차, N년 이상=N년차)
+  document.getElementById('year1Title').textContent='1년 미만 월차 발생 / 사용 내역';
+  document.getElementById('year2Title').textContent='1년 이상 연차 발생 / 사용 내역';
+  document.getElementById('year3Title').textContent='2년 이상 연차 발생 / 사용 내역';
 
   const regularUsed=used.filter(u=>!isBirthdayLeave(u));
   const birthdayUsed=used.filter(u=>isBirthdayLeave(u));
@@ -966,7 +971,7 @@ function render(){
     carryover=carryover||0;
     const days=getAnnualDays(yi),evts=[];
     if(carryover!==0)evts.push({date:new Date(start),type:'carryover',label:'전년도 이월 '+(carryover<0?'':'')+numFmt(carryover)+'일',delta:carryover});
-    evts.push({date:new Date(start),type:'grant',label:yi+'년차 연차 '+days+'일 부여',delta:days});
+    evts.push({date:new Date(start),type:'grant',label:(yi-1)+'년 이상 연차 '+days+'일 부여',delta:days});
     used.filter(u=>!isBirthdayLeave(u)).forEach(u=>{const ud=toDate(u.date);if(ud>=start&&ud<end)evts.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
     evts.sort((a,b)=>a.date-b.date||(a.type==='carryover'?-2:a.type==='grant'?-1:1));let bal=0;
     const rows=evts.map(e=>{bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
@@ -1011,7 +1016,7 @@ function render(){
     const rem=y1Accrued-y1Used,pend=11-y1Accrued;
     const gc=rem<=1?THEMES[selectedTheme].gaugeDanger:rem<=3?THEMES[selectedTheme].gaugeWarn:THEMES[selectedTheme].gauge;
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y1Used,y1Accrued,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(rem)}</span><span class="gauge__unit">잔여일수</span></div></div>
-    <div class="dash-summary"><div class="dash-summary__title">1년차 연차 현황</div>
+    <div class="dash-summary"><div class="dash-summary__title">1년 미만 월차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">발생 (현재까지)</span><span class="dash-summary__val dash-summary__val--primary">${y1Accrued}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y1Used)}일</span></div>
     <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(rem)}일</span></div>
@@ -1024,7 +1029,7 @@ function render(){
   }else if(today<y2End){
     const gc=y2.remaining<=3?THEMES[selectedTheme].gaugeDanger:y2.remaining<=7?THEMES[selectedTheme].gaugeWarn:THEMES[selectedTheme].gauge;
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y2.used,y2.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y2.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
-    <div class="dash-summary"><div class="dash-summary__title">2년차 연차 현황</div>
+    <div class="dash-summary"><div class="dash-summary__title">1년 이상 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y2.total}일</span></div>
     ${y2.carryover!==0?`<div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:${y2.carryover<0?'var(--krds-error)':'#6B5B95'}">${y2.carryover>0?'+':''}${numFmt(y2.carryover)}일</span></div>`:''}
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y2.used)}일</span></div>
@@ -1038,7 +1043,7 @@ function render(){
   }else{
     const gc=y3.remaining<=3?THEMES[selectedTheme].gaugeDanger:y3.remaining<=7?THEMES[selectedTheme].gaugeWarn:THEMES[selectedTheme].gauge;
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y3.used,y3.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y3.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
-    <div class="dash-summary"><div class="dash-summary__title">3년차 연차 현황</div>
+    <div class="dash-summary"><div class="dash-summary__title">2년 이상 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y3.total}일</span></div>
     ${y3.carryover!==0?`<div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:${y3.carryover<0?'var(--krds-error)':'#6B5B95'}">${y3.carryover>0?'+':''}${numFmt(y3.carryover)}일</span></div>`:''}
     <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(y3.used)}일</span></div>
