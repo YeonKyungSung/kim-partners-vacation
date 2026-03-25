@@ -11,36 +11,36 @@
    KRDS Design Tokens
    ═══════════════════════════════════════════════ */
 :root {
-  /* Aesop — Sage Green + Cream + Charcoal */
-  --krds-primary: #4A5D4F;
-  --krds-primary-dark: #3B4B3F;
-  --krds-primary-deep: #2C3830;
-  --krds-primary-light: #E8EDE9;
-  --krds-primary-50: #F3F5F3;
+  /* Deep Indigo — 사무용 */
+  --krds-primary: #4A4E6A;
+  --krds-primary-dark: #3B3F58;
+  --krds-primary-deep: #2C2F42;
+  --krds-primary-light: #E8E9F0;
+  --krds-primary-50: #F3F3F7;
 
-  --krds-success: #5A7A5E;
-  --krds-success-bg: #EDF3EE;
-  --krds-warning: #A68B5B;
-  --krds-warning-bg: #F8F3EB;
-  --krds-error: #9B4D4D;
-  --krds-error-bg: #F5EDED;
-  --krds-info: #4A5D4F;
-  --krds-info-bg: #E8EDE9;
-  --krds-amber: #A68B5B;
+  --krds-success: #4A7A6B;
+  --krds-success-bg: #EDF5F1;
+  --krds-warning: #8B7A4A;
+  --krds-warning-bg: #F5F2E8;
+  --krds-error: #8B5A5A;
+  --krds-error-bg: #F5EEEE;
+  --krds-info: #4A4E6A;
+  --krds-info-bg: #E8E9F0;
+  --krds-amber: #8B7A4A;
 
   --krds-white: #FFFFFF;
-  --krds-bg: #F5F2ED;
-  --krds-surface: #FDFCFA;
-  --krds-g50: #F8F6F2;
-  --krds-g100: #EFECE6;
-  --krds-g200: #E0DCD4;
-  --krds-g300: #B5AFA5;
-  --krds-g400: #8A847B;
-  --krds-g500: #6B665E;
-  --krds-g600: #514D47;
-  --krds-g700: #3A3733;
-  --krds-g800: #262421;
-  --krds-g900: #141312;
+  --krds-bg: #F0F1F4;
+  --krds-surface: #FAFAFE;
+  --krds-g50: #F5F5F8;
+  --krds-g100: #ECECF0;
+  --krds-g200: #DDDDE4;
+  --krds-g300: #B0B0BC;
+  --krds-g400: #858594;
+  --krds-g500: #62627A;
+  --krds-g600: #4A4A5E;
+  --krds-g700: #353546;
+  --krds-g800: #232333;
+  --krds-g900: #141420;
 
   --krds-font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
   --krds-mono: 'D2Coding', 'Consolas', monospace;
@@ -49,7 +49,7 @@
   --krds-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
   --krds-shadow-md: 0 4px 12px rgba(0,0,0,.08);
   --krds-shadow-lg: 0 8px 24px rgba(0,0,0,.12);
-  --krds-focus: 0 0 0 3px rgba(74,93,79,.18);
+  --krds-focus: 0 0 0 3px rgba(74,78,106,.18);
   --krds-transition: 150ms ease-in-out;
 }
 
@@ -188,7 +188,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
   border-radius:2px;margin-right:3px;vertical-align:middle;
 }
 .cal-legend__dot--used{background:var(--krds-primary)}
-.cal-legend__dot--half{background:var(--krds-primary-light);border:1px solid #CDD6CE}
+.cal-legend__dot--half{background:var(--krds-primary-light);border:1px solid #C5C6D4}
 .cal-legend__dot--today{background:var(--krds-error)}
 .dash-top{
   display:flex;align-items:center;gap:32px;
@@ -320,9 +320,9 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
   display:inline-block;padding:3px 10px;border-radius:2px;
   font-size:12px;font-weight:700;letter-spacing:.02em;
 }
-.badge--accrual{background:var(--krds-primary-light);color:var(--krds-primary);border:1px solid #CDD6CE}
+.badge--accrual{background:var(--krds-primary-light);color:var(--krds-primary);border:1px solid #C5C6D4}
 .badge--used{background:var(--krds-primary);color:var(--krds-white);border:1px solid var(--krds-primary-dark)}
-.badge--grant{background:var(--krds-primary-light);color:var(--krds-primary-dark);border:1px solid #CDD6CE}
+.badge--grant{background:var(--krds-primary-light);color:var(--krds-primary-dark);border:1px solid #C5C6D4}
 .badge--pending{background:var(--krds-g50);color:var(--krds-g400);border:1px solid var(--krds-g200)}
 .badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
 .badge--birthday{background:var(--krds-warning-bg);color:var(--krds-warning);border:1px solid #D4C8A0}
@@ -918,7 +918,7 @@ function render(){
   let dash='';
   if(today<y1End){
     const rem=y1Accrued-y1Used,pend=11-y1Accrued;
-    const gc=rem<=1?'#9B4D4D':rem<=3?'#A68B5B':'#4A5D4F';
+    const gc=rem<=1?'#8B5A5A':rem<=3?'#8B7A4A':'#4A4E6A';
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y1Used,y1Accrued,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(rem)}</span><span class="gauge__unit">잔여일수</span></div></div>
     <div class="dash-summary"><div class="dash-summary__title">1년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">발생 (현재까지)</span><span class="dash-summary__val dash-summary__val--primary">${y1Accrued}일</span></div>
@@ -931,7 +931,7 @@ function render(){
     <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y1End))}</div></div>
     ${bdMini}</div>`;
   }else if(today<y2End){
-    const gc=y2.remaining<=3?'#9B4D4D':y2.remaining<=7?'#A68B5B':'#4A5D4F';
+    const gc=y2.remaining<=3?'#8B5A5A':y2.remaining<=7?'#8B7A4A':'#4A4E6A';
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y2.used,y2.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y2.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
     <div class="dash-summary"><div class="dash-summary__title">2년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y2.total}일</span></div>
@@ -945,7 +945,7 @@ function render(){
     <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(y2End))}</div></div>
     ${bdMini}</div>`;
   }else{
-    const gc=y3.remaining<=3?'#9B4D4D':y3.remaining<=7?'#A68B5B':'#4A5D4F';
+    const gc=y3.remaining<=3?'#8B5A5A':y3.remaining<=7?'#8B7A4A':'#4A4E6A';
     dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(y3.used,y3.totalWithCarry,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(y3.remaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
     <div class="dash-summary"><div class="dash-summary__title">3년차 연차 현황</div>
     <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${y3.total}일</span></div>
