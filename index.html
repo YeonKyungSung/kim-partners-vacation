@@ -1052,16 +1052,10 @@ function render(){
   }
   document.getElementById('dashboard').innerHTML=dash;
 
-  // 현재 년차만 펼치기, 나머지 접기
-  const sections=['year1Section','year2Section','year3Section'];
-  let currentSection='year1Section';
-  if(today>=y2End) currentSection='year3Section';
-  else if(today>=y1End) currentSection='year2Section';
-  sections.forEach(id=>{
-    const el=document.getElementById(id);
-    if(id===currentSection) el.classList.remove('section--collapsed');
-    else el.classList.add('section--collapsed');
-  });
+  // 현재 년차만 표시, 나머지 숨김
+  document.getElementById('year1Section').style.display=(today<y1End)?'':'none';
+  document.getElementById('year2Section').style.display=(today>=y1End&&today<y2End)?'':'none';
+  document.getElementById('year3Section').style.display=(today>=y2End)?'':'none';
 
   renderCal();
 }
