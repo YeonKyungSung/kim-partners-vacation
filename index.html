@@ -851,13 +851,23 @@ function renderCal(){
     // 링크 모드: 항상 링크 데이터로 설정 덮어쓰기 (테마는 유지)
     const existing=load(KEYS.settings,DEFAULT_SETTINGS);
     save(KEYS.settings,{...DEFAULT_SETTINGS,theme:existing.theme||'sage'});
-    // 링크 모드: 내장 데이터 항상 적용 (사용자가 추가한 건은 내장 데이터에 없는 날짜만 유지)
-    const stored=load(KEYS.used,[]);
-    const embeddedDates=new Set(DEFAULT_USED.map(u=>u.date+'|'+u.type));
-    const userAdded=stored.filter(u=>!embeddedDates.has(u.date+'|'+u.type)&&!DEFAULT_USED.some(d=>d.date===u.date&&d.type===u.type));
-    const hireDateStr=LINK_DATA.hireDate;
-    const merged=DEFAULT_USED.concat(userAdded).filter(u=>u.date>=hireDateStr).sort((a,b)=>a.date.localeCompare(b.date));
-    save(KEYS.used,merged);
+    // 링크 모드: 내장 데이터 버전 관리 — 버전 변경 시 캐시 리셋
+    const DATA_VER='v3';
+    const verKey='vac_data_ver_'+LINK_DATA.name;
+    const storedVer=localStorage.getItem(verKey);
+    if(storedVer!==DATA_VER){
+      // 데이터 업데이트됨 — 내장 데이터로 리셋 (사용자 추가분은 초기화)
+      save(KEYS.used,DEFAULT_USED);
+      localStorage.setItem(verKey,DATA_VER);
+    }else{
+      // 버전 동일 — 사용자 추가분 유지
+      const stored=load(KEYS.used,[]);
+      const embeddedDates=new Set(DEFAULT_USED.map(u=>u.date+'|'+u.type));
+      const userAdded=stored.filter(u=>!embeddedDates.has(u.date+'|'+u.type));
+      const hireDateStr=LINK_DATA.hireDate;
+      const merged=DEFAULT_USED.concat(userAdded).filter(u=>u.date>=hireDateStr).sort((a,b)=>a.date.localeCompare(b.date));
+      save(KEYS.used,merged);
+    }
   }else{
     if(!localStorage.getItem(KEYS.settings))save(KEYS.settings,DEFAULT_SETTINGS);
     if(!localStorage.getItem(KEYS.used))save(KEYS.used,DEFAULT_USED);
