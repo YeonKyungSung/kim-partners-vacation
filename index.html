@@ -982,9 +982,9 @@ function render(){
   // 이월: 2025-01-01 이후 시작하는 연차년도부터만 적용
   const CARRYOVER_START=new Date(2025,0,1);
   const y1Remaining=11-y1All.filter(e=>e.type==='used').reduce((s,e)=>s+Math.abs(e.delta),0);
-  const y1Carryover=(y1End>=CARRYOVER_START)?y1Remaining:0;
+  const y1Carryover=(y1End>CARRYOVER_START)?y1Remaining:0;
   const y2=renderYear('year2Detail',y1End,y2End,2,y1Carryover);
-  const y2Carryover=(y2End>=CARRYOVER_START)?y2.remaining:0;
+  const y2Carryover=(y2End>CARRYOVER_START)?y2.remaining:0;
   const y3=renderYear('year3Detail',y2End,y3End,3,y2Carryover);
 
   function gaugeSVG(used,total,color){

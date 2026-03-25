@@ -288,7 +288,7 @@ function calcEmployee(emp){
   const CARRYOVER_START=new Date(2025,0,1);
   const y1End=yearEnds[0];
   const y1Used=regularUsed.filter(u=>{const d=toDate(u.date);return d>=hireDate&&d<y1End}).reduce((s,u)=>s+dayVal(u),0);
-  carryover=(y1End>=CARRYOVER_START)?(11-y1Used):0;
+  carryover=(y1End>CARRYOVER_START)?(11-y1Used):0;
 
   // Year 2+ carryover chain
   for(let y=2;y<yi;y++){
@@ -296,7 +296,7 @@ function calcEmployee(emp){
     const days=getAnnualDays(y);
     const totalWithCarry=days+carryover;
     const yUsed=regularUsed.filter(u=>{const d=toDate(u.date);return d>=start&&d<end}).reduce((s,u)=>s+dayVal(u),0);
-    carryover=(yearEnds[y-1]>=CARRYOVER_START)?(totalWithCarry-yUsed):0;
+    carryover=(yearEnds[y-1]>CARRYOVER_START)?(totalWithCarry-yUsed):0;
   }
 
   // Current year
