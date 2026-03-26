@@ -8,45 +8,45 @@
 <style>
 :root {
   /* KRDS-inspired tokens (sage green adaptation) */
-  --primary: #3A6B4E;
-  --primary-dark: #2D5440;
-  --primary-deep: #1E3A2C;
-  --primary-light: #EAF0EC;
-  --primary-surface: #F4F7F5;
-  --bg: #F4F5F6;
-  --surface: #FFFFFF;
-  --g0: #FFFFFF;
-  --g5: #F4F5F6;
-  --g10: #E6E8EA;
-  --g20: #CDD1D5;
-  --g30: #B1B8BE;
-  --g40: #8A949E;
-  --g50: #6D7882;
-  --g60: #58616A;
-  --g70: #464C53;
-  --g80: #33363D;
-  --g90: #1E2124;
-  --success: #228738;
-  --success-surface: #EAF6EC;
-  --warning: #9E6A00;
-  --warning-surface: #FFF3DB;
-  --warning-base: #FFB114;
-  --error: #DE3412;
-  --error-surface: #FDEFEC;
-  --info: #0B78CB;
-  --info-surface: #E7F4FE;
-  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --shadow-1: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-2: 0 4px 12px rgba(0,0,0,.1);
+  --krds-primary: #3A6B4E;
+  --krds-primary-dark: #2D5440;
+  --krds-primary-deep: #1E3A2C;
+  --krds-primary-light: #EAF0EC;
+  --krds-primary-50: #F4F7F5;
+  --krds-bg: #F4F5F6;
+  --krds-surface: #FFFFFF;
+  --krds-white: #FFFFFF;
+  --krds-g50: #F4F5F6;
+  --krds-g100: #E6E8EA;
+  --krds-g200: #CDD1D5;
+  --krds-g300: #B1B8BE;
+  --krds-g400: #8A949E;
+  --krds-g500: #6D7882;
+  --krds-g600: #58616A;
+  --krds-g700: #464C53;
+  --krds-g800: #33363D;
+  --krds-g900: #1E2124;
+  --krds-success: #228738;
+  --krds-success-bg: #EAF6EC;
+  --krds-warning: #9E6A00;
+  --krds-warning-bg: #FFF3DB;
+  --krds-warning-base: #FFB114;
+  --krds-error: #DE3412;
+  --krds-error-bg: #FDEFEC;
+  --krds-info: #0B78CB;
+  --krds-info-bg: #E7F4FE;
+  --krds-font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --krds-radius: 4px;
+  --krds-radius-md: 6px;
+  --krds-radius-lg: 10px;
+  --krds-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --krds-shadow-md: 0 4px 12px rgba(0,0,0,.1);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font);font-size:15px;font-weight:400;line-height:1.5;color:var(--g90);background:var(--bg)}
+body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5;color:var(--krds-g900);background:var(--krds-bg)}
 
 /* Header */
-.header{background:var(--primary-deep);padding:14px 24px;color:#fff}
+.header{background:var(--krds-primary-deep);padding:14px 24px;color:#fff}
 .header__inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
 .header__title{font-size:19px;font-weight:700;letter-spacing:-.02em}
 .header__date{font-size:13px;color:rgba(255,255,255,.65)}
@@ -56,59 +56,58 @@ body{font-family:var(--font);font-size:15px;font-weight:400;line-height:1.5;colo
 .dashboard{display:grid;grid-template-columns:260px 1fr;gap:24px;margin-bottom:24px}
 .summary-cards{display:flex;flex-direction:column;gap:16px}
 .summary-cards .card{flex:1}
-.card{background:var(--surface);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--g10);position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--primary);border-radius:4px 0 0 4px}
-.card--err::before{background:var(--error)}
-.card__label{font-size:13px;font-weight:400;color:var(--g50);margin-bottom:8px;line-height:1.4}
-.card__val{font-size:36px;font-weight:700;color:var(--primary);line-height:1.2}
-.card__val--err{color:var(--error)}
-.card__sub{font-size:13px;color:var(--g40);margin-top:8px;line-height:1.4}
+.card{background:var(--krds-surface);border-radius:var(--krds-radius-lg);padding:24px;border:1px solid var(--krds-g100);display:flex;flex-direction:column;justify-content:center}
+.card--err{border-color:var(--krds-error-bg);background:var(--krds-error-bg)}
+.card__label{font-size:13px;font-weight:700;color:var(--krds-g500);margin-bottom:8px;line-height:1.4;letter-spacing:.02em}
+.card__val{font-size:36px;font-weight:700;color:var(--krds-primary);line-height:1.2}
+.card__val--err{color:var(--krds-error)}
+.card__sub{font-size:13px;color:var(--krds-g400);margin-top:8px;line-height:1.4}
 
 /* Mini Calendar */
-.mini-cal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--g10);padding:20px 24px}
+.mini-cal{background:var(--krds-surface);border-radius:var(--krds-radius-lg);border:1px solid var(--krds-g100);padding:20px 24px}
 .mini-cal__header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.mini-cal__title{font-size:17px;font-weight:700;color:var(--g90)}
+.mini-cal__title{font-size:17px;font-weight:700;color:var(--krds-g900)}
 .mini-cal__nav{display:flex;gap:4px}
-.mini-cal__nav button{background:var(--g5);border:1px solid var(--g10);border-radius:var(--radius-md);width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--g50);display:flex;align-items:center;justify-content:center;transition:background .15s}
-.mini-cal__nav button:hover{background:var(--g10)}
+.mini-cal__nav button{background:var(--krds-g50);border:1px solid var(--krds-g100);border-radius:var(--krds-radius-md);width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--krds-g500);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.mini-cal__nav button:hover{background:var(--krds-g100)}
 .mini-cal__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
-.mini-cal__dow{font-size:11px;font-weight:700;color:var(--g40);padding:6px 0}
-.mini-cal__dow--sun{color:var(--error)}
-.mini-cal__day{font-size:13px;padding:4px 2px;border-radius:var(--radius-sm);position:relative;min-height:40px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.mini-cal__day--today{background:var(--primary);color:#fff;font-weight:700;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 2px}
-.mini-cal__day--other{color:var(--g30)}
-.mini-cal__day--sun .mini-cal__num{color:var(--error)}
-.mini-cal__day--sat .mini-cal__num{color:var(--info)}
+.mini-cal__dow{font-size:11px;font-weight:700;color:var(--krds-g400);padding:6px 0}
+.mini-cal__dow--sun{color:var(--krds-error)}
+.mini-cal__day{font-size:13px;padding:4px 2px;border-radius:var(--krds-radius);position:relative;min-height:40px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.mini-cal__day--today{background:var(--krds-primary);color:#fff;font-weight:700;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 2px}
+.mini-cal__day--other{color:var(--krds-g300)}
+.mini-cal__day--sun .mini-cal__num{color:var(--krds-error)}
+.mini-cal__day--sat .mini-cal__num{color:var(--krds-info)}
 .mini-cal__num{font-size:13px;line-height:1}
-.mini-cal__count{background:var(--primary);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:default;line-height:1}
-.mini-cal__legend{display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--g10)}
-.mini-cal__legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--g50)}
+.mini-cal__count{background:var(--krds-primary);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:default;line-height:1}
+.mini-cal__legend{display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--krds-g100)}
+.mini-cal__legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--krds-g500)}
 
 /* Table — KRDS: text left, numbers right */
-.panel{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--g10);overflow:hidden;margin-bottom:24px}
-.panel__head{padding:16px 24px;border-bottom:1px solid var(--g10);display:flex;justify-content:space-between;align-items:center}
+.panel{background:var(--krds-surface);border-radius:var(--krds-radius-lg);border:1px solid var(--krds-g100);overflow:hidden;margin-bottom:24px}
+.panel__head{padding:16px 24px;border-bottom:1px solid var(--krds-g100);display:flex;justify-content:space-between;align-items:center}
 .panel__title{font-size:17px;font-weight:700}
 .tbl{width:100%;border-collapse:collapse}
-.tbl th{background:var(--g5);color:var(--g70);font-size:13px;font-weight:700;padding:12px 16px;text-align:center;white-space:nowrap;border-bottom:2px solid var(--g20)}
-.tbl td{padding:12px 16px;text-align:center;border-bottom:1px solid var(--g10);font-size:13px;color:var(--g80)}
-.tbl tr:hover{background:var(--primary-surface)}
-.tbl tr.selected{background:var(--primary-light)}
+.tbl th{background:var(--krds-g50);color:var(--krds-g700);font-size:13px;font-weight:700;padding:12px 16px;text-align:center;white-space:nowrap;border-bottom:2px solid var(--krds-g200)}
+.tbl td{padding:12px 16px;text-align:center;border-bottom:1px solid var(--krds-g100);font-size:13px;color:var(--krds-g800)}
+.tbl tr:hover{background:var(--krds-primary-50)}
+.tbl tr.selected{background:var(--krds-primary-light)}
 .tbl tr{cursor:pointer;transition:background .1s}
-.tbl td.dept-cell{background:var(--g5);font-weight:700;color:var(--primary-dark);vertical-align:middle;border-right:3px solid var(--primary);font-size:13px}
-.tbl tr.dept-first td{border-top:2px solid var(--g20)}
+.tbl td.dept-cell{background:var(--krds-g50);font-weight:700;color:var(--krds-primary-dark);vertical-align:middle;border-right:3px solid var(--krds-primary);font-size:13px}
+.tbl tr.dept-first td{border-top:2px solid var(--krds-g200)}
 .text-left{text-align:left}
 
 /* Badges — KRDS: radius-sm 4px */
-.badge{display:inline-block;padding:3px 10px;border-radius:var(--radius-sm);font-size:11px;font-weight:700}
-.badge--ok{background:var(--success-surface);color:var(--success);border:1px solid #C0D9C4}
-.badge--warn{background:var(--warning-surface);color:var(--warning);border:1px solid #E8D9A8}
-.badge--danger{background:var(--error-surface);color:var(--error);border:1px solid #F5C4BA}
-.badge--used{background:var(--primary);color:#fff;border:1px solid var(--primary-dark)}
-.badge--half{background:var(--primary-light);color:var(--primary);border:1px solid #C0D4C2}
-.badge--birthday{background:var(--warning-surface);color:var(--warning);border:1px solid #E8D9A8}
+.badge{display:inline-block;padding:3px 10px;border-radius:var(--krds-radius);font-size:11px;font-weight:700}
+.badge--ok{background:var(--krds-success-bg);color:var(--krds-success);border:1px solid #C0D9C4}
+.badge--warn{background:var(--krds-warning-bg);color:var(--krds-warning);border:1px solid #E8D9A8}
+.badge--danger{background:var(--krds-error-bg);color:var(--krds-error);border:1px solid #F5C4BA}
+.badge--used{background:var(--krds-primary);color:#fff;border:1px solid var(--krds-primary-dark)}
+.badge--half{background:var(--krds-primary-light);color:var(--krds-primary);border:1px solid #C0D4C2}
+.badge--birthday{background:var(--krds-warning-bg);color:var(--krds-warning);border:1px solid #E8D9A8}
 .badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
-.badge--resigned{background:var(--g5);color:var(--g30);border:1px solid var(--g20)}
-.tbl tr.resigned-row td{color:var(--g30);background:var(--g5)}
+.badge--resigned{background:var(--krds-g50);color:var(--krds-g300);border:1px solid var(--krds-g200)}
+.tbl tr.resigned-row td{color:var(--krds-g300);background:var(--krds-g50)}
 
 /* Detail panel */
 .detail{display:none}
@@ -116,38 +115,38 @@ body{font-family:var(--font);font-size:15px;font-weight:400;line-height:1.5;colo
 .detail__header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .detail__name{font-size:19px;font-weight:700}
 .detail__info{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-.detail__info span{font-size:13px;color:var(--g50)}
-.detail__info strong{color:var(--g90)}
+.detail__info span{font-size:13px;color:var(--krds-g500)}
+.detail__info strong{color:var(--krds-g900)}
 
 /* Stats row */
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:16px}
-.stat{background:var(--g5);border-radius:var(--radius-md);padding:16px;text-align:center;border:1px solid var(--g10)}
-.stat__label{font-size:11px;color:var(--g40);margin-bottom:4px}
-.stat__val{font-size:24px;font-weight:700;color:var(--primary)}
+.stat{background:var(--krds-g50);border-radius:var(--krds-radius-md);padding:16px;text-align:center;border:1px solid var(--krds-g100)}
+.stat__label{font-size:11px;color:var(--krds-g400);margin-bottom:4px}
+.stat__val{font-size:24px;font-weight:700;color:var(--krds-primary)}
 .stat__val--carry{color:#6B5B95}
-.stat__val--used{color:var(--error)}
-.stat__val--remain{color:var(--success)}
+.stat__val--used{color:var(--krds-error)}
+.stat__val--remain{color:var(--krds-success)}
 
 /* Form — KRDS: radius-md 6px for inputs/buttons */
 .form-row{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.input{padding:8px 12px;border:1px solid var(--g20);border-radius:var(--radius-md);font-family:var(--font);font-size:15px;background:#fff;color:var(--g90);transition:border-color .15s}
-.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(58,107,78,.12)}
+.input{padding:8px 12px;border:1px solid var(--krds-g200);border-radius:var(--krds-radius-md);font-family:var(--krds-font);font-size:15px;background:#fff;color:var(--krds-g900);transition:border-color .15s}
+.input:focus{outline:none;border-color:var(--krds-primary);box-shadow:0 0 0 3px rgba(58,107,78,.12)}
 select.input{min-width:120px}
-.btn{padding:8px 16px;border:none;border-radius:var(--radius-md);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all 150ms}
-.btn--primary{background:var(--primary);color:#fff}
-.btn--primary:hover{background:var(--primary-dark)}
-.btn--secondary{background:var(--g5);color:var(--g70);border:1px solid var(--g20)}
-.btn--secondary:hover{background:var(--g10)}
-.btn--danger{background:var(--error);color:#fff}
+.btn{padding:8px 16px;border:none;border-radius:var(--krds-radius-md);font-family:var(--krds-font);font-size:13px;font-weight:700;cursor:pointer;transition:all 150ms}
+.btn--primary{background:var(--krds-primary);color:#fff}
+.btn--primary:hover{background:var(--krds-primary-dark)}
+.btn--secondary{background:var(--krds-g50);color:var(--krds-g700);border:1px solid var(--krds-g200)}
+.btn--secondary:hover{background:var(--krds-g100)}
+.btn--danger{background:var(--krds-error);color:#fff}
 .btn--danger:hover{background:#BD2C0F}
 .btn--sm{padding:5px 12px;font-size:12px}
-.btn--export{background:var(--primary-light);color:var(--primary);border:1px solid #C0D4C2}
+.btn--export{background:var(--krds-primary-light);color:var(--krds-primary);border:1px solid #C0D4C2}
 .btn--export:hover{background:#D8E6DA}
 
 /* Detail table */
 .detail-tbl{width:100%;border-collapse:collapse}
-.detail-tbl th{background:var(--g5);color:var(--g70);font-size:12px;font-weight:700;padding:10px 12px;text-align:center;border-bottom:2px solid var(--g20)}
-.detail-tbl td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--g10);font-size:13px}
+.detail-tbl th{background:var(--krds-g50);color:var(--krds-g700);font-size:12px;font-weight:700;padding:10px 12px;text-align:center;border-bottom:2px solid var(--krds-g200)}
+.detail-tbl td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--krds-g100);font-size:13px}
 
 /* Responsive — KRDS breakpoints */
 @media(max-width:1024px){
@@ -230,10 +229,10 @@ select.input{min-width:120px}
     <div style="padding:18px">
       <input type="hidden" id="empEditId"/>
       <div class="form-row">
-        <div style="flex:1"><label style="font-size:12px;color:var(--g50)">성명</label><input type="text" id="empName" class="input" style="width:100%" placeholder="홍길동"/></div>
-        <div style="flex:1"><label style="font-size:12px;color:var(--g50)">부서</label><select id="empDept" class="input" style="width:100%"></select></div>
-        <div style="flex:1"><label style="font-size:12px;color:var(--g50)">입사일</label><input type="date" id="empHireDate" class="input" style="width:100%"/></div>
-        <div style="flex:1"><label style="font-size:12px;color:var(--g50)">생일 (월-일)</label><input type="text" id="empBirthday" class="input" style="width:100%" placeholder="03-15"/></div>
+        <div style="flex:1"><label style="font-size:12px;color:var(--krds-g500)">성명</label><input type="text" id="empName" class="input" style="width:100%" placeholder="홍길동"/></div>
+        <div style="flex:1"><label style="font-size:12px;color:var(--krds-g500)">부서</label><select id="empDept" class="input" style="width:100%"></select></div>
+        <div style="flex:1"><label style="font-size:12px;color:var(--krds-g500)">입사일</label><input type="date" id="empHireDate" class="input" style="width:100%"/></div>
+        <div style="flex:1"><label style="font-size:12px;color:var(--krds-g500)">생일 (월-일)</label><input type="text" id="empBirthday" class="input" style="width:100%" placeholder="03-15"/></div>
         <div style="display:flex;align-items:flex-end"><button class="btn btn--primary" onclick="saveEmployee()">저장</button></div>
       </div>
     </div>
@@ -521,16 +520,16 @@ function render(){
       rows.push(`<tr class="${sel}${firstClass}" onclick="selectEmp('${r.emp.id}')">
         ${deptCell}
         <td class="text-left" style="font-weight:700">${r.emp.name}</td>
-        <td>${r.emp.hireDate||'<span style="color:var(--g30)">미설정</span>'}</td>
+        <td>${r.emp.hireDate||'<span style="color:var(--krds-g300)">미설정</span>'}</td>
         <td>${r.noHireDate?'-':r.yi+'년차'}</td>
         <td>${r.noHireDate?'-':(r.yi===1?numFmt(r.accrued)+'/11':r.total)}</td>
         <td style="color:#6B5B95;font-weight:600">${r.carryover>0?'+'+numFmt(r.carryover):'-'}</td>
         <td style="font-weight:700">${r.noHireDate?'-':numFmt(r.totalWithCarry)}</td>
-        <td style="color:var(--error)">${r.noHireDate?'-':numFmt(r.used)}</td>
-        <td style="color:var(--success);font-weight:700">${r.noHireDate?'-':numFmt(r.remaining)}</td>
+        <td style="color:var(--krds-error)">${r.noHireDate?'-':numFmt(r.used)}</td>
+        <td style="color:var(--krds-success);font-weight:700">${r.noHireDate?'-':numFmt(r.remaining)}</td>
         <td>${bdStatus}</td>
         <td>${statusBadge}</td>
-        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> <button class="btn btn--export btn--sm" onclick="openLink('${r.emp.id}')">링크</button> <button class="btn btn--secondary btn--sm" style="color:var(--g40)" onclick="resignEmployee('${r.emp.id}')">퇴사</button></td>
+        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> <button class="btn btn--export btn--sm" onclick="openLink('${r.emp.id}')">링크</button> <button class="btn btn--secondary btn--sm" style="color:var(--krds-g400)" onclick="resignEmployee('${r.emp.id}')">퇴사</button></td>
       </tr>`);
     });
   });
@@ -541,8 +540,8 @@ function render(){
 
   // Summary cards
   document.getElementById('summaryCards').innerHTML=`
-    <div class="card"><div class="card__label">연차 현황</div><div class="card__val" style="font-size:40px">${today.getFullYear()}<span style="font-size:15px;font-weight:400;color:var(--g40)">년</span></div><div class="card__sub">서울사무소 <strong>${totalEmp}명</strong> 재직</div></div>
-    <div class="card card--err"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:15px;font-weight:400;color:var(--g40)">명</span></div><div class="card__sub">잔여 0일 이하</div></div>`;
+    <div class="card"><div class="card__label">연차 현황</div><div class="card__val" style="font-size:40px">${today.getFullYear()}<span style="font-size:15px;font-weight:400;color:var(--krds-g400)">년</span></div><div class="card__sub">서울사무소 <strong>${totalEmp}명</strong> 재직</div></div>
+    <div class="card card--err"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:15px;font-weight:400;color:var(--krds-g400)">명</span></div><div class="card__sub">잔여 0일 이하</div></div>`;
   renderMiniCal(calYear, calMonth);
 
   if(selectedEmpId) renderDetail(selectedEmpId);
@@ -591,7 +590,7 @@ function renderDetail(empId){
 
   // Used list
   if(used.length===0){
-    document.getElementById('detailUsedList').innerHTML='<tr><td colspan="5" style="color:var(--g40);padding:20px">등록된 사용 내역이 없습니다.</td></tr>';
+    document.getElementById('detailUsedList').innerHTML='<tr><td colspan="5" style="color:var(--krds-g400);padding:20px">등록된 사용 내역이 없습니다.</td></tr>';
   }else{
     document.getElementById('detailUsedList').innerHTML=used.map((u,i)=>{
       const isHalf=u.type==='오전반차'||u.type==='오후반차';
