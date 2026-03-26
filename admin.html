@@ -400,27 +400,12 @@ function render(){
         <td style="color:var(--success);font-weight:700">${r.noHireDate?'-':numFmt(r.remaining)}</td>
         <td>${bdStatus}</td>
         <td>${statusBadge}</td>
-        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> ${r.emp.resigned?'<button class="btn btn--secondary btn--sm" onclick="reinstateEmployee(\''+r.emp.id+'\')">복직</button> <button class="btn btn--danger btn--sm" onclick="deleteEmployee(\''+r.emp.id+'\')">삭제</button>':'<button class="btn btn--export btn--sm" onclick="copyLink(\''+r.emp.id+'\')">링크</button> <button class="btn btn--danger btn--sm" onclick="resignEmployee(\''+r.emp.id+'\')">퇴사</button>'}</td>
+        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> <button class="btn btn--export btn--sm" onclick="openLink('${r.emp.id}')">링크</button> <button class="btn btn--danger btn--sm" onclick="resignEmployee('${r.emp.id}')">퇴사</button></td>
       </tr>`);
     });
   });
 
-  // Resigned employees at the bottom
-  if(resignedResults.length>0){
-    resignedResults.forEach((r,idx)=>{
-      const statusBadge='<span class="badge badge--resigned">퇴사</span>';
-      rows.push(`<tr class="resigned-row${idx===0?' dept-first':''}" onclick="selectEmp('${r.emp.id}')">
-        ${idx===0?`<td class="dept-cell" rowspan="${resignedResults.length}" style="color:var(--g400)">퇴사자</td>`:''}
-        <td class="text-left">${r.emp.name}</td>
-        <td>${r.emp.hireDate||'-'}</td>
-        <td>${r.emp.resignedDate||'-'}</td>
-        <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
-        <td>-</td>
-        <td>${statusBadge}</td>
-        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> <button class="btn btn--secondary btn--sm" onclick="reinstateEmployee('${r.emp.id}')">복직</button> <button class="btn btn--danger btn--sm" onclick="deleteEmployee('${r.emp.id}')">삭제</button></td>
-      </tr>`);
-    });
-  }
+  // 퇴사자는 즉시 삭제되므로 별도 섹션 불필요
 
   document.getElementById('empTable').innerHTML=rows.join('');
 
@@ -630,7 +615,7 @@ function syncToEmployeePage(empName, data){
     }
   }catch(e){}
 }
-function copyLink(id){
+function openLink(id){
   const emp=getEmployees().find(e=>e.id===id);
   if(!emp)return;
   if(!emp.hireDate){alert('입사일을 먼저 설정해주세요.');return}
@@ -638,41 +623,18 @@ function copyLink(id){
   const token=btoa(encodeURIComponent(JSON.stringify(data)));
   const baseUrl=location.href.replace(/\/admin\/?.*$/,'').replace(/\/manage\/?.*$/,'');
   const link=baseUrl+'/?t='+token;
-  navigator.clipboard.writeText(link).then(()=>{
-    alert(emp.name+'님의 개인 링크가 복사되었습니다.\n\n'+link);
-  }).catch(()=>{
-    prompt(emp.name+'님의 개인 링크:', link);
-  });
+  window.open(link,'_blank');
 }
 
 function resignEmployee(id){
   const emp=getEmployees().find(e=>e.id===id);
   if(!emp)return;
-  if(!confirm(emp.name+'을(를) 퇴사 처리하시겠습니까?'))return;
-  const list=getEmployees();
-  const idx=list.findIndex(e=>e.id===id);
-  if(idx>=0){list[idx].resigned=true;list[idx].resignedDate=fmtISO(getToday())}
-  saveEmployees(list);
-  if(selectedEmpId===id){selectedEmpId=null;document.getElementById('detailPanel').classList.remove('active')}
-  render();
-}
-function reinstateEmployee(id){
-  const emp=getEmployees().find(e=>e.id===id);
-  if(!emp)return;
-  if(!confirm(emp.name+'을(를) 복직 처리하시겠습니까?'))return;
-  const list=getEmployees();
-  const idx=list.findIndex(e=>e.id===id);
-  if(idx>=0){delete list[idx].resigned;delete list[idx].resignedDate}
-  saveEmployees(list);
-  render();
-}
-function deleteEmployee(id){
-  const emp=getEmployees().find(e=>e.id===id);
-  if(!emp)return;
-  if(!emp.resigned){alert('퇴사 처리 후 삭제할 수 있습니다.');return}
-  if(!confirm(emp.name+'을(를) 완전히 삭제하시겠습니까?\n해당 직원의 휴가 기록도 함께 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'))return;
+  if(!confirm(emp.name+'을(를) 퇴사 처리하시겠습니까?\n해당 직원의 모든 정보가 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'))return;
   saveEmployees(getEmployees().filter(e=>e.id!==id));
   localStorage.removeItem(storageKey(id));
+  // 개별 페이지 데이터도 삭제
+  localStorage.removeItem('vac_link_'+emp.name);
+  localStorage.removeItem('vac_link_used_'+emp.name);
   if(selectedEmpId===id){selectedEmpId=null;document.getElementById('detailPanel').classList.remove('active')}
   render();
 }
