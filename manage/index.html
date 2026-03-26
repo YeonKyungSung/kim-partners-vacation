@@ -45,11 +45,35 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5;color:var(--krds-g900);background:var(--krds-bg)}
 
+/* Masthead */
+.masthead{
+  background:var(--krds-primary-deep);
+  height:36px;display:flex;align-items:center;
+  padding:0 24px;
+  font-size:12px;font-weight:500;color:rgba(255,255,255,.6);
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.masthead__inner{max-width:1200px;margin:0 auto;width:100%}
+
 /* Header */
-.header{background:var(--krds-primary-deep);padding:14px 24px;color:#fff}
-.header__inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
-.header__title{font-size:19px;font-weight:700;letter-spacing:-.02em}
-.header__date{font-size:13px;color:rgba(255,255,255,.65)}
+.header{background:var(--krds-primary);padding:0;position:relative;z-index:10}
+.header__inner{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+.header__title{font-size:19px;font-weight:700;color:#fff;letter-spacing:-.02em;display:flex;align-items:center}
+.header__actions{display:flex;gap:6px;align-items:center}
+.header__date{
+  font-size:13px;color:rgba(255,255,255,.8);
+  padding:4px 14px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;
+}
+.btn-header{
+  padding:6px 14px;border:1px solid rgba(255,255,255,.3);
+  border-radius:var(--krds-radius);background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.9);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 150ms;font-family:var(--krds-font);
+}
+.btn-header:hover{background:rgba(255,255,255,.18)}
 
 /* Layout — KRDS 1200px max, 24px gutter */
 .container{max-width:1200px;margin:0 auto;padding:24px}
@@ -166,7 +190,8 @@ select.input{min-width:120px}
 /* Print */
 @media print{
   body{background:#fff;font-size:11px}
-  .header{background:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .masthead{background:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .header{background:var(--krds-primary);-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .tbl th,.detail-tbl th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .btn,.form-row,.no-print{display:none!important}
   .detail.active{display:block}
@@ -175,12 +200,16 @@ select.input{min-width:120px}
 </head>
 <body>
 
-<div class="header">
+<div class="masthead"><div class="masthead__inner">Kim &amp; Partners Law Firm &middot; Annual Leave Management System</div></div>
+
+<header class="header">
   <div class="header__inner">
-    <div class="header__title">법무법인 김앤파트너스 · 연차휴가 관리 (관리자)</div>
-    <div class="header__date" id="todayBadge"></div>
+    <h1 class="header__title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAADXUlEQVR4nO2c27UbMQwDTZeR/mtLG0gHzsqmSBDEfOc4WmJW1oO+r5cxxhhjjDHGGGOMMcYYY4wxxhhjjDHTAfC3ewwsvF/L+BQ+FoqxSoAnAWOZBGsEOAkWiyRYIcA3gWKJBPIC/BIkFkggLUBGgBCXQFqALCAsgQVYLoEFWC6BBVgugQVYLoEFWC7BeAE6g4CABKMFYAgABGNYKQBT4UE0lhUCMBYchGOSFKCr0BHxR1GCUQJ0FzgEJRgjAEthQ0yCEQKwFTSEJKAXgLWQISIBtQDsBQwBCWgFeFq4JyHcJIZLQCnAlPAVJKATYFr40yV4q4bfUewgHdcIAaaHP2V8lAKohD9tnBQCdIRfsX6IIRK0CqAa/iQJ2gRQD3+KBC0CbAl/ggTlAmwLn12CUgG2hn9CtQRx8o+7FyynnIaPYc+X8eyhWphv3nwMfM5f6/BWLMq0aX/1QZAhF2Di2zRx1upCdgawBK9HL29kFvR//+FJKFmfdTKD4cNnMs2EGVkczwAZe/PMIj79rI0zQRzU+egroFKCTMuVJEDyS3a8BrAEfdyYYb9aBGZM5Z4Jzrj19fr1LiBjkWYJnnFzbfXTNvCJBF4T/MbthfXP5wBT1wQTQMGuKuUgyBLkU7WlTjsJtAR5VJ6npB4Fs+0OJoLC8K/cBbDtDiaB4vCvXQZZghnhX70NrJRgOmgK//p1cOU5wVTQ/PzX+wHYbhGZAMFzlzSEWALO8Es7giwBX/jlLWGV5wSsgCj8lp7AzbsDkIXf1hS6UQIQht/aFbxJApCG394WvkECEIdP8buAjMMiVkAePoUAzL+dVw+fRgA1CTAkfCoB2AqzIXw6AbJ/XlYNhoVPKcBUCTAwfFoB2K6S40chWcOnFoDlAimEw6cXoFuCEA9/hABdEsSC8McIUC1BLAl/lABV/QSxKPzjPxTJQlcIELickhCgIwwIhj/uK6Dr7gCi4Y8WoEoCCIc/XoDbEkA8fAkBboWABeHLCJB9gYQl4Y/eBdwKD4vCl5oBMtYEWBa+pADfSoCF4csKcCoBloYvuQa4cRgUouFLzwBVDSHTkRfgZkOIAisEuNEQosIaATIbQpRYJUBGQ4ga6wT4FHIsC98YY4wxxhhjjDHGGGOMMcYYY4wxxgjyD9f+9Uav1z6bAAAAAElFTkSuQmCC" alt="KP" style="height:28px;vertical-align:middle;margin-right:10px;border-radius:4px;"/> 법무법인 김앤파트너스 연차휴가 관리 <span style="font-weight:400;font-size:14px;opacity:.7;margin-left:8px">(관리자)</span></h1>
+    <div class="header__actions">
+      <span class="header__date" id="todayBadge"></span>
+    </div>
   </div>
-</div>
+</header>
 
 <div class="container">
   <!-- Dashboard -->
