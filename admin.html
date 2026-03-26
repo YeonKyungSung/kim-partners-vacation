@@ -103,7 +103,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5
 .mini-cal__day--sun .mini-cal__num{color:var(--krds-error)}
 .mini-cal__day--sat .mini-cal__num{color:var(--krds-info)}
 .mini-cal__num{font-size:13px;line-height:1}
-.mini-cal__count{background:var(--krds-primary);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:default;line-height:1}
+.mini-cal__count{background:var(--krds-primary-light);color:var(--krds-primary);font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;cursor:default;line-height:1.3;border:1px solid #CDD6CE}
 .mini-cal__legend{display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--krds-g100)}
 .mini-cal__legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--krds-g500)}
 
@@ -483,7 +483,7 @@ function renderMiniCal(year, month){
 
   html+='</div>';
   html+=`<div class="mini-cal__legend">
-    <div class="mini-cal__legend-item"><div class="mini-cal__count" style="position:static;font-size:9px;width:16px;height:16px">N</div>휴가 인원 (hover로 상세)</div>
+    <div class="mini-cal__legend-item"><div class="mini-cal__count" style="font-size:8px;padding:0 4px">N</div>휴가 인원 (hover로 상세)</div>
   </div>`;
 
   document.getElementById('miniCal').innerHTML=html;
