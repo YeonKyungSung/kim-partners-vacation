@@ -40,8 +40,9 @@ body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;colo
 
 /* Layout */
 .container{max-width:1400px;margin:0 auto;padding:20px 24px}
-.dashboard{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:20px;align-items:start}
+.dashboard{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:20px}
 .summary-cards{display:flex;flex-direction:column;gap:12px}
+.summary-cards .card{flex:1}
 .card{background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--primary)}
 .card--warn::before{background:var(--warning)}
