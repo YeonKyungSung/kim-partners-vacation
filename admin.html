@@ -40,7 +40,8 @@ body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;colo
 
 /* Layout */
 .container{max-width:1400px;margin:0 auto;padding:20px 24px}
-.summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.summary-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .card{background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--primary)}
 .card--warn::before{background:var(--warning)}
@@ -52,6 +53,30 @@ body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;colo
 .card__val--err{color:var(--error)}
 .card__val--info{color:#6B5B95}
 .card__sub{font-size:11px;color:var(--g400);margin-top:4px}
+
+/* Mini Calendar */
+.mini-cal{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+.mini-cal__header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.mini-cal__title{font-size:15px;font-weight:700;color:var(--g800)}
+.mini-cal__nav{display:flex;gap:4px}
+.mini-cal__nav button{background:var(--g100);border:none;border-radius:4px;width:28px;height:28px;cursor:pointer;font-size:14px;color:var(--g500);display:flex;align-items:center;justify-content:center}
+.mini-cal__nav button:hover{background:var(--g200)}
+.mini-cal__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.mini-cal__dow{font-size:10px;font-weight:600;color:var(--g400);padding:4px 0}
+.mini-cal__dow--sun{color:var(--error)}
+.mini-cal__day{font-size:12px;padding:4px 2px;border-radius:4px;position:relative;min-height:36px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.mini-cal__day--today{background:var(--primary);color:#fff;font-weight:700;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 1px}
+.mini-cal__day--other{color:var(--g300)}
+.mini-cal__day--sun .mini-cal__num{color:var(--error)}
+.mini-cal__day--sat .mini-cal__num{color:#4A7AB5}
+.mini-cal__num{font-size:12px;line-height:1}
+.mini-cal__dots{display:flex;gap:1px;justify-content:center;flex-wrap:wrap;max-width:28px}
+.mini-cal__dot{width:5px;height:5px;border-radius:50%;background:var(--primary);flex-shrink:0}
+.mini-cal__dot--half{background:#9DB8A0}
+.mini-cal__dot--birthday{background:var(--warning)}
+.mini-cal__legend{display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid var(--g100)}
+.mini-cal__legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--g500)}
+.mini-cal__legend-dot{width:6px;height:6px;border-radius:50%}
 
 /* Table */
 .panel{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
@@ -117,6 +142,7 @@ select.input{min-width:120px}
 
 /* Responsive */
 @media(max-width:900px){
+  .dashboard{grid-template-columns:1fr}
   .summary-cards{grid-template-columns:repeat(2,1fr)}
   .stats{grid-template-columns:repeat(3,1fr)}
 }
@@ -146,8 +172,11 @@ select.input{min-width:120px}
 </div>
 
 <div class="container">
-  <!-- Summary Cards -->
-  <div class="summary-cards" id="summaryCards"></div>
+  <!-- Dashboard -->
+  <div class="dashboard">
+    <div class="summary-cards" id="summaryCards"></div>
+    <div class="mini-cal" id="miniCal"></div>
+  </div>
 
   <!-- Employee Overview Table -->
   <div class="panel">
@@ -345,6 +374,96 @@ function calcEmployee(emp){
    Render overview
    ═══════════════════════════════════════════════ */
 let selectedEmpId=null;
+let calYear=new Date().getFullYear();
+let calMonth=new Date().getMonth(); // 0-based
+
+function renderMiniCal(year, month){
+  const today=getToday();
+  const emps=getEmployees().filter(e=>!e.resigned);
+  const firstDay=new Date(year,month,1).getDay(); // 0=Sun
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const prevDays=new Date(year,month,0).getDate();
+  const monthNames=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+  // Build vacation map: day -> [{name, type}]
+  const vacMap={};
+  emps.forEach(emp=>{
+    const used=loadUsed(emp.id);
+    used.forEach(u=>{
+      const d=toDate(u.date);
+      if(d.getFullYear()===year&&d.getMonth()===month){
+        const day=d.getDate();
+        if(!vacMap[day])vacMap[day]=[];
+        vacMap[day].push({name:emp.name,type:u.type});
+      }
+    });
+  });
+
+  let html=`<div class="mini-cal__header">
+    <div class="mini-cal__nav"><button onclick="changeCalMonth(-1)">&lsaquo;</button></div>
+    <div class="mini-cal__title">${year}년 ${monthNames[month]}</div>
+    <div class="mini-cal__nav"><button onclick="changeCalMonth(1)">&rsaquo;</button></div>
+  </div>`;
+  html+='<div class="mini-cal__grid">';
+  // DOW headers
+  const dows=['일','월','화','수','목','금','토'];
+  dows.forEach((d,i)=>html+=`<div class="mini-cal__dow${i===0?' mini-cal__dow--sun':''}">${d}</div>`);
+
+  // Previous month trailing days
+  for(let i=firstDay-1;i>=0;i--){
+    html+=`<div class="mini-cal__day mini-cal__day--other"><div class="mini-cal__num">${prevDays-i}</div></div>`;
+  }
+
+  // Current month days
+  for(let d=1;d<=daysInMonth;d++){
+    const dow=new Date(year,month,d).getDay();
+    const isToday=(year===today.getFullYear()&&month===today.getMonth()&&d===today.getDate());
+    const dayClass=dow===0?' mini-cal__day--sun':dow===6?' mini-cal__day--sat':'';
+    const entries=vacMap[d]||[];
+
+    html+=`<div class="mini-cal__day${dayClass}">`;
+    if(isToday){
+      html+=`<div class="mini-cal__day--today">${d}</div>`;
+    }else{
+      html+=`<div class="mini-cal__num">${d}</div>`;
+    }
+    if(entries.length>0){
+      html+='<div class="mini-cal__dots">';
+      const maxDots=Math.min(entries.length,5);
+      for(let i=0;i<maxDots;i++){
+        const e=entries[i];
+        const cls=isBirthday(e)?'mini-cal__dot--birthday':(e.type==='오전반차'||e.type==='오후반차')?'mini-cal__dot--half':'';
+        html+=`<div class="mini-cal__dot ${cls}" title="${e.name} (${e.type})"></div>`;
+      }
+      if(entries.length>5)html+=`<div style="font-size:8px;color:var(--g400)">+${entries.length-5}</div>`;
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+
+  // Next month leading days
+  const totalCells=firstDay+daysInMonth;
+  const remaining=totalCells%7===0?0:7-totalCells%7;
+  for(let d=1;d<=remaining;d++){
+    html+=`<div class="mini-cal__day mini-cal__day--other"><div class="mini-cal__num">${d}</div></div>`;
+  }
+
+  html+='</div>';
+  html+=`<div class="mini-cal__legend">
+    <div class="mini-cal__legend-item"><div class="mini-cal__legend-dot" style="background:var(--primary)"></div>연차</div>
+    <div class="mini-cal__legend-item"><div class="mini-cal__legend-dot" style="background:#9DB8A0"></div>반차</div>
+    <div class="mini-cal__legend-item"><div class="mini-cal__legend-dot" style="background:var(--warning)"></div>생일연차</div>
+  </div>`;
+
+  document.getElementById('miniCal').innerHTML=html;
+}
+
+function changeCalMonth(delta){
+  calMonth+=delta;
+  if(calMonth>11){calMonth=0;calYear++}
+  if(calMonth<0){calMonth=11;calYear--}
+  renderMiniCal(calYear,calMonth);
+}
 
 function render(){
   const today=getToday();
@@ -353,7 +472,7 @@ function render(){
   const allResults=getEmployees().map(calcEmployee);
   const results=allResults.filter(r=>!r.emp.resigned);
   const resignedResults=allResults.filter(r=>r.emp.resigned);
-  let totalEmp=results.length, zeroCount=0, totalUsed=0, totalRemaining=0, hiredCount=0, thisMonthCount=0;
+  let totalEmp=results.length, zeroCount=0, totalUsed=0;
 
   // Group by department, preserve order
   const deptOrder=[];const deptMap={};
@@ -371,13 +490,6 @@ function render(){
       totalUsed+=r.used;
       if(!r.noHireDate){
         if(r.remaining<=0)zeroCount++;
-        totalRemaining+=r.remaining;
-        hiredCount++;
-        // 이번 달 사용 예정 (미래 날짜)
-        const used=loadUsed(r.emp.id);
-        const curMonth=today.getMonth();const curYear=today.getFullYear();
-        const hasThisMonth=used.some(u=>{const d=toDate(u.date);return d.getMonth()===curMonth&&d.getFullYear()===curYear&&d>today});
-        if(hasThisMonth)thisMonthCount++;
       }
 
       let bdStatus='-';
@@ -425,13 +537,10 @@ function render(){
   document.getElementById('empTable').innerHTML=rows.join('');
 
   // Summary cards
-  const avgRemain=hiredCount>0?(totalRemaining/hiredCount).toFixed(1):'0';
-  const monthNames=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   document.getElementById('summaryCards').innerHTML=`
     <div class="card"><div class="card__label">${today.getFullYear()}년 연차 현황</div><div class="card__val">${totalEmp}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">서울사무소 재직 인원</div></div>
-    <div class="card card--err"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">잔여 0일 이하</div></div>
-    <div class="card card--info"><div class="card__label">평균 잔여</div><div class="card__val card__val--info">${avgRemain}<span style="font-size:14px;font-weight:500;color:var(--g400)">일</span></div><div class="card__sub">1인당 평균 잔여일수</div></div>
-    <div class="card card--warn"><div class="card__label">${monthNames[today.getMonth()]} 사용 예정</div><div class="card__val card__val--warn">${thisMonthCount}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">이번 달 잔여 일정</div></div>`;
+    <div class="card card--err"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">잔여 0일 이하</div></div>`;
+  renderMiniCal(calYear, calMonth);
 
   if(selectedEmpId) renderDetail(selectedEmpId);
 }
