@@ -677,6 +677,7 @@ function initDefaultEmployees(){
     {id:'e23',name:'김예은',dept:'마케팅팀',hireDate:'2025-05-07',birthday:'05-24'},
     {id:'e24',name:'성연경',dept:'마케팅팀',hireDate:'2025-08-25',birthday:'06-20'},
     {id:'e25',name:'남진영',dept:'마케팅팀',hireDate:'2025-12-01',birthday:'04-01'},
+    {id:'e27',name:'문정하',dept:'마케팅팀',hireDate:'2026-03-16',birthday:'07-02'},
     // 회계팀
     {id:'e26',name:'조윤미',dept:'회계팀',hireDate:'2022-05-11',birthday:'11-13'},
   ];
@@ -686,7 +687,7 @@ function initDefaultEmployees(){
 /* Init */
 (function(){
   // v4: 강제 재설정 (버전 올리면 다시 초기화)
-  const INIT_VER='v4';
+  const INIT_VER='v5';
   if(localStorage.getItem('vac_admin_init')!==INIT_VER){
     localStorage.removeItem(EMP_KEY);
     // 사용 내역도 초기화하고 임베디드 데이터로 재설정
