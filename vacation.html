@@ -320,11 +320,11 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
   display:inline-block;padding:3px 10px;border-radius:2px;
   font-size:12px;font-weight:700;letter-spacing:.02em;
 }
-.badge--accrual{background:var(--krds-primary-light);color:var(--krds-primary);border:1px solid #CDD6CE}
+.badge--accrual{background:#D4E8D6;color:#2C5F30;border:1px solid #A8CDA9}
 .badge--used{background:var(--krds-primary);color:var(--krds-white);border:1px solid var(--krds-primary-dark)}
 .badge--half{background:#E8EDE9;color:#5A7A5E;border:1px solid #B5CEB8}
 .badge--grant{background:var(--krds-primary-light);color:var(--krds-primary-dark);border:1px solid #CDD6CE}
-.badge--pending{background:var(--krds-g50);color:var(--krds-g400);border:1px solid var(--krds-g200)}
+.badge--pending{background:#FFF3D6;color:#8B6B1F;border:1px solid #E0CFA0}
 .badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
 .badge--birthday{background:var(--krds-warning-bg);color:var(--krds-warning);border:1px solid #D4C8A0}
 .val-plus{color:var(--krds-primary);font-weight:800}
@@ -780,8 +780,7 @@ function render(){
       bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
       if(e.type==='accrual'){const b=f?'badge--pending':'badge--accrual',t=f?'발생예정':'발생';
       return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge ${b}">${t}</span></td><td class="text-left">${e.label}</td><td class="val-plus">+1</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`}
-      const hb=(e.label==='오전반차'||e.label==='오후반차')?'badge--half':'badge--used';
-      return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge ${hb}">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
+      return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--used">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
     }).join('');
     var y1Accrued=y1All.filter(e=>e.type==='accrual'&&e.date<=today).length;
     var curDashUsed=y1Used,curDashTotal=11,curDashRemaining=y1Accrued-y1Used,isY1=true,curAccrued=y1Accrued;
@@ -799,8 +798,7 @@ function render(){
       bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
       if(e.type==='carryover'){const cls=e.delta<0?'val-minus':'val-plus';const sign=e.delta<0?'':'+';return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--carryover">이월</span></td><td class="text-left">${e.label}</td><td class="${cls}">${sign}${numFmt(e.delta)}</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`}
       if(e.type==='grant')return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--grant">부여</span></td><td class="text-left">${e.label}</td><td class="val-plus">+${e.delta}</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
-      const hb2=(e.label==='오전반차'||e.label==='오후반차')?'badge--half':'badge--used';
-      return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge ${hb2}">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(bal)}</td></tr>`}).join('');
+      return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--used">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(bal)}</td></tr>`}).join('');
     const curUsedDays=evts.filter(e=>e.type==='used').reduce((s,e)=>s+Math.abs(e.delta),0);
     var curDashUsed=curUsedDays,curDashTotal=days,curDashRemaining=totalWithCarry-curUsedDays,isY1=false;
   }
