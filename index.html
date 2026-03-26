@@ -809,12 +809,15 @@ function render(){
 
   // 생일연차 상태
   const thisYear=String(today.getFullYear());
-  const bdUsedThisYear=used.some(u=>u.type==='생일연차'&&u.date.startsWith(thisYear));
+  const bdThisYear=used.filter(u=>u.type==='생일연차'&&u.date.startsWith(thisYear));
+  const bdPast=bdThisYear.some(u=>toDate(u.date)<=today);
+  const bdFuture=bdThisYear.some(u=>toDate(u.date)>today);
   let bdStatus='미설정';
   if(settings.birthday){
     const bMonth=parseInt(settings.birthday.split('-')[0],10);
     const curMonth=today.getMonth()+1;
-    if(bdUsedThisYear) bdStatus='사용완료';
+    if(bdPast) bdStatus='사용완료';
+    else if(bdFuture) bdStatus='사용예정';
     else if(curMonth>bMonth) bdStatus='소멸';
     else if(curMonth===bMonth) bdStatus=bMonth+'월 사용가능';
     else bdStatus=bMonth+'월 예정';

@@ -371,8 +371,11 @@ function render(){
       if(r.emp.birthday){
         const bMonth=parseInt(r.emp.birthday.split('-')[0],10);
         const curMonth=today.getMonth()+1;
-        const bdUsed=r.birthdayUsed.some(u=>u.date.startsWith(thisYear));
-        if(bdUsed) bdStatus='사용완료';
+        const bdUsed=r.birthdayUsed.filter(u=>u.date.startsWith(thisYear));
+        const bdPast=bdUsed.some(u=>toDate(u.date)<=today);
+        const bdFuture=bdUsed.some(u=>toDate(u.date)>today);
+        if(bdPast) bdStatus='사용완료';
+        else if(bdFuture) bdStatus='사용예정';
         else if(curMonth>bMonth) bdStatus='소멸';
         else if(curMonth===bMonth) bdStatus='사용가능';
         else bdStatus=bMonth+'월';
@@ -412,7 +415,6 @@ function render(){
   // Summary cards
   document.getElementById('summaryCards').innerHTML=`
     <div class="card"><div class="card__label">전체 직원</div><div class="card__val">${totalEmp}명</div></div>
-    <div class="card"><div class="card__label">전체 사용일수</div><div class="card__val">${numFmt(totalUsed)}일</div></div>
     <div class="card"><div class="card__label">잔여 부족 (3일 이하)</div><div class="card__val card__val--warn">${lowCount}명</div></div>
     <div class="card"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}명</div></div>`;
 
