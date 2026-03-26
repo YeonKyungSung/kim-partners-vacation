@@ -240,8 +240,32 @@ function getEmployees(){return loadEmployees()}
    Core functions
    ═══════════════════════════════════════════════ */
 function storageKey(empId){ return 'vac_admin_'+empId; }
-function loadUsed(empId){ try{const v=localStorage.getItem(storageKey(empId));return v?JSON.parse(v):[]}catch{return[]} }
-function saveUsed(empId,arr){ localStorage.setItem(storageKey(empId),JSON.stringify(arr)); }
+function loadUsed(empId){
+  // admin 자체 데이터
+  let adminData=[];
+  try{const v=localStorage.getItem(storageKey(empId));if(v)adminData=JSON.parse(v)}catch{}
+  // 개별 사원 페이지 데이터도 병합
+  const emp=getEmployees().find(e=>e.id===empId);
+  if(emp){
+    try{
+      const linkData=localStorage.getItem('vac_link_used_'+emp.name);
+      if(linkData){
+        const linkUsed=JSON.parse(linkData);
+        if(linkUsed.length>0){
+          // 개별 페이지 데이터가 있으면 그것을 우선 사용 (사원이 직접 입력한 데이터)
+          return linkUsed;
+        }
+      }
+    }catch{}
+  }
+  return adminData;
+}
+function saveUsed(empId,arr){
+  localStorage.setItem(storageKey(empId),JSON.stringify(arr));
+  // 개별 사원 페이지에도 동기화
+  const emp=getEmployees().find(e=>e.id===empId);
+  if(emp){try{localStorage.setItem('vac_link_used_'+emp.name,JSON.stringify(arr))}catch{}}
+}
 function toDate(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
 function fmt(d){return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
 function fmtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}

@@ -552,7 +552,21 @@ const KEYS={settings:LINK_MODE?'vac_link_'+LINK_DATA.name:'vac_settings',used:LI
 const DEFAULT_SETTINGS=LINK_MODE?{name:LINK_DATA.name,dept:LINK_DATA.dept,hireDate:LINK_DATA.hireDate,birthday:LINK_DATA.birthday||''}:{name:'',dept:'마케팅',hireDate:'2025-08-25',birthday:''};
 const DEFAULT_USED=LINK_MODE?(EMBEDDED_VACATION_DATA[LINK_DATA.name]||[]):[];
 function load(k,d){try{const v=localStorage.getItem(k);if(!v)return structuredClone(d);const o=JSON.parse(v);if(k===KEYS.settings&&o.dept==='개발팀'){o.dept='마케팅';save(k,o)}return o}catch{return structuredClone(d)}}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function save(k,v){
+  localStorage.setItem(k,JSON.stringify(v));
+  // 사용 내역이면 admin 쪽에도 동기화
+  if(LINK_MODE && k===KEYS.used){
+    try{
+      const adminKey='vac_admin_employees';
+      const raw=localStorage.getItem(adminKey);
+      if(raw){
+        const list=JSON.parse(raw);
+        const emp=list.find(e=>e.name===LINK_DATA.name);
+        if(emp) localStorage.setItem('vac_admin_'+emp.id,JSON.stringify(v));
+      }
+    }catch(e){}
+  }
+}
 function toDate(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
 function fmt(d){return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
 function fmtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
