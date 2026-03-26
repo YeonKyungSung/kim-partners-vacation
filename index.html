@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>법무법인 김앤파트너스 연차휴가 관리</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   KRDS Design Tokens
+   ═══════════════════════════════════════════════ */
+:root {
+  /* Sage Green + Cream + Charcoal */
+  --krds-primary: #4A5D4F;
+  --krds-primary-dark: #3B4B3F;
+  --krds-primary-deep: #2C3830;
+  --krds-primary-light: #E8EDE9;
+  --krds-primary-50: #F3F5F3;
+
+  --krds-success: #5A7A5E;
+  --krds-success-bg: #EDF3EE;
+  --krds-warning: #A68B5B;
+  --krds-warning-bg: #F8F3EB;
+  --krds-error: #9B4D4D;
+  --krds-error-bg: #F5EDED;
+  --krds-info: #4A5D4F;
+  --krds-info-bg: #E8EDE9;
+  --krds-amber: #A68B5B;
+
+  --krds-white: #FFFFFF;
+  --krds-bg: #F5F2ED;
+  --krds-surface: #FDFCFA;
+  --krds-g50: #F8F6F2;
+  --krds-g100: #EFECE6;
+  --krds-g200: #E0DCD4;
+  --krds-g300: #B5AFA5;
+  --krds-g400: #8A847B;
+  --krds-g500: #6B665E;
+  --krds-g600: #514D47;
+  --krds-g700: #3A3733;
+  --krds-g800: #262421;
+  --krds-g900: #141312;
+
+  --krds-font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
+  --krds-mono: 'D2Coding', 'Consolas', monospace;
+  --krds-radius: 4px;
+  --krds-radius-lg: 6px;
+  --krds-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --krds-shadow-md: 0 4px 12px rgba(0,0,0,.08);
+  --krds-shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+  --krds-focus: 0 0 0 3px rgba(74,93,79,.18);
+  --krds-transition: 150ms ease-in-out;
+}
+
+/* ═══════════════════════════════════════════════
+   Reset & Base
+   ═══════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6;color:var(--krds-g800);background:var(--krds-bg);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+
+/* ═══════════════════════════════════════════════
+   Masthead — 정부 인증 상단 바
+   ═══════════════════════════════════════════════ */
+.masthead{
+  background:var(--krds-primary-deep);
+  height:36px;display:flex;align-items:center;
+  padding:0 24px;
+  font-size:12px;font-weight:500;color:rgba(255,255,255,.6);
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.masthead__inner{max-width:1200px;margin:0 auto;width:100%}
+
+/* ═══════════════════════════════════════════════
+   Header
+   ═══════════════════════════════════════════════ */
+.header{
+  background:var(--krds-primary);
+  padding:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+  position:relative;z-index:10;
+}
+.header__inner{
+  max-width:1200px;margin:0 auto;
+  padding:16px 24px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.header__title{font-size:22px;font-weight:800;color:var(--krds-white);letter-spacing:-.03em;display:flex;align-items:center}
+.header__actions{display:flex;gap:6px;align-items:center}
+.header__date{
+  font-size:13px;color:rgba(255,255,255,.8);
+  padding:4px 14px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;
+}
+.btn-header{
+  padding:6px 14px;border:1px solid rgba(255,255,255,.3);
+  border-radius:var(--krds-radius);background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.9);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all var(--krds-transition);
+  font-family:var(--krds-font);
+}
+.btn-header:hover{background:rgba(255,255,255,.18)}
+
+/* ═══════════════════════════════════════════════
+   Container
+   ═══════════════════════════════════════════════ */
+.container{max-width:1200px;margin:0 auto;padding:20px 24px}
+
+/* ═══════════════════════════════════════════════
+   Info Bar — 직원 정보
+   ═══════════════════════════════════════════════ */
+.info-bar{
+  display:flex;gap:0;align-items:stretch;flex-wrap:wrap;
+  background:var(--krds-primary-light);
+  border:1px solid var(--krds-g200);
+  border-left:3px solid var(--krds-primary);
+  border-radius:var(--krds-radius);
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.info-bar__item{
+  padding:10px 20px;font-size:14px;font-weight:600;color:var(--krds-g700);
+  border-right:1px solid var(--krds-g200);
+  display:flex;align-items:center;gap:6px;
+}
+.info-bar__item:last-child{border-right:none}
+.info-bar__item strong{color:var(--krds-primary);font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ═══════════════════════════════════════════════
+   Dashboard
+   ═══════════════════════════════════════════════ */
+.dash-row{
+  display:grid;grid-template-columns:1fr 300px;
+  gap:16px;margin-bottom:16px;
+}
+.dashboard{
+  background:var(--krds-surface);
+  border:1px solid var(--krds-g200);
+  border-radius:var(--krds-radius-lg);
+  box-shadow:var(--krds-shadow);
+  overflow:hidden;
+}
+.cal-side{
+  background:var(--krds-surface);
+  border:1px solid var(--krds-g200);
+  border-radius:var(--krds-radius-lg);
+  box-shadow:var(--krds-shadow);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.cal-side .section__head{border-bottom:2px solid var(--krds-g200);background:var(--krds-g50)}
+.cal-nav{display:flex;align-items:center;gap:6px}
+.cal-nav__label{font-size:15px;font-weight:800;color:var(--krds-g800);min-width:100px;text-align:center;letter-spacing:-.02em}
+.cal-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  padding:8px 12px 12px;gap:1px;flex:1;align-content:start;
+}
+.cal-dow{
+  text-align:center;font-size:11px;font-weight:700;
+  color:var(--krds-g400);padding:4px 0;
+  border-bottom:1px solid var(--krds-g200);margin-bottom:2px;
+}
+.cal-dow:first-child{color:var(--krds-g400)}
+.cal-dow:last-child{color:var(--krds-primary)}
+.cal-cell{text-align:center;padding:1px}
+.cal-day{
+  display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;margin:0 auto;
+  font-size:13px;font-weight:600;color:var(--krds-g500);
+  border-radius:var(--krds-radius);
+}
+.cal-cell:nth-child(7n+1) .cal-day{color:var(--krds-g400)}
+.cal-cell:nth-child(7n) .cal-day{color:var(--krds-primary)}
+.cal-day--empty{visibility:hidden}
+.cal-day--today{background:var(--krds-error);color:var(--krds-white)!important;font-weight:700}
+.cal-day--used{background:var(--krds-primary);color:var(--krds-white)!important;font-weight:600}
+.cal-day--used.cal-day--today{box-shadow:0 0 0 2px var(--krds-primary)}
+.cal-day--half{background:var(--krds-primary-light);color:var(--krds-primary)!important;font-weight:600}
+.cal-legend{
+  display:flex;gap:12px;justify-content:center;
+  padding:6px 12px 10px;font-size:11px;color:var(--krds-g400);font-weight:500;
+  border-top:1px solid var(--krds-g100);
+}
+.cal-legend__dot{
+  display:inline-block;width:8px;height:8px;
+  border-radius:2px;margin-right:3px;vertical-align:middle;
+}
+.cal-legend__dot--used{background:var(--krds-primary)}
+.cal-legend__dot--half{background:var(--krds-primary-light);border:1px solid #CDD6CE}
+.cal-legend__dot--today{background:var(--krds-error)}
+.dash-top{
+  display:flex;align-items:center;gap:32px;
+  padding:28px 32px;
+  background:linear-gradient(135deg,var(--krds-primary-50) 0%,var(--krds-white) 100%);
+  border-bottom:1px solid var(--krds-g200);
+}
+.gauge{position:relative;flex-shrink:0}
+.gauge svg{display:block}
+.gauge__center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge__number{font-size:40px;font-weight:900;color:var(--krds-g900);line-height:1;letter-spacing:-.03em}
+.gauge__unit{font-size:13px;color:var(--krds-g500);margin-top:4px;font-weight:600;letter-spacing:.02em}
+.dash-summary{flex:1}
+.dash-summary__title{
+  font-size:15px;font-weight:800;color:var(--krds-g900);
+  margin-bottom:12px;padding-bottom:8px;
+  border-bottom:2px solid var(--krds-primary);letter-spacing:-.02em;
+}
+.dash-summary__row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--krds-g100);font-size:14px;
+}
+.dash-summary__row:last-child{border-bottom:none}
+.dash-summary__label{color:var(--krds-g500);font-weight:500}
+.dash-summary__val{font-weight:800;font-size:17px;letter-spacing:-.02em}
+.dash-summary__val--primary{color:var(--krds-primary)}
+.dash-summary__val--error{color:var(--krds-error)}
+.dash-summary__val--success{color:var(--krds-primary)}
+
+.dash-bottom{display:grid;grid-template-columns:repeat(5,1fr)}
+.dash-mini{
+  padding:12px 16px;text-align:center;
+  border-right:1px solid var(--krds-g200);
+  background:var(--krds-g50);
+}
+.dash-mini:last-child{border-right:none}
+.dash-mini__label{font-size:11px;color:var(--krds-g400);font-weight:700;margin-bottom:3px;letter-spacing:.04em;text-transform:uppercase}
+.dash-mini__val{font-size:17px;font-weight:800;color:var(--krds-g800);letter-spacing:-.02em}
+
+/* ═══════════════════════════════════════════════
+   Section Card
+   ═══════════════════════════════════════════════ */
+.section{
+  background:var(--krds-surface);
+  border:1px solid var(--krds-g200);
+  border-radius:var(--krds-radius-lg);
+  margin-bottom:16px;
+  box-shadow:var(--krds-shadow);
+  overflow:hidden;
+}
+.section__head{
+  padding:12px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--krds-g50);
+  border-bottom:2px solid var(--krds-g200);
+}
+.section__title{
+  font-size:15px;font-weight:800;color:var(--krds-g800);letter-spacing:-.01em;
+  display:flex;align-items:center;gap:8px;
+}
+.section__title::before{
+  content:'';display:block;width:3px;height:16px;
+  background:var(--krds-primary);border-radius:2px;
+}
+.section__meta{font-size:13px;color:var(--krds-g400);font-weight:500}
+
+/* ═══════════════════════════════════════════════
+   Form Row
+   ═══════════════════════════════════════════════ */
+.form-row{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  padding:12px 20px;
+  background:var(--krds-g50);
+  border-bottom:1px solid var(--krds-g200);
+}
+.input,.select{
+  padding:8px 14px;
+  border:1px solid var(--krds-g300);border-radius:var(--krds-radius);
+  font-size:14px;font-family:var(--krds-font);
+  color:var(--krds-g700);background:var(--krds-white);
+  transition:all var(--krds-transition);
+}
+.input:focus,.select:focus{outline:none;border-color:var(--krds-primary);box-shadow:var(--krds-focus)}
+
+/* ═══════════════════════════════════════════════
+   Buttons
+   ═══════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  padding:8px 18px;border:1px solid transparent;border-radius:var(--krds-radius);
+  font-size:14px;font-weight:700;font-family:var(--krds-font);
+  cursor:pointer;transition:all var(--krds-transition);white-space:nowrap;
+}
+.btn:focus-visible{outline:none;box-shadow:var(--krds-focus)}
+.btn--primary{background:var(--krds-primary);color:var(--krds-white)}
+.btn--primary:hover{background:var(--krds-primary-dark)}
+.btn--secondary{background:var(--krds-white);color:var(--krds-g600);border-color:var(--krds-g300)}
+.btn--secondary:hover{background:var(--krds-g50)}
+.btn--danger{background:var(--krds-error-bg);color:var(--krds-error);border-color:#E0C8C8}
+.btn--danger:hover{background:#ECD9D9}
+.btn--sm{padding:5px 12px;font-size:12px}
+
+/* ═══════════════════════════════════════════════
+   Table
+   ═══════════════════════════════════════════════ */
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead th{
+  background:var(--krds-primary-deep);color:rgba(255,255,255,.9);
+  padding:11px 16px;font-size:13px;font-weight:700;
+  text-align:center;text-transform:uppercase;letter-spacing:.04em;
+  border-bottom:none;
+}
+.tbl tbody td{
+  padding:10px 16px;font-size:14px;font-weight:500;text-align:center;
+  color:var(--krds-g700);
+  border-bottom:1px solid var(--krds-g100);
+}
+.tbl tbody tr:nth-child(even) td{background:var(--krds-g50)}
+.tbl tbody tr:hover td{background:var(--krds-g100)}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl .text-left{text-align:left}
+.tbl tbody tr.future td{color:var(--krds-g300)}
+.tbl tbody tr.future:hover td{background:var(--krds-g50)}
+
+/* ═══════════════════════════════════════════════
+   Badge
+   ═══════════════════════════════════════════════ */
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:2px;
+  font-size:12px;font-weight:700;letter-spacing:.02em;
+}
+.badge--accrual{background:var(--krds-primary-light);color:var(--krds-primary);border:1px solid #CDD6CE}
+.badge--used{background:var(--krds-primary);color:var(--krds-white);border:1px solid var(--krds-primary-dark)}
+.badge--grant{background:var(--krds-primary-light);color:var(--krds-primary-dark);border:1px solid #CDD6CE}
+.badge--pending{background:var(--krds-g50);color:var(--krds-g400);border:1px solid var(--krds-g200)}
+.badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
+.badge--birthday{background:var(--krds-warning-bg);color:var(--krds-warning);border:1px solid #D4C8A0}
+.val-plus{color:var(--krds-primary);font-weight:800}
+.val-minus{color:var(--krds-error);font-weight:700}
+.val-balance{color:var(--krds-g800);font-weight:800}
+.empty-row td{color:var(--krds-g400);font-style:italic;padding:20px!important}
+
+/* ═══════════════════════════════════════════════
+   Modal
+   ═══════════════════════════════════════════════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:1300;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--krds-white);border-radius:var(--krds-radius-lg);
+  width:90%;max-width:440px;box-shadow:var(--krds-shadow-lg);overflow:hidden;
+}
+.modal__head{
+  padding:16px 20px;
+  background:var(--krds-primary);color:var(--krds-white);
+}
+.modal__head h3{font-size:18px;font-weight:700}
+.modal__body{padding:20px}
+.modal__foot{
+  padding:12px 20px;border-top:1px solid var(--krds-g200);
+  display:flex;gap:6px;justify-content:flex-end;
+  background:var(--krds-g50);
+}
+.form-group{margin-bottom:14px}
+.form-group:last-child{margin-bottom:0}
+.form-group label{display:block;font-size:14px;font-weight:600;color:var(--krds-g500);margin-bottom:4px}
+.form-group .input{width:100%}
+
+/* ═══════════════════════════════════════════════
+   Upload
+   ═══════════════════════════════════════════════ */
+.upload-area{
+  padding:16px 20px;background:var(--krds-g50);
+  border-bottom:1px solid var(--krds-g200);
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+}
+.upload-area__info{font-size:13px;color:var(--krds-g400);flex:1;min-width:200px}
+.upload-area__info code{background:var(--krds-g100);padding:1px 6px;border-radius:3px;font-size:12px;font-family:var(--krds-mono)}
+.file-input-wrap{position:relative;overflow:hidden;display:inline-block}
+.file-input-wrap input[type=file]{position:absolute;left:0;top:0;opacity:0;width:100%;height:100%;cursor:pointer}
+
+/* ═══════════════════════════════════════════════
+   Footer
+   ═══════════════════════════════════════════════ */
+.footer{
+  text-align:center;padding:16px;
+  font-size:13px;color:var(--krds-g400);
+  border-top:1px solid var(--krds-g200);
+  margin-top:8px;
+}
+
+/* Collapsible sections */
+.section__toggle{cursor:pointer;user-select:none}
+.section__toggle:hover{background:var(--krds-g50)}
+.section__arrow{font-size:14px;color:var(--krds-g400);transition:transform 200ms}
+.section--collapsed .section__arrow{transform:rotate(-90deg)}
+.section--collapsed .section__body{display:none}
+
+/* Theme swatches */
+.swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 150ms;position:relative}
+.swatch:hover{transform:scale(1.15)}
+.swatch.active{border-color:var(--krds-g800);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--krds-g800)}
+.swatch__label{font-size:10px;text-align:center;margin-top:2px;color:var(--krds-g500)}
+
+/* ═══════════════════════════════════════════════
+   Print
+   ═══════════════════════════════════════════════ */
+@media print{
+  body{background:#fff;font-size:11px}
+  .masthead{background:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .header{background:var(--krds-primary);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tbl thead th{background:var(--krds-primary-deep);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .btn,.form-row,.modal-overlay,.no-print{display:none!important}
+  .section,.dashboard{box-shadow:none;break-inside:avoid}
+  .container{max-width:100%;padding:0 10px}
+  .gauge__number{font-size:20px}
+}
+
+/* ═══════════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════════ */
+@media(max-width:767px){
+  .container{padding:12px}
+  .dash-row{grid-template-columns:1fr}
+  .dash-top{flex-direction:column;gap:16px;padding:20px;text-align:center}
+  .dash-bottom{grid-template-columns:repeat(3,1fr)}
+  .dash-mini{border-bottom:1px solid var(--krds-g200)}
+  .header__inner{flex-direction:column;gap:8px}
+  .form-row{flex-direction:column}
+  .form-row .input,.form-row .select,.form-row .btn{width:100%}
+  .info-bar{flex-direction:column}
+  .info-bar__item{border-right:none;border-bottom:1px solid var(--krds-g200);padding:8px 16px}
+  .info-bar__item:last-child{border-bottom:none}
+  .tbl thead th,.tbl tbody td{padding:7px 8px;font-size:13px}
+  .masthead{padding:0 12px;font-size:12px}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .dash-row{grid-template-columns:1fr 280px}
+  .dash-bottom{grid-template-columns:repeat(5,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="masthead"><div class="masthead__inner">Kim &amp; Partners Law Firm &middot; Annual Leave Management System</div></div>
+
+<header class="header">
+  <div class="header__inner">
+    <h1 class="header__title"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAADXUlEQVR4nO2c27UbMQwDTZeR/mtLG0gHzsqmSBDEfOc4WmJW1oO+r5cxxhhjjDHGGGOMMcYYY4wxxhhjjDHTAfC3ewwsvF/L+BQ+FoqxSoAnAWOZBGsEOAkWiyRYIcA3gWKJBPIC/BIkFkggLUBGgBCXQFqALCAsgQVYLoEFWC6BBVgugQVYLoEFWC7BeAE6g4CABKMFYAgABGNYKQBT4UE0lhUCMBYchGOSFKCr0BHxR1GCUQJ0FzgEJRgjAEthQ0yCEQKwFTSEJKAXgLWQISIBtQDsBQwBCWgFeFq4JyHcJIZLQCnAlPAVJKATYFr40yV4q4bfUewgHdcIAaaHP2V8lAKohD9tnBQCdIRfsX6IIRK0CqAa/iQJ2gRQD3+KBC0CbAl/ggTlAmwLn12CUgG2hn9CtQRx8o+7FyynnIaPYc+X8eyhWphv3nwMfM5f6/BWLMq0aX/1QZAhF2Di2zRx1upCdgawBK9HL29kFvR//+FJKFmfdTKD4cNnMs2EGVkczwAZe/PMIj79rI0zQRzU+egroFKCTMuVJEDyS3a8BrAEfdyYYb9aBGZM5Z4Jzrj19fr1LiBjkWYJnnFzbfXTNvCJBF4T/MbthfXP5wBT1wQTQMGuKuUgyBLkU7WlTjsJtAR5VJ6npB4Fs+0OJoLC8K/cBbDtDiaB4vCvXQZZghnhX70NrJRgOmgK//p1cOU5wVTQ/PzX+wHYbhGZAMFzlzSEWALO8Es7giwBX/jlLWGV5wSsgCj8lp7AzbsDkIXf1hS6UQIQht/aFbxJApCG394WvkECEIdP8buAjMMiVkAePoUAzL+dVw+fRgA1CTAkfCoB2AqzIXw6AbJ/XlYNhoVPKcBUCTAwfFoB2K6S40chWcOnFoDlAimEw6cXoFuCEA9/hABdEsSC8McIUC1BLAl/lABV/QSxKPzjPxTJQlcIELickhCgIwwIhj/uK6Dr7gCi4Y8WoEoCCIc/XoDbEkA8fAkBboWABeHLCJB9gYQl4Y/eBdwKD4vCl5oBMtYEWBa+pADfSoCF4csKcCoBloYvuQa4cRgUouFLzwBVDSHTkRfgZkOIAisEuNEQosIaATIbQpRYJUBGQ4ga6wT4FHIsC98YY4wxxhhjjDHGGGOMMcYYY4wxxgjyD9f+9Uav1z6bAAAAAElFTkSuQmCC" alt="KP" style="height:28px;vertical-align:middle;margin-right:10px;border-radius:4px;"/> 법무법인 김앤파트너스 연차휴가 관리</h1>
+    <div class="header__actions">
+      <span class="header__date" id="todayBadge"></span>
+      <button class="btn-header" onclick="exportCSV()">CSV 내보내기</button>
+      <button class="btn-header" onclick="window.print()">인쇄</button>
+      <button class="btn-header" onclick="openSettings()">설정</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="info-bar" id="employeeBar"></div>
+  <div class="dash-row">
+    <div class="dashboard" id="dashboard"></div>
+    <div class="cal-side">
+      <div class="section__head">
+        <h2 class="section__title">달력</h2>
+        <div class="cal-nav">
+          <button class="btn btn--secondary btn--sm" onclick="calMove(-1)">&larr;</button>
+          <span class="cal-nav__label" id="calLabel"></span>
+          <button class="btn btn--secondary btn--sm" onclick="calMove(1)">&rarr;</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <span><span class="cal-legend__dot cal-legend__dot--used"></span>연차</span>
+        <span><span class="cal-legend__dot cal-legend__dot--half"></span>반차</span>
+        <span><span class="cal-legend__dot cal-legend__dot--today"></span>오늘</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section no-print">
+    <div class="section__head"><h2 class="section__title">휴가 등록</h2></div>
+    <div class="form-row">
+      <input type="date" id="inputDate" class="input" />
+      <select id="inputType" class="select">
+        <option value="연차">연차 (1일)</option>
+        <option value="오전반차">오전반차 (0.5일)</option>
+        <option value="오후반차">오후반차 (0.5일)</option>
+        <option value="생일연차">생일연차 (1일, 별도)</option>
+      </select>
+      <button class="btn btn--primary" onclick="addVacation()">등록</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section__head">
+      <h2 class="section__title">사용 내역</h2>
+      <span class="section__meta" id="usedCount"></span>
+    </div>
+    <table class="tbl">
+      <thead><tr><th style="width:40px">No.</th><th>날짜</th><th>구분</th><th class="no-print" style="width:60px">관리</th></tr></thead>
+      <tbody id="usedList"></tbody>
+    </table>
+  </section>
+
+  <section class="section" id="currentYearSection">
+    <div class="section__head">
+      <h2 class="section__title" id="currentYearTitle">연차 발생 / 사용 내역</h2>
+      <span class="section__meta" id="currentYearPeriod"></span>
+    </div>
+    <table class="tbl">
+      <thead><tr><th>날짜</th><th>구분</th><th class="text-left">내용</th><th>발생</th><th>사용</th><th>잔여</th></tr></thead>
+      <tbody id="currentYearDetail"></tbody>
+    </table>
+  </section>
+
+  <footer class="footer">근로기준법 제60조에 의거한 연차유급휴가 산정 &middot; 데이터는 브라우저(localStorage)에 저장됩니다.</footer>
+</main>
+
+<div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal__head"><h3>설정</h3></div>
+    <div class="modal__body">
+      <div class="form-group"><label for="setName">성명</label><input type="text" id="setName" class="input" placeholder="홍길동"/></div>
+      <div class="form-group"><label for="setDept">부서</label><select id="setDept" class="input"><option value="상담팀">상담팀</option><option value="작성1팀">작성1팀</option><option value="작성2팀">작성2팀</option><option value="작성3팀">작성3팀</option><option value="송무팀">송무팀</option><option value="마케팅팀">마케팅팀</option><option value="회계팀">회계팀</option></select></div>
+      <div class="form-group"><label for="setHireDate">입사일</label><input type="date" id="setHireDate" class="input"/></div>
+      <div class="form-group"><label for="setBirthday">생일 (월/일)</label><input type="text" id="setBirthday" class="input" placeholder="03-15 (월-일)"/></div>
+      <div class="form-group"><label>테마 색상</label>
+        <div id="themeSwatches" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--danger btn--sm" onclick="resetAllData()">데이터 초기화</button>
+      <div style="flex:1"></div>
+      <button class="btn btn--secondary" onclick="closeSettings()">취소</button>
+      <button class="btn btn--primary" onclick="saveSettings()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   개인 링크 처리 (?t=base64 토큰)
+   ═══════════════════════════════════════════════ */
+let LINK_MODE=false;
+let LINK_DATA=null;
+(function(){
+  try{
+    const p=new URLSearchParams(location.search);
+    const t=p.get('t');
+    if(t){LINK_DATA=JSON.parse(decodeURIComponent(atob(t)));LINK_MODE=true}
+  }catch(e){}
+})();
+
+const EMBEDDED_VACATION_DATA={"손승웅":[{"date":"2022-12-21","type":"연차"},{"date":"2022-12-26","type":"연차"},{"date":"2022-12-27","type":"연차"},{"date":"2022-12-28","type":"연차"},{"date":"2022-12-29","type":"연차"},{"date":"2023-01-13","type":"연차"},{"date":"2024-02-02","type":"연차"},{"date":"2024-03-18","type":"연차"},{"date":"2024-04-15","type":"연차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-08","type":"연차"},{"date":"2024-05-09","type":"연차"},{"date":"2024-05-10","type":"연차"},{"date":"2024-05-28","type":"오후반차"},{"date":"2024-06-10","type":"연차"},{"date":"2024-06-22","type":"연차"},{"date":"2024-07-26","type":"연차"},{"date":"2024-07-29","type":"오후반차"},{"date":"2024-09-19","type":"연차"},{"date":"2024-09-20","type":"연차"},{"date":"2024-11-18","type":"연차"},{"date":"2024-11-19","type":"연차"},{"date":"2024-12-16","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-02-21","type":"연차"},{"date":"2025-02-24","type":"오후반차"},{"date":"2025-04-14","type":"오후반차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-06-21","type":"연차"},{"date":"2025-07-02","type":"연차"},{"date":"2025-07-03","type":"연차"},{"date":"2025-07-04","type":"연차"},{"date":"2025-08-18","type":"연차"},{"date":"2025-08-22","type":"연차"},{"date":"2025-09-08","type":"연차"},{"date":"2025-10-02","type":"연차"},{"date":"2025-10-10","type":"생일연차"},{"date":"2025-11-17","type":"연차"},{"date":"2025-11-26","type":"연차"},{"date":"2025-12-01","type":"오전반차"},{"date":"2026-01-05","type":"연차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-02-23","type":"연차"},{"date":"2026-02-24","type":"연차"},{"date":"2026-04-27","type":"연차"}],"안희공":[{"date":"2022-10-30","type":"연차"},{"date":"2022-12-27","type":"연차"},{"date":"2022-12-28","type":"연차"},{"date":"2023-01-05","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-09","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-14","type":"연차"},{"date":"2023-01-22","type":"연차"},{"date":"2023-01-23","type":"연차"},{"date":"2023-01-24","type":"연차"},{"date":"2024-02-01","type":"연차"},{"date":"2024-03-20","type":"연차"},{"date":"2024-05-02","type":"연차"},{"date":"2024-05-03","type":"연차"},{"date":"2024-07-05","type":"연차"},{"date":"2024-08-05","type":"연차"},{"date":"2024-10-27","type":"연차"},{"date":"2024-10-28","type":"연차"},{"date":"2024-11-07","type":"연차"},{"date":"2024-11-08","type":"연차"},{"date":"2024-11-15","type":"연차"},{"date":"2024-11-21","type":"연차"},{"date":"2025-03-10","type":"연차"},{"date":"2025-05-28","type":"연차"},{"date":"2025-06-05","type":"연차"},{"date":"2025-07-17","type":"연차"},{"date":"2025-08-04","type":"연차"},{"date":"2025-08-05","type":"연차"},{"date":"2025-10-27","type":"오전반차"},{"date":"2025-10-28","type":"연차"},{"date":"2025-11-07","type":"연차"},{"date":"2025-11-14","type":"연차"},{"date":"2026-01-27","type":"연차"}],"여현정":[{"date":"2022-10-25","type":"연차"},{"date":"2022-10-30","type":"연차"},{"date":"2022-11-18","type":"오전반차"},{"date":"2022-11-23","type":"연차"},{"date":"2022-12-23","type":"연차"},{"date":"2022-12-26","type":"연차"},{"date":"2022-12-28","type":"연차"},{"date":"2022-12-29","type":"오후반차"},{"date":"2023-01-04","type":"오전반차"},{"date":"2023-01-05","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-11","type":"오후반차"},{"date":"2023-01-12","type":"오전반차"},{"date":"2023-01-14","type":"연차"},{"date":"2023-01-21","type":"연차"},{"date":"2023-01-24","type":"연차"},{"date":"2023-12-25","type":"연차"},{"date":"2024-01-15","type":"연차"},{"date":"2024-03-19","type":"연차"},{"date":"2024-05-02","type":"연차"},{"date":"2024-05-03","type":"연차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-05-31","type":"연차"},{"date":"2024-08-01","type":"연차"},{"date":"2024-08-02","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2024-09-30","type":"연차"},{"date":"2024-10-02","type":"연차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-10-27","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-02-24","type":"연차"},{"date":"2025-04-28","type":"연차"},{"date":"2025-05-07","type":"연차"},{"date":"2025-05-26","type":"연차"},{"date":"2025-05-27","type":"연차"},{"date":"2025-06-20","type":"연차"},{"date":"2025-06-24","type":"오후반차"},{"date":"2025-06-25","type":"오후반차"},{"date":"2025-07-04","type":"연차"},{"date":"2025-08-01","type":"오후반차"},{"date":"2025-08-06","type":"오전반차"},{"date":"2025-09-19","type":"연차"},{"date":"2025-10-26","type":"오전반차"},{"date":"2025-10-28","type":"오전반차"},{"date":"2025-11-03","type":"연차"},{"date":"2025-11-04","type":"연차"},{"date":"2025-12-12","type":"연차"},{"date":"2026-01-16","type":"연차"},{"date":"2026-01-21","type":"오후반차"},{"date":"2026-02-11","type":"오후반차"},{"date":"2026-03-20","type":"연차"},{"date":"2026-04-20","type":"생일연차"},{"date":"2026-04-21","type":"연차"},{"date":"2026-04-22","type":"연차"},{"date":"2026-04-23","type":"연차"},{"date":"2026-04-24","type":"연차"}],"조윤미":[{"date":"2022-10-25","type":"연차"},{"date":"2022-10-26","type":"연차"},{"date":"2022-11-18","type":"연차"},{"date":"2022-12-26","type":"연차"},{"date":"2022-12-27","type":"연차"},{"date":"2022-12-28","type":"연차"},{"date":"2022-12-30","type":"연차"},{"date":"2022-12-31","type":"연차"},{"date":"2023-01-09","type":"연차"},{"date":"2023-01-12","type":"연차"},{"date":"2023-01-13","type":"연차"},{"date":"2023-01-20","type":"연차"},{"date":"2023-01-21","type":"연차"},{"date":"2023-01-22","type":"연차"},{"date":"2023-01-23","type":"연차"},{"date":"2023-01-24","type":"연차"},{"date":"2024-02-23","type":"연차"},{"date":"2024-02-25","type":"연차"},{"date":"2024-03-12","type":"연차"},{"date":"2024-04-11","type":"연차"},{"date":"2024-04-12","type":"연차"},{"date":"2024-05-23","type":"연차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-05-28","type":"연차"},{"date":"2024-07-10","type":"연차"},{"date":"2024-07-29","type":"연차"},{"date":"2024-07-30","type":"연차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-10-29","type":"연차"},{"date":"2024-11-07","type":"오후반차"},{"date":"2024-11-08","type":"연차"},{"date":"2024-11-11","type":"연차"},{"date":"2024-12-17","type":"오후반차"},{"date":"2025-03-21","type":"연차"},{"date":"2025-03-21","type":"오전반차"},{"date":"2025-03-25","type":"연차"},{"date":"2025-04-29","type":"오후반차"},{"date":"2025-05-14","type":"오후반차"},{"date":"2025-05-15","type":"연차"},{"date":"2025-05-16","type":"연차"},{"date":"2025-05-19","type":"연차"},{"date":"2025-05-23","type":"연차"},{"date":"2025-05-24","type":"연차"},{"date":"2025-05-25","type":"연차"},{"date":"2025-05-26","type":"연차"},{"date":"2025-05-27","type":"연차"},{"date":"2025-06-19","type":"오후반차"},{"date":"2025-06-20","type":"연차"},{"date":"2025-08-22","type":"연차"},{"date":"2025-10-23","type":"연차"},{"date":"2025-10-24","type":"연차"},{"date":"2025-10-28","type":"생일연차"},{"date":"2025-11-26","type":"연차"},{"date":"2026-02-27","type":"오후반차"},{"date":"2026-03-12","type":"오후반차"}],"안희진":[{"date":"2022-11-09","type":"오전반차"},{"date":"2022-11-18","type":"연차"},{"date":"2022-11-23","type":"연차"},{"date":"2022-12-23","type":"연차"},{"date":"2022-12-26","type":"연차"},{"date":"2022-12-27","type":"연차"},{"date":"2022-12-28","type":"연차"},{"date":"2022-12-30","type":"연차"},{"date":"2022-12-31","type":"연차"},{"date":"2023-01-04","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-11","type":"연차"},{"date":"2023-01-14","type":"연차"},{"date":"2023-01-20","type":"연차"},{"date":"2023-12-24","type":"연차"},{"date":"2024-02-19","type":"연차"},{"date":"2024-03-26","type":"연차"},{"date":"2024-05-09","type":"연차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-06-26","type":"연차"},{"date":"2024-07-18","type":"연차"},{"date":"2024-07-19","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2024-09-06","type":"연차"},{"date":"2024-11-01","type":"연차"},{"date":"2024-11-04","type":"연차"},{"date":"2024-11-05","type":"연차"},{"date":"2025-02-10","type":"연차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-06-19","type":"연차"},{"date":"2025-06-21","type":"연차"},{"date":"2025-07-14","type":"연차"},{"date":"2025-07-15","type":"연차"},{"date":"2025-09-29","type":"연차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-11-26","type":"연차"},{"date":"2025-12-26","type":"연차"},{"date":"2026-03-03","type":"연차"},{"date":"2026-04-27","type":"생일연차"}],"이세림":[{"date":"2022-10-25","type":"연차"},{"date":"2022-11-02","type":"연차"},{"date":"2022-12-25","type":"연차"},{"date":"2023-01-02","type":"연차"},{"date":"2023-01-03","type":"연차"},{"date":"2023-01-06","type":"연차"},{"date":"2023-01-07","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-08","type":"오전반차"},{"date":"2023-01-16","type":"연차"},{"date":"2023-01-19","type":"연차"},{"date":"2023-01-20","type":"연차"},{"date":"2023-01-21","type":"연차"},{"date":"2023-01-22","type":"연차"},{"date":"2024-01-12","type":"오후반차"},{"date":"2024-02-07","type":"연차"},{"date":"2024-03-25","type":"오전반차"},{"date":"2024-04-03","type":"연차"},{"date":"2024-05-09","type":"오전반차"},{"date":"2024-05-31","type":"연차"},{"date":"2024-06-12","type":"오후반차"},{"date":"2024-06-25","type":"연차"},{"date":"2024-06-26","type":"연차"},{"date":"2024-07-30","type":"오후반차"},{"date":"2024-09-25","type":"연차"},{"date":"2024-11-04","type":"오후반차"},{"date":"2024-11-23","type":"연차"},{"date":"2024-11-24","type":"연차"},{"date":"2025-02-24","type":"오전반차"},{"date":"2025-03-22","type":"오후반차"},{"date":"2025-03-25","type":"오후반차"},{"date":"2025-05-21","type":"연차"},{"date":"2025-05-22","type":"연차"},{"date":"2025-05-23","type":"연차"},{"date":"2025-07-04","type":"연차"},{"date":"2025-07-18","type":"연차"},{"date":"2025-07-29","type":"오후반차"},{"date":"2025-09-05","type":"오후반차"},{"date":"2025-09-29","type":"생일연차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-10-31","type":"연차"},{"date":"2025-11-17","type":"연차"},{"date":"2025-12-18","type":"연차"},{"date":"2025-12-19","type":"연차"},{"date":"2026-01-06","type":"연차"},{"date":"2026-02-02","type":"연차"}],"윤승빈":[{"date":"2024-09-19","type":"연차"},{"date":"2024-09-20","type":"연차"},{"date":"2024-09-22","type":"오전반차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-10-15","type":"연차"},{"date":"2024-10-31","type":"오후반차"},{"date":"2024-11-08","type":"연차"},{"date":"2024-11-22","type":"오후반차"},{"date":"2024-11-24","type":"연차"},{"date":"2025-01-31","type":"오후반차"},{"date":"2025-02-28","type":"연차"},{"date":"2025-03-04","type":"연차"},{"date":"2025-03-05","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-13","type":"연차"},{"date":"2025-07-04","type":"오후반차"},{"date":"2025-07-07","type":"연차"},{"date":"2025-07-08","type":"연차"},{"date":"2025-07-29","type":"오후반차"},{"date":"2025-08-11","type":"오후반차"},{"date":"2025-08-26","type":"오후반차"},{"date":"2025-09-29","type":"오전반차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-10-21","type":"연차"},{"date":"2025-10-22","type":"연차"},{"date":"2025-11-21","type":"생일연차"},{"date":"2025-11-22","type":"연차"},{"date":"2026-02-02","type":"오후반차"},{"date":"2026-02-13","type":"오후반차"},{"date":"2026-03-04","type":"연차"},{"date":"2026-05-12","type":"연차"},{"date":"2026-05-23","type":"연차"}],"한성종":[{"date":"2022-12-28","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-09","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-12","type":"연차"},{"date":"2023-01-16","type":"연차"},{"date":"2023-01-17","type":"연차"},{"date":"2023-01-18","type":"연차"},{"date":"2024-01-16","type":"연차"},{"date":"2024-01-19","type":"연차"},{"date":"2024-02-01","type":"연차"},{"date":"2024-02-21","type":"연차"},{"date":"2024-05-22","type":"연차"},{"date":"2024-05-23","type":"연차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-06-10","type":"연차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-08-19","type":"연차"},{"date":"2024-08-20","type":"연차"},{"date":"2024-08-21","type":"연차"},{"date":"2024-08-26","type":"연차"},{"date":"2024-09-05","type":"연차"},{"date":"2024-10-14","type":"연차"},{"date":"2024-11-14","type":"연차"},{"date":"2024-11-15","type":"연차"},{"date":"2025-01-13","type":"연차"},{"date":"2025-02-28","type":"연차"},{"date":"2025-03-14","type":"오후반차"},{"date":"2025-04-28","type":"연차"},{"date":"2025-04-29","type":"오전반차"},{"date":"2025-05-09","type":"연차"},{"date":"2025-05-27","type":"오후반차"},{"date":"2025-06-09","type":"연차"},{"date":"2025-06-10","type":"연차"},{"date":"2025-06-11","type":"연차"},{"date":"2025-08-01","type":"연차"},{"date":"2025-08-24","type":"오전반차"},{"date":"2025-10-15","type":"연차"},{"date":"2025-11-11","type":"연차"},{"date":"2025-12-05","type":"연차"},{"date":"2025-12-12","type":"오후반차"},{"date":"2025-12-30","type":"오후반차"},{"date":"2026-01-16","type":"오후반차"},{"date":"2026-01-23","type":"연차"},{"date":"2026-03-12","type":"연차"},{"date":"2026-03-13","type":"연차"}],"박하람":[{"date":"2024-03-14","type":"연차"},{"date":"2024-03-15","type":"연차"},{"date":"2024-04-11","type":"연차"},{"date":"2024-04-12","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-07-01","type":"연차"},{"date":"2024-07-02","type":"연차"},{"date":"2024-07-03","type":"연차"},{"date":"2024-09-13","type":"연차"},{"date":"2024-11-01","type":"연차"},{"date":"2024-11-15","type":"연차"},{"date":"2024-11-23","type":"연차"},{"date":"2024-11-24","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-02-12","type":"연차"},{"date":"2025-03-17","type":"연차"},{"date":"2025-03-18","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-08-21","type":"연차"},{"date":"2025-08-22","type":"연차"},{"date":"2025-09-15","type":"생일연차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-11-26","type":"연차"},{"date":"2025-11-29","type":"오전반차"},{"date":"2025-12-04","type":"오후반차"},{"date":"2025-12-05","type":"연차"},{"date":"2026-01-02","type":"연차"},{"date":"2026-02-11","type":"연차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-03-12","type":"연차"},{"date":"2026-03-13","type":"연차"},{"date":"2026-03-19","type":"연차"},{"date":"2026-03-20","type":"연차"}],"이진호":[{"date":"2024-04-05","type":"연차"},{"date":"2024-08-22","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2025-04-11","type":"연차"},{"date":"2025-07-11","type":"연차"},{"date":"2025-11-07","type":"오후반차"},{"date":"2025-12-04","type":"오후반차"},{"date":"2025-12-19","type":"생일연차"},{"date":"2026-01-09","type":"연차"},{"date":"2026-01-23","type":"오후반차"},{"date":"2026-02-10","type":"연차"},{"date":"2026-02-11","type":"연차"},{"date":"2026-02-12","type":"연차"},{"date":"2026-02-13","type":"연차"}],"김태희":[{"date":"2024-02-08","type":"오후반차"},{"date":"2024-03-24","type":"오후반차"},{"date":"2024-04-05","type":"연차"},{"date":"2024-04-08","type":"연차"},{"date":"2024-04-09","type":"연차"},{"date":"2024-04-11","type":"연차"},{"date":"2024-04-12","type":"연차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-09","type":"오후반차"},{"date":"2024-05-23","type":"오전반차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-06-05","type":"오후반차"},{"date":"2024-06-07","type":"연차"},{"date":"2024-07-02","type":"연차"},{"date":"2024-07-16","type":"오후반차"},{"date":"2024-08-05","type":"오후반차"},{"date":"2024-08-14","type":"오후반차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-08-20","type":"연차"},{"date":"2024-08-22","type":"오전반차"},{"date":"2024-08-26","type":"연차"},{"date":"2024-10-07","type":"연차"},{"date":"2024-10-08","type":"연차"},{"date":"2024-11-22","type":"오후반차"},{"date":"2024-12-06","type":"오후반차"},{"date":"2024-12-16","type":"연차"},{"date":"2025-02-24","type":"오후반차"},{"date":"2025-02-26","type":"오후반차"},{"date":"2025-04-01","type":"오후반차"},{"date":"2025-04-16","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-06-05","type":"연차"},{"date":"2025-07-02","type":"오후반차"},{"date":"2025-07-11","type":"연차"},{"date":"2025-07-14","type":"연차"},{"date":"2025-07-15","type":"연차"},{"date":"2025-07-16","type":"연차"},{"date":"2025-07-17","type":"연차"},{"date":"2025-07-18","type":"연차"},{"date":"2025-07-26","type":"오후반차"},{"date":"2025-07-30","type":"연차"},{"date":"2025-07-31","type":"오후반차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-11-26","type":"연차"},{"date":"2025-12-19","type":"연차"},{"date":"2026-01-02","type":"생일연차"},{"date":"2026-01-27","type":"오후반차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-04-06","type":"연차"},{"date":"2026-05-04","type":"연차"},{"date":"2026-07-20","type":"연차"},{"date":"2026-09-28","type":"연차"},{"date":"2026-10-06","type":"연차"},{"date":"2026-10-07","type":"연차"},{"date":"2026-10-08","type":"연차"}],"백운선":[{"date":"2023-12-26","type":"연차"},{"date":"2024-03-18","type":"연차"},{"date":"2024-03-24","type":"연차"},{"date":"2024-04-17","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-06-25","type":"연차"},{"date":"2024-06-26","type":"연차"},{"date":"2024-07-29","type":"연차"},{"date":"2024-07-30","type":"연차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-09-19","type":"연차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-11-22","type":"오후반차"},{"date":"2024-11-26","type":"연차"},{"date":"2024-11-27","type":"연차"},{"date":"2025-02-20","type":"오후반차"},{"date":"2025-02-21","type":"연차"},{"date":"2025-03-14","type":"오후반차"},{"date":"2025-04-30","type":"오후반차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-24","type":"연차"},{"date":"2025-06-25","type":"연차"},{"date":"2025-08-01","type":"연차"},{"date":"2025-08-06","type":"연차"},{"date":"2025-08-07","type":"연차"},{"date":"2025-08-08","type":"연차"},{"date":"2025-08-22","type":"오후반차"},{"date":"2025-08-24","type":"연차"},{"date":"2025-09-05","type":"오후반차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-10-31","type":"오후반차"},{"date":"2025-11-26","type":"오후반차"},{"date":"2025-12-02","type":"연차"},{"date":"2026-01-23","type":"연차"},{"date":"2026-01-26","type":"오후반차"},{"date":"2026-02-06","type":"오후반차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-03-20","type":"연차"}],"김태훈":[{"date":"2024-02-08","type":"연차"},{"date":"2024-02-27","type":"연차"},{"date":"2024-03-20","type":"연차"},{"date":"2024-03-24","type":"연차"},{"date":"2024-04-03","type":"연차"},{"date":"2024-04-17","type":"연차"},{"date":"2024-05-08","type":"연차"},{"date":"2024-05-13","type":"연차"},{"date":"2024-05-14","type":"연차"},{"date":"2024-05-22","type":"연차"},{"date":"2024-06-07","type":"연차"},{"date":"2024-07-11","type":"오후반차"},{"date":"2024-07-26","type":"오후반차"},{"date":"2024-07-27","type":"연차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-10-26","type":"연차"},{"date":"2025-01-06","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-12","type":"연차"},{"date":"2025-03-19","type":"연차"},{"date":"2025-03-23","type":"연차"},{"date":"2025-04-16","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-05-21","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-08-01","type":"연차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-11-26","type":"연차"},{"date":"2025-12-01","type":"오후반차"},{"date":"2025-12-12","type":"오후반차"},{"date":"2025-12-16","type":"오후반차"},{"date":"2025-12-30","type":"연차"},{"date":"2026-02-12","type":"연차"},{"date":"2026-02-13","type":"연차"},{"date":"2026-02-20","type":"오후반차"},{"date":"2026-03-20","type":"연차"},{"date":"2026-04-17","type":"연차"},{"date":"2026-04-26","type":"연차"},{"date":"2026-04-30","type":"생일연차"},{"date":"2026-05-15","type":"연차"}],"유승아":[{"date":"2024-02-16","type":"연차"},{"date":"2024-03-26","type":"연차"},{"date":"2024-04-03","type":"연차"},{"date":"2024-04-29","type":"연차"},{"date":"2024-04-30","type":"연차"},{"date":"2024-05-17","type":"오후반차"},{"date":"2024-05-21","type":"오후반차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-06-21","type":"연차"},{"date":"2024-07-15","type":"연차"},{"date":"2024-07-18","type":"오후반차"},{"date":"2024-08-02","type":"연차"},{"date":"2024-10-08","type":"연차"},{"date":"2024-10-29","type":"연차"},{"date":"2024-12-02","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-04","type":"연차"},{"date":"2025-03-05","type":"연차"},{"date":"2025-03-06","type":"연차"},{"date":"2025-03-24","type":"오후반차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-06-04","type":"연차"},{"date":"2025-06-05","type":"연차"},{"date":"2025-06-20","type":"오후반차"},{"date":"2025-08-04","type":"오후반차"},{"date":"2025-08-11","type":"연차"},{"date":"2025-08-25","type":"오후반차"},{"date":"2025-08-26","type":"연차"},{"date":"2025-11-11","type":"연차"},{"date":"2026-02-06","type":"오후반차"},{"date":"2026-04-27","type":"연차"},{"date":"2026-04-28","type":"연차"},{"date":"2026-04-29","type":"연차"},{"date":"2026-05-04","type":"생일연차"},{"date":"2026-06-04","type":"연차"},{"date":"2026-06-05","type":"연차"}],"정지인":[{"date":"2023-12-24","type":"연차"},{"date":"2023-12-25","type":"연차"},{"date":"2023-12-26","type":"연차"},{"date":"2024-01-18","type":"연차"},{"date":"2024-03-11","type":"오전반차"},{"date":"2024-05-17","type":"오후반차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-06-05","type":"연차"},{"date":"2024-06-12","type":"연차"},{"date":"2024-06-14","type":"연차"},{"date":"2024-07-17","type":"연차"},{"date":"2024-08-01","type":"연차"},{"date":"2024-08-08","type":"연차"},{"date":"2024-08-09","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2024-09-05","type":"오전반차"},{"date":"2024-09-09","type":"연차"},{"date":"2024-10-07","type":"연차"},{"date":"2025-01-20","type":"연차"},{"date":"2025-02-27","type":"오후반차"},{"date":"2025-03-10","type":"연차"},{"date":"2025-03-11","type":"연차"},{"date":"2025-03-31","type":"연차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-06-18","type":"연차"},{"date":"2025-06-24","type":"오전반차"},{"date":"2025-07-28","type":"연차"},{"date":"2025-08-04","type":"오후반차"},{"date":"2025-08-20","type":"연차"},{"date":"2026-01-05","type":"연차"},{"date":"2026-01-23","type":"연차"},{"date":"2026-01-25","type":"오후반차"},{"date":"2026-02-19","type":"생일연차"},{"date":"2026-03-10","type":"연차"},{"date":"2026-03-18","type":"연차"}],"김유진":[{"date":"2024-03-05","type":"연차"},{"date":"2024-03-11","type":"연차"},{"date":"2024-03-20","type":"연차"},{"date":"2024-04-17","type":"오후반차"},{"date":"2024-04-18","type":"오후반차"},{"date":"2024-05-02","type":"오전반차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-08","type":"연차"},{"date":"2024-05-09","type":"연차"},{"date":"2024-05-10","type":"연차"},{"date":"2024-05-27","type":"오후반차"},{"date":"2024-09-19","type":"연차"},{"date":"2024-09-20","type":"연차"},{"date":"2024-10-27","type":"오후반차"},{"date":"2024-11-18","type":"연차"},{"date":"2024-11-19","type":"연차"},{"date":"2024-12-16","type":"연차"},{"date":"2025-01-06","type":"연차"},{"date":"2025-01-09","type":"오후반차"},{"date":"2025-01-10","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-12","type":"연차"},{"date":"2025-03-13","type":"연차"},{"date":"2025-03-14","type":"연차"},{"date":"2025-03-19","type":"연차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-05-13","type":"오후반차"},{"date":"2025-05-27","type":"오후반차"},{"date":"2025-06-02","type":"오후반차"},{"date":"2025-06-04","type":"오후반차"},{"date":"2025-06-13","type":"오후반차"},{"date":"2025-06-17","type":"연차"},{"date":"2025-06-22","type":"연차"},{"date":"2025-06-30","type":"오전반차"},{"date":"2025-07-28","type":"오후반차"},{"date":"2025-07-30","type":"연차"},{"date":"2025-08-06","type":"연차"},{"date":"2025-08-07","type":"연차"},{"date":"2025-08-08","type":"연차"},{"date":"2025-08-23","type":"오후반차"},{"date":"2025-08-26","type":"연차"},{"date":"2025-09-08","type":"오후반차"},{"date":"2025-09-29","type":"연차"},{"date":"2025-10-22","type":"오전반차"},{"date":"2025-12-16","type":"연차"},{"date":"2025-12-17","type":"연차"},{"date":"2026-03-10","type":"오후반차"},{"date":"2026-03-11","type":"오전반차"},{"date":"2026-03-12","type":"오전반차"},{"date":"2026-03-13","type":"오전반차"}],"명지숙":[{"date":"2024-04-11","type":"연차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-31","type":"연차"},{"date":"2024-07-08","type":"연차"},{"date":"2024-07-28","type":"오전반차"},{"date":"2024-10-27","type":"오전반차"},{"date":"2024-11-15","type":"연차"},{"date":"2024-11-22","type":"연차"},{"date":"2024-12-13","type":"연차"},{"date":"2024-12-20","type":"연차"},{"date":"2025-01-07","type":"연차"},{"date":"2025-01-08","type":"연차"},{"date":"2025-01-09","type":"오전반차"},{"date":"2025-02-28","type":"오후반차"},{"date":"2025-03-10","type":"연차"},{"date":"2025-03-14","type":"오전반차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-04-28","type":"오전반차"},{"date":"2025-06-17","type":"오전반차"},{"date":"2025-06-25","type":"연차"},{"date":"2025-07-28","type":"연차"},{"date":"2025-08-20","type":"오전반차"},{"date":"2025-09-08","type":"오전반차"},{"date":"2025-09-09","type":"오전반차"},{"date":"2025-12-26","type":"연차"},{"date":"2025-12-27","type":"연차"},{"date":"2026-01-05","type":"연차"},{"date":"2026-01-12","type":"연차"},{"date":"2026-01-19","type":"연차"},{"date":"2026-01-22","type":"연차"},{"date":"2026-03-05","type":"오전반차"},{"date":"2026-04-06","type":"생일연차"},{"date":"2026-04-09","type":"연차"}],"구혜수":[{"date":"2024-07-30","type":"오후반차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-10-31","type":"오후반차"},{"date":"2024-12-10","type":"연차"},{"date":"2025-01-03","type":"오후반차"},{"date":"2025-01-17","type":"오후반차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-19","type":"연차"},{"date":"2025-04-14","type":"연차"},{"date":"2025-05-07","type":"연차"},{"date":"2025-05-28","type":"오후반차"},{"date":"2025-06-12","type":"오후반차"},{"date":"2025-06-13","type":"연차"},{"date":"2025-06-16","type":"연차"},{"date":"2025-07-25","type":"오후반차"},{"date":"2025-07-28","type":"연차"},{"date":"2025-07-29","type":"연차"},{"date":"2025-08-11","type":"연차"},{"date":"2025-08-18","type":"오후반차"},{"date":"2025-08-24","type":"연차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-11-17","type":"생일연차"},{"date":"2025-12-18","type":"오전반차"},{"date":"2026-01-02","type":"연차"},{"date":"2026-02-03","type":"오후반차"},{"date":"2026-02-04","type":"연차"},{"date":"2026-02-05","type":"연차"},{"date":"2026-02-06","type":"연차"},{"date":"2026-03-18","type":"연차"},{"date":"2026-03-20","type":"연차"}],"문희원":[{"date":"2026-01-05","type":"연차"},{"date":"2026-02-20","type":"연차"}],"임동욱":[{"date":"2025-11-30","type":"연차"},{"date":"2026-01-13","type":"연차"},{"date":"2026-02-25","type":"연차"}],"김대영":[{"date":"2025-11-26","type":"연차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-03-03","type":"오전반차"},{"date":"2026-03-13","type":"오후반차"},{"date":"2026-05-04","type":"생일연차"}],"유예람":[{"date":"2026-02-09","type":"연차"}],"김혜진":[],"김예은":[{"date":"2025-05-15","type":"연차"},{"date":"2025-07-28","type":"연차"},{"date":"2025-08-25","type":"연차"},{"date":"2025-09-03","type":"연차"},{"date":"2025-12-03","type":"오후반차"},{"date":"2026-03-09","type":"연차"},{"date":"2026-03-10","type":"연차"},{"date":"2026-03-11","type":"연차"},{"date":"2026-03-12","type":"연차"},{"date":"2026-05-18","type":"생일연차"}],"남진영":[{"date":"2025-12-05","type":"오전반차"},{"date":"2025-12-28","type":"연차"},{"date":"2026-01-27","type":"오후반차"},{"date":"2026-02-27","type":"오후반차"},{"date":"2026-03-13","type":"오후반차"},{"date":"2026-04-02","type":"생일연차"},{"date":"2026-04-10","type":"연차"}],"성연경":[{"date":"2025-10-10","type":"연차"},{"date":"2025-12-01","type":"연차"},{"date":"2026-01-08","type":"연차"},{"date":"2026-01-09","type":"연차"},{"date":"2026-03-20","type":"연차"}],"문정하":[]};
+
+const KEYS={settings:LINK_MODE?'vac_link_'+LINK_DATA.name:'vac_settings',used:LINK_MODE?'vac_link_used_'+LINK_DATA.name:'vac_used'};
+const DEFAULT_SETTINGS=LINK_MODE?{name:LINK_DATA.name,dept:LINK_DATA.dept,hireDate:LINK_DATA.hireDate,birthday:LINK_DATA.birthday||''}:{name:'',dept:'마케팅',hireDate:'2025-08-25',birthday:''};
+const DEFAULT_USED=LINK_MODE?(EMBEDDED_VACATION_DATA[LINK_DATA.name]||[]):[];
+function load(k,d){try{const v=localStorage.getItem(k);if(!v)return structuredClone(d);const o=JSON.parse(v);if(k===KEYS.settings&&o.dept==='개발팀'){o.dept='마케팅';save(k,o)}return o}catch{return structuredClone(d)}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function toDate(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function fmt(d){return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
+function fmtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dayVal(i){return i.type==='오전반차'||i.type==='오후반차'?0.5:1}
+function isBirthdayLeave(i){return i.type==='생일연차'}
+function getToday(){const d=new Date();d.setHours(0,0,0,0);return d}
+function getAnnualDays(y){if(y<2)return 0;return Math.min(15+Math.floor((y-2)/2),25)}
+function numFmt(n){return n%1===0?String(n):n.toFixed(1)}
+
+/* ═══════════════════════════════════════════════
+   Theme system
+   ═══════════════════════════════════════════════ */
+const THEMES={
+  sage:{label:'그린',swatch:'#4A5D4F',primary:'#4A5D4F',dark:'#3B4B3F',deep:'#2C3830',light:'#E8EDE9',p50:'#F3F5F3',bg:'#F5F2ED',surface:'#FDFCFA',g50:'#F8F6F2',g100:'#EFECE6',g200:'#E0DCD4',success:'#5A7A5E',warning:'#A68B5B',error:'#9B4D4D',gauge:'#4A5D4F',gaugeWarn:'#A68B5B',gaugeDanger:'#9B4D4D',focus:'rgba(74,93,79,.18)',badge:'#CDD6CE'},
+  navy:{label:'네이비',swatch:'#3D5A80',primary:'#3D5A80',dark:'#2F4A6C',deep:'#233A54',light:'#E4ECF4',p50:'#F1F5F9',bg:'#EEF1F5',surface:'#F9FBFD',g50:'#F4F6F9',g100:'#E9ECF1',g200:'#D8DDE6',success:'#4A7A6B',warning:'#8B7A4A',error:'#8B5A5A',gauge:'#3D5A80',gaugeWarn:'#8B7A4A',gaugeDanger:'#8B5A5A',focus:'rgba(61,90,128,.18)',badge:'#B8C8D8'},
+};
+let selectedTheme='sage';
+
+function applyTheme(id){
+  const t=THEMES[id];if(!t)return;
+  const r=document.documentElement.style;
+  r.setProperty('--krds-primary',t.primary);
+  r.setProperty('--krds-primary-dark',t.dark);
+  r.setProperty('--krds-primary-deep',t.deep);
+  r.setProperty('--krds-primary-light',t.light);
+  r.setProperty('--krds-primary-50',t.p50);
+  r.setProperty('--krds-bg',t.bg);
+  r.setProperty('--krds-surface',t.surface);
+  r.setProperty('--krds-g50',t.g50);
+  r.setProperty('--krds-g100',t.g100);
+  r.setProperty('--krds-g200',t.g200);
+  r.setProperty('--krds-success',t.success);
+  r.setProperty('--krds-success-bg',t.light);
+  r.setProperty('--krds-warning',t.warning);
+  r.setProperty('--krds-error',t.error);
+  r.setProperty('--krds-info',t.primary);
+  r.setProperty('--krds-info-bg',t.light);
+  r.setProperty('--krds-amber',t.warning);
+  r.setProperty('--krds-focus',t.focus);
+  selectedTheme=id;
+}
+
+function renderSwatches(){
+  const el=document.getElementById('themeSwatches');
+  el.innerHTML=Object.entries(THEMES).map(([id,t])=>`<div style="text-align:center"><div class="swatch${selectedTheme===id?' active':''}" style="background:${t.swatch}" onclick="previewTheme('${id}')" title="${t.label}"></div><div class="swatch__label">${t.label}</div></div>`).join('');
+}
+
+function previewTheme(id){
+  applyTheme(id);
+  renderSwatches();
+  render();
+}
+
+function toggleSection(id){
+  document.getElementById(id).classList.toggle('section--collapsed');
+}
+
+function openSettings(){
+  const s=load(KEYS.settings,DEFAULT_SETTINGS);
+  document.getElementById('setName').value=s.name;
+  document.getElementById('setDept').value=s.dept;
+  document.getElementById('setHireDate').value=s.hireDate;
+  document.getElementById('setBirthday').value=s.birthday||'';
+  selectedTheme=s.theme||'sage';
+  renderSwatches();
+  if(LINK_MODE){
+    document.getElementById('setName').disabled=true;
+    document.getElementById('setDept').disabled=true;
+    document.getElementById('setHireDate').disabled=true;
+    document.getElementById('setBirthday').disabled=true;
+  }
+  document.getElementById('settingsModal').classList.add('active');
+}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('active')}
+function saveSettings(){
+  const s={name:document.getElementById('setName').value.trim(),dept:document.getElementById('setDept').value.trim(),hireDate:document.getElementById('setHireDate').value,birthday:document.getElementById('setBirthday').value.trim(),theme:selectedTheme};
+  if(!s.hireDate){alert('입사일을 입력하세요.');return}
+  save(KEYS.settings,s);closeSettings();render();
+}
+function resetAllData(){
+  if(!confirm('모든 데이터를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'))return;
+  localStorage.removeItem(KEYS.settings);localStorage.removeItem(KEYS.used);closeSettings();render();
+}
+
+function addVacation(){
+  const dateVal=document.getElementById('inputDate').value;
+  const typeVal=document.getElementById('inputType').value;
+  if(!dateVal){alert('날짜를 선택하세요.');return}
+  if(typeVal==='생일연차'){
+    const st=load(KEYS.settings,DEFAULT_SETTINGS);
+    if(!st.birthday){alert('설정에서 생일(월/일)을 먼저 입력하세요.');return}
+    const bMonth=parseInt(st.birthday.split('-')[0],10);
+    const selMonth=parseInt(dateVal.split('-')[1],10);
+    if(bMonth!==selMonth){alert('생일연차는 생일 당월('+bMonth+'월)에만 사용할 수 있습니다.');return}
+    const used0=load(KEYS.used,DEFAULT_USED);
+    const selYear=dateVal.split('-')[0];
+    if(used0.some(u=>u.type==='생일연차'&&u.date.startsWith(selYear))){alert(selYear+'년 생일연차는 이미 사용했습니다.');return}
+    alert('📌 생일 휴가 등록 안내\n\n1. 휴가 대장 스프레드에 기재해주세요.\n   예) '+st.name+'(생일 휴가)\n\n2. 네이버 웍스에도 기재해주세요.\n   예) '+st.name+'(생일 휴가)\n\n※ 생일 당월 미사용 시 소멸됩니다.');
+  }
+  const used=load(KEYS.used,DEFAULT_USED);
+  if(used.find(u=>u.date===dateVal&&u.type===typeVal)){alert('이미 등록된 내역입니다.');return}
+  if(typeVal==='연차'&&used.some(u=>u.date===dateVal)){
+    if(!confirm(dateVal+'에 이미 반차가 등록되어 있습니다. 연차로 덮어쓰시겠습니까?'))return;
+    const f=used.filter(u=>u.date!==dateVal);f.push({date:dateVal,type:typeVal});f.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,f);
+  }else{used.push({date:dateVal,type:typeVal});used.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,used)}
+  document.getElementById('inputDate').value='';render();
+}
+function removeVacation(date,type){
+  if(!confirm(date+' '+type+'을(를) 삭제하시겠습니까?'))return;
+  save(KEYS.used,load(KEYS.used,DEFAULT_USED).filter(u=>!(u.date===date&&u.type===type)));render();
+}
+
+function exportCSV(){
+  const s=load(KEYS.settings,DEFAULT_SETTINGS),used=load(KEYS.used,DEFAULT_USED);
+  let csv='\uFEFF성명,부서,입사일\n'+`${s.name},${s.dept},${s.hireDate}\n\n날짜,구분,차감일수\n`;
+  used.forEach(u=>{const label=u.type==='생일연차'?s.name+'(생일 휴가)':u.type;csv+=`${u.date},${label},${u.type==='생일연차'?'별도':dayVal(u)}\n`});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download=`연차사용내역_${s.name||'export'}_${fmtISO(getToday())}.csv`;a.click();
+}
+
+function render(){
+  const settings=load(KEYS.settings,DEFAULT_SETTINGS),used=load(KEYS.used,DEFAULT_USED),today=getToday(),hireDate=toDate(settings.hireDate);
+  document.getElementById('todayBadge').textContent=fmt(today)+' 기준';
+
+  const info=[];
+  if(settings.name)info.push(`<div class="info-bar__item"><strong>성명</strong>${settings.name}</div>`);
+  if(settings.dept)info.push(`<div class="info-bar__item"><strong>부서</strong>${settings.dept}</div>`);
+  info.push(`<div class="info-bar__item"><strong>입사일</strong>${fmt(hireDate)}</div>`);
+  if(settings.birthday)info.push(`<div class="info-bar__item"><strong>생일</strong>${settings.birthday.replace('-','월 ')}일</div>`);
+  const dd=Math.floor((today-hireDate)/86400000),dY=Math.floor(dd/365),dM=Math.floor((dd%365)/30);
+  info.push(`<div class="info-bar__item"><strong>근속</strong>${dY>0?dY+'년 ':''}${dM}개월 (${dY>0?dY+'년 이상':'1년 미만'})</div>`);
+  document.getElementById('employeeBar').innerHTML=info.join('');
+
+  const dayBefore=d=>new Date(d-86400000);
+
+  // 동적 년차 경계
+  const yearEnds=[];
+  for(let i=1;i<=30;i++){const d=new Date(hireDate);d.setFullYear(d.getFullYear()+i);yearEnds.push(d)}
+  let curYi=0;
+  for(let i=0;i<yearEnds.length;i++){if(today<yearEnds[i]){curYi=i;break}}
+  const yi=curYi+1;
+  const curStart=curYi===0?hireDate:yearEnds[curYi-1];
+  const curEnd=yearEnds[curYi];
+
+  const regularUsed=used.filter(u=>!isBirthdayLeave(u));
+  const birthdayUsed=used.filter(u=>isBirthdayLeave(u));
+  const totalUsedDays=regularUsed.reduce((s,u)=>s+dayVal(u),0);
+  const totalBirthdayDays=birthdayUsed.length;
+  document.getElementById('usedCount').textContent=`연차 ${numFmt(totalUsedDays)}일` + (totalBirthdayDays>0?` + 생일연차 ${totalBirthdayDays}일`:'') + ' 사용';
+
+  // 올해(1/1~) 사용분만 기본 표시
+  const thisJan1=new Date(today.getFullYear(),0,1);
+  const curYearUsedList=used.filter(u=>toDate(u.date)>=thisJan1);
+  const prevYearUsedList=used.filter(u=>toDate(u.date)<thisJan1);
+  const renderRow=(u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';const label=u.type==='생일연차'&&settings.name?settings.name+'(생일 휴가)':u.type;return `<tr><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${label}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`};
+  if(used.length===0){
+    document.getElementById('usedList').innerHTML='<tr class="empty-row"><td colspan="4">등록된 사용 내역이 없습니다.</td></tr>';
+  }else{
+    let html='';
+    if(prevYearUsedList.length>0){
+      html+=`<tr class="no-print"><td colspan="4" style="text-align:center;padding:8px"><button class="btn btn--secondary btn--sm" onclick="document.querySelectorAll('.prev-year-row').forEach(r=>r.style.display=r.style.display==='none'?'':'none');this.textContent=this.textContent.includes('보기')?'이전 내역 숨기기':'이전 내역 보기 (${prevYearUsedList.length}건)'">이전 내역 보기 (${prevYearUsedList.length}건)</button></td></tr>`;
+      html+=prevYearUsedList.map((u,i)=>{const bc=u.type==='생일연차'?'badge--birthday':'badge--used';const label=u.type==='생일연차'&&settings.name?settings.name+'(생일 휴가)':u.type;return `<tr class="prev-year-row" style="display:none"><td>${i+1}</td><td>${u.date}</td><td><span class="badge ${bc}">${label}</span></td><td class="no-print"><button class="btn btn--danger btn--sm" onclick="removeVacation('${u.date}','${u.type}')">삭제</button></td></tr>`}).join('');
+    }
+    html+=curYearUsedList.map((u,i)=>renderRow(u,prevYearUsedList.length+i+1)).join('');
+    document.getElementById('usedList').innerHTML=html;
+  }
+
+  // 이월 체인 계산
+  const CARRYOVER_START=new Date(2025,0,1);
+  const y1End=yearEnds[0];
+  let carryover=0;
+  const y1Used=regularUsed.filter(u=>{const d=toDate(u.date);return d>=hireDate&&d<y1End}).reduce((s,u)=>s+dayVal(u),0);
+  carryover=(y1End>CARRYOVER_START)?(11-y1Used):0;
+  for(let y=2;y<yi;y++){
+    const s=yearEnds[y-2],e=yearEnds[y-1];
+    const days=getAnnualDays(y);
+    const tw=days+carryover;
+    const yu=regularUsed.filter(u=>{const d=toDate(u.date);return d>=s&&d<e}).reduce((s,u)=>s+dayVal(u),0);
+    carryover=(yearEnds[y-1]>CARRYOVER_START)?(tw-yu):0;
+  }
+
+  // 현재 년차 섹션 렌더링
+  document.getElementById('currentYearPeriod').textContent=fmt(curStart)+' ~ '+fmt(dayBefore(curEnd));
+  if(yi===1){
+    document.getElementById('currentYearTitle').textContent='1년 미만 월차 발생 / 사용 내역';
+    const y1All=[];
+    for(let m=1;m<=11;m++){const d=new Date(hireDate);d.setMonth(d.getMonth()+m);y1All.push({date:d,type:'accrual',label:m+'개월 만근',delta:1})}
+    regularUsed.forEach(u=>{const ud=toDate(u.date);if(ud>=hireDate&&ud<y1End)y1All.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
+    y1All.sort((a,b)=>a.date-b.date||(a.type==='accrual'?-1:1));
+    let bal=0;
+    document.getElementById('currentYearDetail').innerHTML=y1All.map(e=>{
+      bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
+      if(e.type==='accrual'){const b=f?'badge--pending':'badge--accrual',t=f?'발생예정':'발생';
+      return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge ${b}">${t}</span></td><td class="text-left">${e.label}</td><td class="val-plus">+1</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`}
+      return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--used">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
+    }).join('');
+    var y1Accrued=y1All.filter(e=>e.type==='accrual'&&e.date<=today).length;
+    var curDashUsed=y1Used,curDashTotal=11,curDashRemaining=y1Accrued-y1Used,isY1=true,curAccrued=y1Accrued;
+  }else{
+    document.getElementById('currentYearTitle').textContent=dY+'년 이상 연차 발생 / 사용 내역';
+    const days=getAnnualDays(yi);
+    const totalWithCarry=days+carryover;
+    const evts=[];
+    evts.push({date:new Date(curStart),type:'carryover',label:'전년도 이월 '+numFmt(carryover)+'일',delta:carryover});
+    evts.push({date:new Date(curStart),type:'grant',label:dY+'년 이상 연차 '+days+'일 부여',delta:days});
+    regularUsed.forEach(u=>{const ud=toDate(u.date);if(ud>=curStart&&ud<curEnd)evts.push({date:ud,type:'used',label:u.type,delta:-dayVal(u)})});
+    evts.sort((a,b)=>a.date-b.date||(a.type==='carryover'?-2:a.type==='grant'?-1:1));
+    let bal=0;
+    document.getElementById('currentYearDetail').innerHTML=evts.map(e=>{
+      bal+=e.delta;const f=e.date>today,c=f?' class="future"':'';
+      if(e.type==='carryover'){const cls=e.delta<0?'val-minus':'val-plus';const sign=e.delta<0?'':'+';return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--carryover">이월</span></td><td class="text-left">${e.label}</td><td class="${cls}">${sign}${numFmt(e.delta)}</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`}
+      if(e.type==='grant')return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--grant">부여</span></td><td class="text-left">${e.label}</td><td class="val-plus">+${e.delta}</td><td>-</td><td class="val-balance">${numFmt(bal)}</td></tr>`;
+      return `<tr${c}><td>${fmt(e.date)}</td><td><span class="badge badge--used">사용</span></td><td class="text-left">${e.label}</td><td>-</td><td class="val-minus">-${numFmt(Math.abs(e.delta))}</td><td class="val-balance">${numFmt(bal)}</td></tr>`}).join('');
+    const curUsedDays=evts.filter(e=>e.type==='used').reduce((s,e)=>s+Math.abs(e.delta),0);
+    var curDashUsed=curUsedDays,curDashTotal=days,curDashRemaining=totalWithCarry-curUsedDays,isY1=false;
+  }
+
+  function gaugeSVG(used,total,color){
+    const sz=140,sw=12,r=(sz-sw)/2,circ=2*Math.PI*r,pct=total>0?Math.min(used/total,1):0,off=circ*(1-pct);
+    return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="#E0DCD4" stroke-width="${sw}"/><circle cx="${sz/2}" cy="${sz/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round" transform="rotate(-90 ${sz/2} ${sz/2})" style="transition:stroke-dashoffset .6s ease-in-out"/></svg>`;
+  }
+
+  // 생일연차 상태
+  const thisYear=String(today.getFullYear());
+  const bdUsedThisYear=used.some(u=>u.type==='생일연차'&&u.date.startsWith(thisYear));
+  let bdStatus='미설정';
+  if(settings.birthday){
+    const bMonth=parseInt(settings.birthday.split('-')[0],10);
+    const curMonth=today.getMonth()+1;
+    if(bdUsedThisYear) bdStatus='사용완료';
+    else if(curMonth>bMonth) bdStatus='소멸';
+    else if(curMonth===bMonth) bdStatus=bMonth+'월 사용가능';
+    else bdStatus=bMonth+'월 예정';
+  }
+  const bdMini=`<div class="dash-mini"><div class="dash-mini__label">생일연차</div><div class="dash-mini__val">${bdStatus}</div></div>`;
+
+  // 대시보드
+  const gc=curDashRemaining<=3?THEMES[selectedTheme].gaugeDanger:curDashRemaining<=7?THEMES[selectedTheme].gaugeWarn:THEMES[selectedTheme].gauge;
+  let dash='';
+  if(isY1){
+    const pend=11-curAccrued;
+    dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(curDashUsed,curAccrued,gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(curDashRemaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
+    <div class="dash-summary"><div class="dash-summary__title">1년 미만 월차 현황</div>
+    <div class="dash-summary__row"><span class="dash-summary__label">발생 (현재까지)</span><span class="dash-summary__val dash-summary__val--primary">${curAccrued}일</span></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(curDashUsed)}일</span></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(curDashRemaining)}일</span></div>
+    <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
+    <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">총 발생</div><div class="dash-mini__val">${curAccrued} / 11일</div></div>
+    <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(curDashUsed)}일</div></div>
+    <div class="dash-mini"><div class="dash-mini__label">발생 예정</div><div class="dash-mini__val">${pend}일</div></div>
+    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(curEnd))}</div></div>
+    ${bdMini}</div>`;
+  }else{
+    const dashTotal=curDashTotal+carryover;
+    dash=`<div class="dash-top"><div class="gauge">${gaugeSVG(curDashUsed,Math.max(dashTotal,0),gc)}<div class="gauge__center"><span class="gauge__number">${numFmt(curDashRemaining)}</span><span class="gauge__unit">잔여일수</span></div></div>
+    <div class="dash-summary"><div class="dash-summary__title">${dY}년 이상 연차 현황</div>
+    <div class="dash-summary__row"><span class="dash-summary__label">부여</span><span class="dash-summary__val dash-summary__val--primary">${curDashTotal}일</span></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">전년 이월</span><span class="dash-summary__val" style="color:${carryover<0?'var(--krds-error)':carryover>0?'#6B5B95':'var(--krds-g400)'}">${carryover>0?'+':''}${numFmt(carryover)}일</span></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">사용</span><span class="dash-summary__val dash-summary__val--error">${numFmt(curDashUsed)}일</span></div>
+    <div class="dash-summary__row"><span class="dash-summary__label">잔여</span><span class="dash-summary__val dash-summary__val--success">${numFmt(curDashRemaining)}일</span></div>
+    <div class="dash-summary__row" style="border-top:1px solid var(--krds-g200);margin-top:4px;padding-top:8px"><span class="dash-summary__label">생일연차</span><span class="dash-summary__val" style="color:var(--krds-warning)">${bdStatus}</span></div></div></div>
+    <div class="dash-bottom"><div class="dash-mini"><div class="dash-mini__label">부여</div><div class="dash-mini__val">${curDashTotal}일</div></div>
+    <div class="dash-mini"><div class="dash-mini__label">이월</div><div class="dash-mini__val" style="color:${carryover<0?'var(--krds-error)':carryover>0?'#6B5B95':'var(--krds-g400)'}">${carryover>0?'+':''}${numFmt(carryover)}일</div></div>
+    <div class="dash-mini"><div class="dash-mini__label">사용</div><div class="dash-mini__val">${numFmt(curDashUsed)}일</div></div>
+    <div class="dash-mini"><div class="dash-mini__label">사용기한</div><div class="dash-mini__val">${fmt(dayBefore(curEnd))}</div></div>
+    ${bdMini}</div>`;
+  }
+  document.getElementById('dashboard').innerHTML=dash;
+
+  renderCal();
+}
+
+let calYear,calMonth;
+(function(){const t=getToday();calYear=t.getFullYear();calMonth=t.getMonth()})();
+function calMove(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++}else if(calMonth<0){calMonth=11;calYear--}renderCal()}
+function renderCal(){
+  const used=load(KEYS.used,DEFAULT_USED),today=getToday();
+  const DOW=['일','월','화','수','목','금','토'];
+  const fd=new Date(calYear,calMonth,1).getDay(),dim=new Date(calYear,calMonth+1,0).getDate();
+  document.getElementById('calLabel').textContent=calYear+'.'+(calMonth+1);
+  let h=DOW.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<fd;i++)h+='<div class="cal-cell"><div class="cal-day cal-day--empty"></div></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isT=new Date(calYear,calMonth,d).getTime()===today.getTime();
+    const m=used.filter(u=>u.date===ds);
+    let c='cal-day';if(isT)c+=' cal-day--today';
+    if(m.length>0){if(m.some(u=>u.type==='연차'))c+=' cal-day--used';else c+=' cal-day--half'}
+    h+=`<div class="cal-cell"><div class="${c}">${d}</div></div>`;
+  }
+  document.getElementById('calGrid').innerHTML=h;
+}
+
+(function(){
+  if(LINK_MODE){
+    // 링크 모드: 항상 링크 데이터로 설정 덮어쓰기 (테마는 유지)
+    const existing=load(KEYS.settings,DEFAULT_SETTINGS);
+    save(KEYS.settings,{...DEFAULT_SETTINGS,theme:existing.theme||'sage'});
+    // 링크 모드: 내장 데이터 버전 관리 — 버전 변경 시 캐시 리셋
+    const DATA_VER='v3';
+    const verKey='vac_data_ver_'+LINK_DATA.name;
+    const storedVer=localStorage.getItem(verKey);
+    if(storedVer!==DATA_VER){
+      // 데이터 업데이트됨 — 내장 데이터로 리셋 (사용자 추가분은 초기화)
+      save(KEYS.used,DEFAULT_USED);
+      localStorage.setItem(verKey,DATA_VER);
+    }else{
+      // 버전 동일 — 사용자 추가분 유지
+      const stored=load(KEYS.used,[]);
+      const embeddedDates=new Set(DEFAULT_USED.map(u=>u.date+'|'+u.type));
+      const userAdded=stored.filter(u=>!embeddedDates.has(u.date+'|'+u.type));
+      const hireDateStr=LINK_DATA.hireDate;
+      const merged=DEFAULT_USED.concat(userAdded).filter(u=>u.date>=hireDateStr).sort((a,b)=>a.date.localeCompare(b.date));
+      save(KEYS.used,merged);
+    }
+  }else{
+    if(!localStorage.getItem(KEYS.settings))save(KEYS.settings,DEFAULT_SETTINGS);
+    if(!localStorage.getItem(KEYS.used))save(KEYS.used,DEFAULT_USED);
+  }
+  const savedTheme=load(KEYS.settings,DEFAULT_SETTINGS).theme||'sage';
+  applyTheme(savedTheme);
+  render();
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
+  document.getElementById('settingsModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings()});
+})();
+</script>
+</body>
+</html>
