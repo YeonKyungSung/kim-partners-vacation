@@ -630,7 +630,25 @@ function closeSettings(){document.getElementById('settingsModal').classList.remo
 function saveSettings(){
   const s={name:document.getElementById('setName').value.trim(),dept:document.getElementById('setDept').value.trim(),hireDate:document.getElementById('setHireDate').value,birthday:document.getElementById('setBirthday').value.trim(),theme:selectedTheme};
   if(!s.hireDate){alert('입사일을 입력하세요.');return}
-  save(KEYS.settings,s);closeSettings();render();
+  save(KEYS.settings,s);
+  // admin 페이지 직원 목록과 연동
+  syncToAdmin(s);
+  closeSettings();render();
+}
+function syncToAdmin(s){
+  try{
+    const adminKey='vac_admin_employees';
+    const raw=localStorage.getItem(adminKey);
+    if(!raw)return;
+    const list=JSON.parse(raw);
+    const idx=list.findIndex(e=>e.name===s.name);
+    if(idx>=0){
+      list[idx].hireDate=s.hireDate;
+      list[idx].birthday=s.birthday||'';
+      list[idx].dept=s.dept;
+      localStorage.setItem(adminKey,JSON.stringify(list));
+    }
+  }catch(e){}
 }
 function resetAllData(){
   if(!confirm('모든 데이터를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'))return;

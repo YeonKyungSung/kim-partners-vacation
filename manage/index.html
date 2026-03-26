@@ -587,8 +587,23 @@ function saveEmployee(){
     list.push({id,name,dept,hireDate,birthday});
   }
   saveEmployees(list);
+  // 개별 사원 페이지 localStorage 연동
+  syncToEmployeePage(name, {name,dept,hireDate,birthday});
   closeEmpForm();
   render();
+}
+function syncToEmployeePage(empName, data){
+  const key='vac_link_'+empName;
+  try{
+    const existing=localStorage.getItem(key);
+    if(existing){
+      const s=JSON.parse(existing);
+      s.name=data.name; s.dept=data.dept; s.hireDate=data.hireDate; s.birthday=data.birthday||'';
+      localStorage.setItem(key,JSON.stringify(s));
+    }else{
+      localStorage.setItem(key,JSON.stringify({name:data.name,dept:data.dept,hireDate:data.hireDate,birthday:data.birthday||'',theme:'sage'}));
+    }
+  }catch(e){}
 }
 function copyLink(id){
   const emp=getEmployees().find(e=>e.id===id);
@@ -645,38 +660,38 @@ function initDefaultEmployees(){
   if(existing.length>0)return;
   const defaults=[
     // 도산팀 — 상담팀
-    {id:'e01',name:'안희공',dept:'상담팀',hireDate:'',birthday:''},
-    {id:'e02',name:'여현정',dept:'상담팀',hireDate:'',birthday:''},
-    {id:'e03',name:'손승웅',dept:'상담팀',hireDate:'',birthday:''},
-    {id:'e04',name:'김태희',dept:'상담팀',hireDate:'',birthday:''},
-    {id:'e05',name:'윤승빈',dept:'상담팀',hireDate:'',birthday:''},
+    {id:'e01',name:'안희공',dept:'상담팀',hireDate:'2020-12-01',birthday:'04-20'},
+    {id:'e02',name:'여현정',dept:'상담팀',hireDate:'2021-06-01',birthday:'04-28'},
+    {id:'e03',name:'손승웅',dept:'상담팀',hireDate:'2020-10-19',birthday:'10-14'},
+    {id:'e04',name:'김태희',dept:'상담팀',hireDate:'2023-05-02',birthday:'01-14'},
+    {id:'e05',name:'윤승빈',dept:'상담팀',hireDate:'2022-09-22',birthday:'11-30'},
     // 도산팀 — 작성1팀
-    {id:'e06',name:'유예람',dept:'작성1팀',hireDate:'',birthday:''},
-    {id:'e07',name:'임동욱',dept:'작성1팀',hireDate:'',birthday:''},
+    {id:'e06',name:'유예람',dept:'작성1팀',hireDate:'2026-01-02',birthday:'05-28'},
+    {id:'e07',name:'임동욱',dept:'작성1팀',hireDate:'2025-11-03',birthday:'12-27'},
     // 도산팀 — 작성2팀
-    {id:'e08',name:'김태훈',dept:'작성2팀',hireDate:'',birthday:''},
-    {id:'e09',name:'유승아',dept:'작성2팀',hireDate:'',birthday:''},
-    {id:'e10',name:'정지인',dept:'작성2팀',hireDate:'',birthday:''},
-    {id:'e11',name:'김대영',dept:'작성2팀',hireDate:'',birthday:''},
+    {id:'e08',name:'김태훈',dept:'작성2팀',hireDate:'2023-06-01',birthday:'04-21'},
+    {id:'e09',name:'유승아',dept:'작성2팀',hireDate:'2023-06-12',birthday:'05-21'},
+    {id:'e10',name:'정지인',dept:'작성2팀',hireDate:'2023-12-14',birthday:'02-22'},
+    {id:'e11',name:'김대영',dept:'작성2팀',hireDate:'2025-11-03',birthday:'05-02'},
     // 도산팀 — 작성3팀
-    {id:'e12',name:'백운선',dept:'작성3팀',hireDate:'',birthday:''},
-    {id:'e13',name:'박하람',dept:'작성3팀',hireDate:'',birthday:''},
-    {id:'e14',name:'명지숙',dept:'작성3팀',hireDate:'',birthday:''},
-    {id:'e15',name:'김혜진',dept:'작성3팀',hireDate:'',birthday:''},
+    {id:'e12',name:'백운선',dept:'작성3팀',hireDate:'2023-05-15',birthday:'12-24'},
+    {id:'e13',name:'박하람',dept:'작성3팀',hireDate:'2023-03-20',birthday:'09-15'},
+    {id:'e14',name:'명지숙',dept:'작성3팀',hireDate:'2024-01-22',birthday:'04-06'},
+    {id:'e15',name:'김혜진',dept:'작성3팀',hireDate:'2026-01-02',birthday:'02-14'},
     // 송무팀
-    {id:'e16',name:'김유진',dept:'송무팀',hireDate:'',birthday:''},
-    {id:'e17',name:'이진호',dept:'송무팀',hireDate:'',birthday:''},
-    {id:'e18',name:'구혜수',dept:'송무팀',hireDate:'',birthday:''},
-    {id:'e19',name:'문희원',dept:'송무팀',hireDate:'',birthday:''},
+    {id:'e16',name:'김유진',dept:'송무팀',hireDate:'2024-01-01',birthday:'03-02'},
+    {id:'e17',name:'이진호',dept:'송무팀',hireDate:'2023-04-24',birthday:'12-03'},
+    {id:'e18',name:'구혜수',dept:'송무팀',hireDate:'2024-06-17',birthday:'11-16'},
+    {id:'e19',name:'문희원',dept:'송무팀',hireDate:'2025-10-23',birthday:'06-15'},
     // 마케팅팀
-    {id:'e20',name:'한성종',dept:'마케팅팀',hireDate:'',birthday:''},
-    {id:'e21',name:'안희진',dept:'마케팅팀',hireDate:'',birthday:''},
-    {id:'e22',name:'이세림',dept:'마케팅팀',hireDate:'',birthday:''},
-    {id:'e23',name:'김예은',dept:'마케팅팀',hireDate:'',birthday:''},
-    {id:'e24',name:'성연경',dept:'마케팅팀',hireDate:'',birthday:''},
-    {id:'e25',name:'남진영',dept:'마케팅팀',hireDate:'',birthday:''},
+    {id:'e20',name:'한성종',dept:'마케팅팀',hireDate:'2022-12-06',birthday:'12-13'},
+    {id:'e21',name:'안희진',dept:'마케팅팀',hireDate:'2022-08-01',birthday:'04-29'},
+    {id:'e22',name:'이세림',dept:'마케팅팀',hireDate:'2022-09-14',birthday:'09-07'},
+    {id:'e23',name:'김예은',dept:'마케팅팀',hireDate:'2025-05-07',birthday:'05-24'},
+    {id:'e24',name:'성연경',dept:'마케팅팀',hireDate:'2025-08-25',birthday:'06-20'},
+    {id:'e25',name:'남진영',dept:'마케팅팀',hireDate:'2025-12-01',birthday:'04-01'},
     // 회계팀
-    {id:'e26',name:'조윤미',dept:'회계팀',hireDate:'',birthday:''},
+    {id:'e26',name:'조윤미',dept:'회계팀',hireDate:'2022-05-11',birthday:'11-13'},
   ];
   saveEmployees(defaults);
 }
@@ -684,7 +699,7 @@ function initDefaultEmployees(){
 /* Init */
 (function(){
   // v2: 강제 재설정 (버전 올리면 다시 초기화)
-  const INIT_VER='v2';
+  const INIT_VER='v3';
   if(localStorage.getItem('vac_admin_init')!==INIT_VER){
     localStorage.removeItem(EMP_KEY);
     localStorage.setItem('vac_admin_init',INIT_VER);
