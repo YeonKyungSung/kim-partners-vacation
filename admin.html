@@ -40,8 +40,8 @@ body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;colo
 
 /* Layout */
 .container{max-width:1400px;margin:0 auto;padding:20px 24px}
-.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.summary-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dashboard{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:20px;align-items:start}
+.summary-cards{display:flex;flex-direction:column;gap:12px}
 .card{background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--primary)}
 .card--warn::before{background:var(--warning)}
@@ -143,7 +143,7 @@ select.input{min-width:120px}
 /* Responsive */
 @media(max-width:900px){
   .dashboard{grid-template-columns:1fr}
-  .summary-cards{grid-template-columns:repeat(2,1fr)}
+  .summary-cards{flex-direction:row}
   .stats{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:600px){
@@ -538,7 +538,7 @@ function render(){
 
   // Summary cards
   document.getElementById('summaryCards').innerHTML=`
-    <div class="card"><div class="card__label">${today.getFullYear()}년 연차 현황</div><div class="card__val">${totalEmp}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">서울사무소 재직 인원</div></div>
+    <div class="card" style="padding:24px 20px"><div class="card__label" style="font-size:12px;margin-bottom:8px">연차 현황</div><div class="card__val" style="font-size:42px">${today.getFullYear()}<span style="font-size:14px;font-weight:500;color:var(--g400)">년</span></div><div class="card__sub" style="font-size:13px;margin-top:6px">서울사무소 <strong>${totalEmp}명</strong> 재직</div></div>
     <div class="card card--err"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">잔여 0일 이하</div></div>`;
   renderMiniCal(calYear, calMonth);
 
