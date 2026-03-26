@@ -11,45 +11,46 @@
    KRDS Design Tokens
    ═══════════════════════════════════════════════ */
 :root {
-  /* Sage Green + Cream + Charcoal */
-  --krds-primary: #4A5D4F;
-  --krds-primary-dark: #3B4B3F;
-  --krds-primary-deep: #2C3830;
-  --krds-primary-light: #E8EDE9;
-  --krds-primary-50: #F3F5F3;
+  /* KRDS-inspired tokens (sage green adaptation) */
+  --krds-primary: #3A6B4E;
+  --krds-primary-dark: #2D5440;
+  --krds-primary-deep: #1E3A2C;
+  --krds-primary-light: #EAF0EC;
+  --krds-primary-50: #F4F7F5;
 
-  --krds-success: #5A7A5E;
-  --krds-success-bg: #EDF3EE;
-  --krds-warning: #A68B5B;
-  --krds-warning-bg: #F8F3EB;
-  --krds-error: #9B4D4D;
-  --krds-error-bg: #F5EDED;
-  --krds-info: #4A5D4F;
-  --krds-info-bg: #E8EDE9;
-  --krds-amber: #A68B5B;
+  --krds-success: #228738;
+  --krds-success-bg: #EAF6EC;
+  --krds-warning: #9E6A00;
+  --krds-warning-bg: #FFF3DB;
+  --krds-warning-base: #FFB114;
+  --krds-error: #DE3412;
+  --krds-error-bg: #FDEFEC;
+  --krds-info: #0B78CB;
+  --krds-info-bg: #E7F4FE;
 
   --krds-white: #FFFFFF;
-  --krds-bg: #F5F2ED;
-  --krds-surface: #FDFCFA;
-  --krds-g50: #F8F6F2;
-  --krds-g100: #EFECE6;
-  --krds-g200: #E0DCD4;
-  --krds-g300: #B5AFA5;
-  --krds-g400: #8A847B;
-  --krds-g500: #6B665E;
-  --krds-g600: #514D47;
-  --krds-g700: #3A3733;
-  --krds-g800: #262421;
-  --krds-g900: #141312;
+  --krds-bg: #F4F5F6;
+  --krds-surface: #FFFFFF;
+  --krds-g50: #F4F5F6;
+  --krds-g100: #E6E8EA;
+  --krds-g200: #CDD1D5;
+  --krds-g300: #B1B8BE;
+  --krds-g400: #8A949E;
+  --krds-g500: #6D7882;
+  --krds-g600: #58616A;
+  --krds-g700: #464C53;
+  --krds-g800: #33363D;
+  --krds-g900: #1E2124;
 
   --krds-font: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
   --krds-mono: 'D2Coding', 'Consolas', monospace;
   --krds-radius: 4px;
-  --krds-radius-lg: 6px;
-  --krds-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --krds-shadow-md: 0 4px 12px rgba(0,0,0,.08);
+  --krds-radius-md: 6px;
+  --krds-radius-lg: 10px;
+  --krds-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --krds-shadow-md: 0 4px 12px rgba(0,0,0,.1);
   --krds-shadow-lg: 0 8px 24px rgba(0,0,0,.12);
-  --krds-focus: 0 0 0 3px rgba(74,93,79,.18);
+  --krds-focus: 0 0 0 3px rgba(58,107,78,.12);
   --krds-transition: 150ms ease-in-out;
 }
 
@@ -57,7 +58,7 @@
    Reset & Base
    ═══════════════════════════════════════════════ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6;color:var(--krds-g800);background:var(--krds-bg);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5;color:var(--krds-g900);background:var(--krds-bg);-webkit-font-smoothing:antialiased}
 
 /* ═══════════════════════════════════════════════
    Masthead — 정부 인증 상단 바
@@ -75,17 +76,16 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
    Header
    ═══════════════════════════════════════════════ */
 .header{
-  background:var(--krds-primary);
+  background:var(--krds-primary-deep);
   padding:0;
-  box-shadow:0 2px 8px rgba(0,0,0,.15);
   position:relative;z-index:10;
 }
 .header__inner{
   max-width:1200px;margin:0 auto;
-  padding:16px 24px;
+  padding:14px 24px;
   display:flex;justify-content:space-between;align-items:center;
 }
-.header__title{font-size:22px;font-weight:800;color:var(--krds-white);letter-spacing:-.03em;display:flex;align-items:center}
+.header__title{font-size:19px;font-weight:700;color:var(--krds-white);letter-spacing:-.02em;display:flex;align-items:center}
 .header__actions{display:flex;gap:6px;align-items:center}
 .header__date{
   font-size:13px;color:rgba(255,255,255,.8);
@@ -106,7 +106,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 /* ═══════════════════════════════════════════════
    Container
    ═══════════════════════════════════════════════ */
-.container{max-width:1200px;margin:0 auto;padding:20px 24px}
+.container{max-width:1200px;margin:0 auto;padding:24px}
 
 /* ═══════════════════════════════════════════════
    Info Bar — 직원 정보
@@ -114,10 +114,10 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 .info-bar{
   display:flex;gap:0;align-items:stretch;flex-wrap:wrap;
   background:var(--krds-primary-light);
-  border:1px solid var(--krds-g200);
-  border-left:3px solid var(--krds-primary);
-  border-radius:var(--krds-radius);
-  margin-bottom:16px;
+  border:1px solid var(--krds-g100);
+  border-left:4px solid var(--krds-primary);
+  border-radius:var(--krds-radius-lg);
+  margin-bottom:24px;
   overflow:hidden;
 }
 .info-bar__item{
@@ -137,16 +137,14 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 }
 .dashboard{
   background:var(--krds-surface);
-  border:1px solid var(--krds-g200);
+  border:1px solid var(--krds-g100);
   border-radius:var(--krds-radius-lg);
-  box-shadow:var(--krds-shadow);
   overflow:hidden;
 }
 .cal-side{
   background:var(--krds-surface);
-  border:1px solid var(--krds-g200);
+  border:1px solid var(--krds-g100);
   border-radius:var(--krds-radius-lg);
-  box-shadow:var(--krds-shadow);
   overflow:hidden;
   display:flex;flex-direction:column;
 }
@@ -233,10 +231,9 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
    ═══════════════════════════════════════════════ */
 .section{
   background:var(--krds-surface);
-  border:1px solid var(--krds-g200);
+  border:1px solid var(--krds-g100);
   border-radius:var(--krds-radius-lg);
-  margin-bottom:16px;
-  box-shadow:var(--krds-shadow);
+  margin-bottom:24px;
   overflow:hidden;
 }
 .section__head{
@@ -265,10 +262,10 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
   border-bottom:1px solid var(--krds-g200);
 }
 .input,.select{
-  padding:8px 14px;
-  border:1px solid var(--krds-g300);border-radius:var(--krds-radius);
-  font-size:14px;font-family:var(--krds-font);
-  color:var(--krds-g700);background:var(--krds-white);
+  padding:8px 12px;
+  border:1px solid var(--krds-g200);border-radius:var(--krds-radius-md);
+  font-size:15px;font-family:var(--krds-font);
+  color:var(--krds-g900);background:var(--krds-white);
   transition:all var(--krds-transition);
 }
 .input:focus,.select:focus{outline:none;border-color:var(--krds-primary);box-shadow:var(--krds-focus)}
@@ -278,8 +275,8 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
    ═══════════════════════════════════════════════ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:4px;
-  padding:8px 18px;border:1px solid transparent;border-radius:var(--krds-radius);
-  font-size:14px;font-weight:700;font-family:var(--krds-font);
+  padding:8px 16px;border:1px solid transparent;border-radius:var(--krds-radius-md);
+  font-size:13px;font-weight:700;font-family:var(--krds-font);
   cursor:pointer;transition:all var(--krds-transition);white-space:nowrap;
 }
 .btn:focus-visible{outline:none;box-shadow:var(--krds-focus)}
@@ -296,14 +293,14 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
    ═══════════════════════════════════════════════ */
 .tbl{width:100%;border-collapse:collapse}
 .tbl thead th{
-  background:var(--krds-primary-deep);color:rgba(255,255,255,.9);
-  padding:11px 16px;font-size:13px;font-weight:700;
-  text-align:center;text-transform:uppercase;letter-spacing:.04em;
-  border-bottom:none;
+  background:var(--krds-g50);color:var(--krds-g700);
+  padding:12px 16px;font-size:13px;font-weight:700;
+  text-align:center;
+  border-bottom:2px solid var(--krds-g200);
 }
 .tbl tbody td{
-  padding:10px 16px;font-size:14px;font-weight:500;text-align:center;
-  color:var(--krds-g700);
+  padding:12px 16px;font-size:13px;font-weight:400;text-align:center;
+  color:var(--krds-g800);
   border-bottom:1px solid var(--krds-g100);
 }
 .tbl tbody tr:nth-child(even) td{background:var(--krds-g50)}
@@ -317,8 +314,8 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
    Badge
    ═══════════════════════════════════════════════ */
 .badge{
-  display:inline-block;padding:3px 10px;border-radius:2px;
-  font-size:12px;font-weight:700;letter-spacing:.02em;
+  display:inline-block;padding:3px 10px;border-radius:var(--krds-radius);
+  font-size:11px;font-weight:700;
 }
 .badge--accrual{background:#D4E8D6;color:#2C5F30;border:1px solid #A8CDA9}
 .badge--used{background:var(--krds-primary);color:var(--krds-white);border:1px solid var(--krds-primary-dark)}
@@ -343,7 +340,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:500;line-height:1.6
 .modal-overlay.active{display:flex}
 .modal{
   background:var(--krds-white);border-radius:var(--krds-radius-lg);
-  width:90%;max-width:440px;box-shadow:var(--krds-shadow-lg);overflow:hidden;
+  width:90%;max-width:440px;box-shadow:var(--krds-shadow-lg);overflow:hidden;border:1px solid var(--krds-g100);
 }
 .modal__head{
   padding:16px 20px;

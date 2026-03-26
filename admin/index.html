@@ -80,13 +80,9 @@ body{font-family:var(--font);font-size:15px;font-weight:400;line-height:1.5;colo
 .mini-cal__day--sun .mini-cal__num{color:var(--error)}
 .mini-cal__day--sat .mini-cal__num{color:var(--info)}
 .mini-cal__num{font-size:13px;line-height:1}
-.mini-cal__dots{display:flex;gap:2px;justify-content:center;flex-wrap:wrap;max-width:32px}
-.mini-cal__dot{width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0}
-.mini-cal__dot--half{background:#8DB89A}
-.mini-cal__dot--birthday{background:var(--warning-base)}
+.mini-cal__count{background:var(--primary);color:#fff;font-size:10px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:default;line-height:1}
 .mini-cal__legend{display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--g10)}
 .mini-cal__legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--g50)}
-.mini-cal__legend-dot{width:7px;height:7px;border-radius:50%}
 
 /* Table — KRDS: text left, numbers right */
 .panel{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--g10);overflow:hidden;margin-bottom:24px}
@@ -444,15 +440,8 @@ function renderMiniCal(year, month){
       html+=`<div class="mini-cal__num">${d}</div>`;
     }
     if(entries.length>0){
-      html+='<div class="mini-cal__dots">';
-      const maxDots=Math.min(entries.length,5);
-      for(let i=0;i<maxDots;i++){
-        const e=entries[i];
-        const cls=isBirthday(e)?'mini-cal__dot--birthday':(e.type==='오전반차'||e.type==='오후반차')?'mini-cal__dot--half':'';
-        html+=`<div class="mini-cal__dot ${cls}" title="${e.name} (${e.type})"></div>`;
-      }
-      if(entries.length>5)html+=`<div style="font-size:8px;color:var(--g40)">+${entries.length-5}</div>`;
-      html+='</div>';
+      const names=entries.map(e=>e.name+(e.type!=='연차'?' ('+e.type+')':'')).join('\n');
+      html+=`<div class="mini-cal__count" title="${names}">${entries.length}</div>`;
     }
     html+='</div>';
   }
@@ -466,9 +455,7 @@ function renderMiniCal(year, month){
 
   html+='</div>';
   html+=`<div class="mini-cal__legend">
-    <div class="mini-cal__legend-item"><div class="mini-cal__legend-dot" style="background:var(--primary)"></div>연차</div>
-    <div class="mini-cal__legend-item"><div class="mini-cal__legend-dot" style="background:#9DB8A0"></div>반차</div>
-    <div class="mini-cal__legend-item"><div class="mini-cal__legend-dot" style="background:var(--warning)"></div>생일연차</div>
+    <div class="mini-cal__legend-item"><div class="mini-cal__count" style="position:static;font-size:9px;width:16px;height:16px">N</div>휴가 인원 (hover로 상세)</div>
   </div>`;
 
   document.getElementById('miniCal').innerHTML=html;
@@ -543,7 +530,7 @@ function render(){
         <td style="color:var(--success);font-weight:700">${r.noHireDate?'-':numFmt(r.remaining)}</td>
         <td>${bdStatus}</td>
         <td>${statusBadge}</td>
-        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> <button class="btn btn--export btn--sm" onclick="openLink('${r.emp.id}')">링크</button> <button class="btn btn--danger btn--sm" onclick="resignEmployee('${r.emp.id}')">퇴사</button></td>
+        <td class="no-print" onclick="event.stopPropagation()"><button class="btn btn--secondary btn--sm" onclick="editEmployee('${r.emp.id}')">수정</button> <button class="btn btn--export btn--sm" onclick="openLink('${r.emp.id}')">링크</button> <button class="btn btn--secondary btn--sm" style="color:var(--g40)" onclick="resignEmployee('${r.emp.id}')">퇴사</button></td>
       </tr>`);
     });
   });
