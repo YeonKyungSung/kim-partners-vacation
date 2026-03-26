@@ -40,12 +40,18 @@ body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;colo
 
 /* Layout */
 .container{max-width:1400px;margin:0 auto;padding:20px 24px}
-.summary-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
-.card{background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
-.card__label{font-size:12px;color:var(--g400);margin-bottom:4px}
-.card__val{font-size:28px;font-weight:800;color:var(--primary)}
+.summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.card{background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--primary)}
+.card--warn::before{background:var(--warning)}
+.card--err::before{background:var(--error)}
+.card--info::before{background:#6B5B95}
+.card__label{font-size:11px;color:var(--g400);margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em}
+.card__val{font-size:32px;font-weight:800;color:var(--primary);line-height:1.1}
 .card__val--warn{color:var(--warning)}
 .card__val--err{color:var(--error)}
+.card__val--info{color:#6B5B95}
+.card__sub{font-size:11px;color:var(--g400);margin-top:4px}
 
 /* Table */
 .panel{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
@@ -347,7 +353,7 @@ function render(){
   const allResults=getEmployees().map(calcEmployee);
   const results=allResults.filter(r=>!r.emp.resigned);
   const resignedResults=allResults.filter(r=>r.emp.resigned);
-  let totalEmp=results.length, zeroCount=0, totalUsed=0;
+  let totalEmp=results.length, zeroCount=0, totalUsed=0, totalRemaining=0, hiredCount=0, thisMonthCount=0;
 
   // Group by department, preserve order
   const deptOrder=[];const deptMap={};
@@ -365,6 +371,13 @@ function render(){
       totalUsed+=r.used;
       if(!r.noHireDate){
         if(r.remaining<=0)zeroCount++;
+        totalRemaining+=r.remaining;
+        hiredCount++;
+        // 이번 달 사용 예정 (미래 날짜)
+        const used=loadUsed(r.emp.id);
+        const curMonth=today.getMonth();const curYear=today.getFullYear();
+        const hasThisMonth=used.some(u=>{const d=toDate(u.date);return d.getMonth()===curMonth&&d.getFullYear()===curYear&&d>today});
+        if(hasThisMonth)thisMonthCount++;
       }
 
       let bdStatus='-';
@@ -412,9 +425,13 @@ function render(){
   document.getElementById('empTable').innerHTML=rows.join('');
 
   // Summary cards
+  const avgRemain=hiredCount>0?(totalRemaining/hiredCount).toFixed(1):'0';
+  const monthNames=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   document.getElementById('summaryCards').innerHTML=`
-    <div class="card"><div class="card__label"><span style="font-size:18px;font-weight:800;color:var(--primary)">${today.getFullYear()}</span>년 연차 현황</div><div class="card__val">${totalEmp}<span style="font-size:14px;font-weight:500;color:var(--g400)"> 명</span></div></div>
-    <div class="card"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:14px;font-weight:500;color:var(--g400)"> 명</span></div></div>`;
+    <div class="card"><div class="card__label">${today.getFullYear()}년 연차 현황</div><div class="card__val">${totalEmp}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">서울사무소 재직 인원</div></div>
+    <div class="card card--err"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">잔여 0일 이하</div></div>
+    <div class="card card--info"><div class="card__label">평균 잔여</div><div class="card__val card__val--info">${avgRemain}<span style="font-size:14px;font-weight:500;color:var(--g400)">일</span></div><div class="card__sub">1인당 평균 잔여일수</div></div>
+    <div class="card card--warn"><div class="card__label">${monthNames[today.getMonth()]} 사용 예정</div><div class="card__val card__val--warn">${thisMonthCount}<span style="font-size:14px;font-weight:500;color:var(--g400)">명</span></div><div class="card__sub">이번 달 잔여 일정</div></div>`;
 
   if(selectedEmpId) renderDetail(selectedEmpId);
 }
