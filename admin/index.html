@@ -67,6 +67,7 @@ body{font-family:var(--font);font-size:14px;font-weight:500;line-height:1.6;colo
 .badge--warn{background:#F8F3EB;color:var(--warning);border:1px solid #D4C8A0}
 .badge--danger{background:#F8F3EB;color:var(--error);border:1px solid #C9B68E}
 .badge--used{background:var(--primary);color:#fff;border:1px solid var(--primary-dark)}
+.badge--half{background:#E8EDE9;color:#5A7A5E;border:1px solid #B5CEB8}
 .badge--birthday{background:#F8F3EB;color:var(--warning);border:1px solid #D4C8A0}
 .badge--carryover{background:#EDE8F5;color:#6B5B95;border:1px solid #C5BBD9}
 .badge--resigned{background:var(--g50);color:var(--g300);border:1px solid var(--g200)}
@@ -467,7 +468,8 @@ function renderDetail(empId){
     document.getElementById('detailUsedList').innerHTML='<tr><td colspan="5" style="color:var(--g400);padding:20px">등록된 사용 내역이 없습니다.</td></tr>';
   }else{
     document.getElementById('detailUsedList').innerHTML=used.map((u,i)=>{
-      const bc=isBirthday(u)?'badge--birthday':'badge--used';
+      const isHalf=u.type==='오전반차'||u.type==='오후반차';
+      const bc=isBirthday(u)?'badge--birthday':isHalf?'badge--half':'badge--used';
       const label=isBirthday(u)?emp.name+'(생일 휴가)':u.type;
       const dv=isBirthday(u)?'별도':numFmt(dayVal(u));
       return `<tr>
