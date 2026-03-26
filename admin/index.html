@@ -89,21 +89,21 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5
 
 /* Mini Calendar */
 .mini-cal{background:var(--krds-surface);border-radius:var(--krds-radius-lg);border:1px solid var(--krds-g100);padding:20px 24px}
-.mini-cal__header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.mini-cal__header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--krds-g100)}
 .mini-cal__title{font-size:17px;font-weight:700;color:var(--krds-g900)}
 .mini-cal__nav{display:flex;gap:4px}
 .mini-cal__nav button{background:var(--krds-g50);border:1px solid var(--krds-g100);border-radius:var(--krds-radius-md);width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--krds-g500);display:flex;align-items:center;justify-content:center;transition:background .15s}
 .mini-cal__nav button:hover{background:var(--krds-g100)}
-.mini-cal__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
-.mini-cal__dow{font-size:11px;font-weight:700;color:var(--krds-g400);padding:6px 0}
-.mini-cal__dow--sun{color:var(--krds-error)}
-.mini-cal__day{font-size:13px;padding:4px 2px;border-radius:var(--krds-radius);position:relative;min-height:40px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.mini-cal__day--today{background:var(--krds-g900);color:#fff;font-weight:700;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 2px}
-.mini-cal__day--other{color:var(--krds-g300)}
-.mini-cal__day--sun .mini-cal__num{color:var(--krds-error)}
-.mini-cal__day--sat .mini-cal__num{color:var(--krds-info)}
-.mini-cal__num{font-size:13px;line-height:1}
-.mini-cal__count{background:var(--krds-primary-light);color:var(--krds-primary);font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;cursor:default;line-height:1.3;border:1px solid #CDD6CE}
+.mini-cal__grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;text-align:center}
+.mini-cal__dow{font-size:12px;font-weight:700;color:var(--krds-g400);padding:8px 0;border-bottom:2px solid var(--krds-g100)}
+.mini-cal__dow--sun{color:#C44D3E}
+.mini-cal__day{padding:6px 2px;min-height:52px;display:flex;flex-direction:column;align-items:center;gap:4px;border-bottom:1px solid var(--krds-g50)}
+.mini-cal__day--today .mini-cal__num{background:#C44D3E;color:#fff;font-weight:700;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.mini-cal__day--other{opacity:.3}
+.mini-cal__day--sun .mini-cal__num{color:#C44D3E}
+.mini-cal__day--sat .mini-cal__num{color:#4A7AB5}
+.mini-cal__num{font-size:15px;font-weight:600;color:var(--krds-g800);line-height:1;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.mini-cal__count{background:var(--krds-primary);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;cursor:default;line-height:1.4}
 .mini-cal__legend{display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--krds-g100)}
 .mini-cal__legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--krds-g500)}
 
@@ -461,12 +461,9 @@ function renderMiniCal(year, month){
     const dayClass=dow===0?' mini-cal__day--sun':dow===6?' mini-cal__day--sat':'';
     const entries=vacMap[d]||[];
 
-    html+=`<div class="mini-cal__day${dayClass}">`;
-    if(isToday){
-      html+=`<div class="mini-cal__day--today">${d}</div>`;
-    }else{
-      html+=`<div class="mini-cal__num">${d}</div>`;
-    }
+    const todayClass=isToday?' mini-cal__day--today':'';
+    html+=`<div class="mini-cal__day${dayClass}${todayClass}">`;
+    html+=`<div class="mini-cal__num">${d}</div>`;
     if(entries.length>0){
       const names=entries.map(e=>e.name+(e.type!=='연차'?' ('+e.type+')':'')).join('\n');
       html+=`<div class="mini-cal__count" title="${names}">${entries.length}</div>`;
@@ -483,7 +480,8 @@ function renderMiniCal(year, month){
 
   html+='</div>';
   html+=`<div class="mini-cal__legend">
-    <div class="mini-cal__legend-item"><div class="mini-cal__count" style="font-size:8px;padding:0 4px">N</div>휴가 인원 (hover로 상세)</div>
+    <div class="mini-cal__legend-item"><div class="mini-cal__count" style="font-size:8px;padding:0 4px">N</div>휴가 인원</div>
+    <div class="mini-cal__legend-item"><div style="width:12px;height:12px;border-radius:50%;background:#C44D3E"></div>오늘</div>
   </div>`;
 
   document.getElementById('miniCal').innerHTML=html;
