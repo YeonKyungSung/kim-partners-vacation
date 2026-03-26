@@ -885,11 +885,11 @@ function initDefaultEmployees(){
 /* Init */
 (function(){
   // v4: 강제 재설정 (버전 올리면 다시 초기화)
-  const INIT_VER='v7';
+  const INIT_VER='v8';
   if(localStorage.getItem('vac_admin_init')!==INIT_VER){
     localStorage.removeItem(EMP_KEY);
     // 사용 내역도 초기화하고 임베디드 데이터로 재설정
-    const allKeys=Object.keys(localStorage).filter(k=>k.startsWith('vac_admin_e'));
+    const allKeys=Object.keys(localStorage).filter(k=>k.startsWith('vac_admin_e')||k.startsWith('vac_link_used_'));
     allKeys.forEach(k=>localStorage.removeItem(k));
     localStorage.setItem('vac_admin_init',INIT_VER);
   }
