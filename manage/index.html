@@ -413,7 +413,7 @@ function render(){
 
   // Summary cards
   document.getElementById('summaryCards').innerHTML=`
-    <div class="card"><div class="card__label">${today.getFullYear()}년 연차 현황</div><div class="card__val">${totalEmp}<span style="font-size:14px;font-weight:500;color:var(--g400)"> 명</span></div></div>
+    <div class="card"><div class="card__label"><span style="font-size:18px;font-weight:800;color:var(--primary)">${today.getFullYear()}</span>년 연차 현황</div><div class="card__val">${totalEmp}<span style="font-size:14px;font-weight:500;color:var(--g400)"> 명</span></div></div>
     <div class="card"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:14px;font-weight:500;color:var(--g400)"> 명</span></div></div>`;
 
   if(selectedEmpId) renderDetail(selectedEmpId);
