@@ -344,11 +344,13 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL='https://npcppfsfumyvhiwddeuh.supabase.co';
-const SUPABASE_ANON_KEY='sb_publishable_JQUoT_AoUdIfWURzdw1UkQ_CrY3AcXA';
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const SB_URL='https://npcppfsfumyvhiwddeuh.supabase.co/rest/v1';
+const SB_KEY='sb_publishable_JQUoT_AoUdIfWURzdw1UkQ_CrY3AcXA';
+const SB_HEADERS={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+async function sbGet(table,params=''){const r=await fetch(SB_URL+'/'+table+'?'+params,{headers:SB_HEADERS});return r.json()}
+async function sbInsert(table,data){const r=await fetch(SB_URL+'/'+table,{method:'POST',headers:{...SB_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify(data)});return {ok:r.ok,status:r.status}}
+async function sbDelete(table,params){const r=await fetch(SB_URL+'/'+table+'?'+params,{method:'DELETE',headers:SB_HEADERS});return {ok:r.ok,status:r.status}}
 
 /* ═══════════════════════════════════════════════
    법정공휴일 (2025~2026, 대체공휴일 포함)
@@ -390,9 +392,8 @@ const KEYS={settings:LINK_MODE?'vac_link_'+LINK_DATA.name:'vac_settings',used:LI
 const DEFAULT_SETTINGS=LINK_MODE?{name:LINK_DATA.name,dept:LINK_DATA.dept,hireDate:LINK_DATA.hireDate,birthday:LINK_DATA.birthday||''}:{name:'',dept:'마케팅',hireDate:'2025-08-25',birthday:''};
 const DEFAULT_USED=LINK_MODE?(EMBEDDED_VACATION_DATA[LINK_DATA.name]||[]):[];
 async function fetchUsedFromDB(name){
-  const {data,error}=await supabase.from('vacation_entries').select('date,type').eq('employee_name',name).order('date');
-  if(error){console.error(error);return []}
-  return data;
+  try{const data=await sbGet('vacation_entries','select=date,type&employee_name=eq.'+encodeURIComponent(name)+'&order=date');return Array.isArray(data)?data:[]}
+  catch(e){console.error(e);return []}
 }
 function load(k,d){try{const v=localStorage.getItem(k);if(!v)return structuredClone(d);const o=JSON.parse(v);if(k===KEYS.settings&&o.dept==='개발팀'){o.dept='마케팅';save(k,o)}return o}catch{return structuredClone(d)}}
 function save(k,v){
@@ -540,17 +541,16 @@ async function addVacation(){
   if(typeVal==='연차'&&used.some(u=>u.date===dateVal)){
     if(!confirm(dateVal+'에 이미 반차가 등록되어 있습니다. 연차로 덮어쓰시겠습니까?'))return;
     if(LINK_MODE){
-      const {error:delErr}=await supabase.from('vacation_entries').delete().eq('employee_name',LINK_DATA.name).eq('date',dateVal);
-      if(delErr){alert('삭제 실패: '+delErr.message);return}
-      const {error:insErr}=await supabase.from('vacation_entries').insert({employee_name:LINK_DATA.name,date:dateVal,type:typeVal});
-      if(insErr){alert('저장 실패: '+insErr.message);return}
+      await sbDelete('vacation_entries','employee_name=eq.'+encodeURIComponent(LINK_DATA.name)+'&date=eq.'+dateVal);
+      const r1=await sbInsert('vacation_entries',{employee_name:LINK_DATA.name,date:dateVal,type:typeVal});
+      if(!r1.ok){alert('저장 실패');return}
     }else{
       const f=used.filter(u=>u.date!==dateVal);f.push({date:dateVal,type:typeVal});f.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,f);
     }
   }else{
     if(LINK_MODE){
-      const {error}=await supabase.from('vacation_entries').insert({employee_name:LINK_DATA.name,date:dateVal,type:typeVal});
-      if(error){alert('저장 실패: '+error.message);return}
+      const r2=await sbInsert('vacation_entries',{employee_name:LINK_DATA.name,date:dateVal,type:typeVal});
+      if(!r2.ok){alert('저장 실패');return}
     }else{
       used.push({date:dateVal,type:typeVal});used.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,used);
     }
@@ -560,8 +560,7 @@ async function addVacation(){
 async function removeVacation(date,type){
   if(!confirm(date+' '+type+'을(를) 삭제하시겠습니까?'))return;
   if(LINK_MODE){
-    const {error}=await supabase.from('vacation_entries').delete().eq('employee_name',LINK_DATA.name).eq('date',date).eq('type',type);
-    if(error){alert('삭제 실패: '+error.message);return}
+    await sbDelete('vacation_entries','employee_name=eq.'+encodeURIComponent(LINK_DATA.name)+'&date=eq.'+date+'&type=eq.'+encodeURIComponent(type));
   }else{
     save(KEYS.used,load(KEYS.used,DEFAULT_USED).filter(u=>!(u.date===date&&u.type===type)));
   }

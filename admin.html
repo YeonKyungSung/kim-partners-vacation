@@ -329,11 +329,14 @@ select.input{min-width:120px}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL='https://npcppfsfumyvhiwddeuh.supabase.co';
-const SUPABASE_ANON_KEY='sb_publishable_JQUoT_AoUdIfWURzdw1UkQ_CrY3AcXA';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const SB_URL='https://npcppfsfumyvhiwddeuh.supabase.co/rest/v1';
+const SB_KEY='sb_publishable_JQUoT_AoUdIfWURzdw1UkQ_CrY3AcXA';
+const SB_HEADERS={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+async function sbGet(table,params=''){const r=await fetch(SB_URL+'/'+table+'?'+params,{headers:SB_HEADERS});return r.json()}
+async function sbInsert(table,data){const r=await fetch(SB_URL+'/'+table,{method:'POST',headers:{...SB_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify(data)});return {ok:r.ok}}
+async function sbDelete(table,params){const r=await fetch(SB_URL+'/'+table+'?'+params,{method:'DELETE',headers:SB_HEADERS});return {ok:r.ok}}
+async function sbUpdate(table,params,data){const r=await fetch(SB_URL+'/'+table+'?'+params,{method:'PATCH',headers:{...SB_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify(data)});return {ok:r.ok}}
 
 /* ═══════════════════════════════════════════════
    법정공휴일 (2025~2026, 대체공휴일 포함)
@@ -364,10 +367,9 @@ let _employees=null;
 let _usedCache={};
 
 async function fetchEmployees(){
-  const {data,error}=await sb.from('employees').select('*').eq('resigned',false).order('id');
-  if(error){console.error(error);return []}
-  _employees=data.map(e=>({id:e.id,name:e.name,dept:e.dept,hireDate:e.hire_date,birthday:e.birthday||'',resigned:e.resigned}));
-  return _employees;
+  try{const data=await sbGet('employees','select=*&resigned=eq.false&order=id');
+  _employees=(data||[]).map(e=>({id:e.id,name:e.name,dept:e.dept,hireDate:e.hire_date,birthday:e.birthday||'',resigned:e.resigned}));
+  return _employees}catch(e){console.error(e);return []}
 }
 
 function getEmployees(){return _employees||[]}
@@ -376,9 +378,8 @@ function getEmployees(){return _employees||[]}
    Core functions
    ═══════════════════════════════════════════════ */
 async function fetchUsed(empName){
-  const {data,error}=await sb.from('vacation_entries').select('date,type').eq('employee_name',empName).order('date');
-  if(error){console.error(error);return []}
-  return data;
+  try{return await sbGet('vacation_entries','select=date,type&employee_name=eq.'+encodeURIComponent(empName)+'&order=date')}
+  catch(e){console.error(e);return []}
 }
 
 function loadUsed(empId){
@@ -573,7 +574,7 @@ async function render(){
   const emps=getEmployees();
 
   // Fetch all vacation entries at once
-  const {data:allEntries}=await sb.from('vacation_entries').select('employee_name,date,type').order('date');
+  const allEntries=await sbGet('vacation_entries','select=employee_name,date,type&order=date');
   // Group by employee name
   _usedCache={};
   emps.forEach(emp=>{
@@ -835,11 +836,11 @@ async function addVacation(){
 
   if(typeVal==='연차'&&used.some(u=>u.date===dateVal)){
     if(!confirm(dateVal+'에 이미 반차가 등록되어 있습니다. 연차로 덮어쓰시겠습니까?'))return;
-    await sb.from('vacation_entries').delete().eq('employee_name',emp.name).eq('date',dateVal);
+    await sbDelete('vacation_entries','employee_name=eq.'+encodeURIComponent(emp.name)+'&date=eq.'+dateVal);
   }
 
-  const {error}=await sb.from('vacation_entries').insert({employee_name:emp.name,date:dateVal,type:typeVal});
-  if(error){alert('저장 실패: '+error.message);return}
+  const r=await sbInsert('vacation_entries',{employee_name:emp.name,date:dateVal,type:typeVal});
+  if(!r.ok){alert('저장 실패');return}
   document.getElementById('addDate').value='';
   await render();
 }
@@ -847,7 +848,7 @@ async function addVacation(){
 async function removeVacation(empId,date,type){
   if(!confirm(date+' '+type+'을(를) 삭제하시겠습니까?'))return;
   const emp=getEmployees().find(e=>e.id===empId);
-  await sb.from('vacation_entries').delete().eq('employee_name',emp.name).eq('date',date).eq('type',type);
+  await sbDelete('vacation_entries','employee_name=eq.'+encodeURIComponent(emp.name)+'&date=eq.'+date+'&type=eq.'+encodeURIComponent(type));
   await render();
 }
 
@@ -919,12 +920,12 @@ async function saveEmployee(){
   if(!name){alert('성명을 입력하세요.');return}
   if(!hireDate){alert('입사일을 입력하세요.');return}
   if(editId){
-    const {error}=await sb.from('employees').update({name,dept,hire_date:hireDate,birthday:birthday||null}).eq('id',editId);
-    if(error){alert('저장 실패: '+error.message);return}
+    const r=await sbUpdate('employees','id=eq.'+editId,{name,dept,hire_date:hireDate,birthday:birthday||null});
+    if(!r.ok){alert('저장 실패');return}
   }else{
     const id='emp_'+Date.now();
-    const {error}=await sb.from('employees').insert({id,name,dept,hire_date:hireDate,birthday:birthday||null,resigned:false});
-    if(error){alert('저장 실패: '+error.message);return}
+    const r=await sbInsert('employees',{id,name,dept,hire_date:hireDate,birthday:birthday||null,resigned:false});
+    if(!r.ok){alert('저장 실패');return}
   }
   closeEmpForm();
   await render();
@@ -944,8 +945,8 @@ async function resignEmployee(id){
   const emp=getEmployees().find(e=>e.id===id);
   if(!emp)return;
   if(!confirm(emp.name+'을(를) 퇴사 처리하시겠습니까?\n해당 직원은 목록에서 제외됩니다.'))return;
-  const {error}=await sb.from('employees').update({resigned:true}).eq('id',id);
-  if(error){alert('퇴사 처리 실패: '+error.message);return}
+  const r=await sbUpdate('employees','id=eq.'+id,{resigned:true});
+  if(!r.ok){alert('퇴사 처리 실패');return}
   if(selectedEmpId===id){selectedEmpId=null;document.getElementById('detailPanel').classList.remove('active')}
   await render();
 }
