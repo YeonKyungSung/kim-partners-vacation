@@ -948,7 +948,7 @@ function openLink(id){
   if(!emp)return;
   if(!emp.hireDate){alert('입사일을 먼저 설정해주세요.');return}
   const data={name:emp.name,dept:emp.dept,hireDate:emp.hireDate,birthday:emp.birthday||''};
-  const token=btoa(JSON.stringify(data));
+  const token=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   const baseUrl=location.href.replace(/\/admin\/?.*$/,'').replace(/\/manage\/?.*$/,'');
   const link=baseUrl+'/?t='+token;
   window.open(link,'_blank');

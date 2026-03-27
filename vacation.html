@@ -375,7 +375,7 @@ let LINK_DATA=null;
   try{
     const p=new URLSearchParams(location.search);
     const t=p.get('t');
-    if(t){try{LINK_DATA=JSON.parse(atob(t))}catch(e){LINK_DATA=JSON.parse(decodeURIComponent(atob(t)))}LINK_MODE=true}
+    if(t){try{LINK_DATA=JSON.parse(decodeURIComponent(escape(atob(t))))}catch(e){LINK_DATA=JSON.parse(decodeURIComponent(atob(t)))}LINK_MODE=true}
   }catch(e){}
 })();
 
