@@ -527,6 +527,8 @@ async function addVacation(){
   }
   if(typeVal==='생일연차'){
     const st=load(KEYS.settings,DEFAULT_SETTINGS);
+    const hd=toDate(st.hireDate),dd=Math.floor((new Date()-hd)/86400000);
+    if(dd<90){alert('수습기간(입사 3개월 미만)에는 생일연차를 사용할 수 없습니다.');return}
     if(!st.birthday){alert('설정에서 생일(월/일)을 먼저 입력하세요.');return}
     const bMonth=parseInt(st.birthday.split('-')[0],10);
     const selMonth=parseInt(dateVal.split('-')[1],10);
@@ -717,7 +719,11 @@ async function render(){
   const bdPast=bdThisYear.some(u=>toDate(u.date)<=today);
   const bdFuture=bdThisYear.some(u=>toDate(u.date)>today);
   let bdStatus='미설정';
-  if(settings.birthday){
+  const probationDays=Math.floor((today-hireDate)/86400000);
+  const isProbation=probationDays<90; // 3개월(90일) 미만 수습
+  if(isProbation){
+    bdStatus='수습기간';
+  }else if(settings.birthday){
     const bMonth=parseInt(settings.birthday.split('-')[0],10);
     const curMonth=today.getMonth()+1;
     if(bdPast) bdStatus='사용완료';

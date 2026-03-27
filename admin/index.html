@@ -606,7 +606,10 @@ async function render(){
       }
 
       let bdStatus='-';
-      if(r.emp.birthday){
+      const empHireDate=toDate(r.emp.hireDate);
+      const empDays=Math.floor((today-empHireDate)/86400000);
+      if(empDays<90){bdStatus='수습기간'}
+      else if(r.emp.birthday){
         const bMonth=parseInt(r.emp.birthday.split('-')[0],10);
         const curMonth=today.getMonth()+1;
         const bdUsed=r.birthdayUsed.filter(u=>u.date.startsWith(thisYear));
@@ -755,7 +758,9 @@ function renderDetail(empId){
   // 생일연차
   const thisYear=String(today.getFullYear());
   let bdStatus='-';
-  if(emp.birthday){
+  const detailDays=Math.floor((today-hireDate)/86400000);
+  if(detailDays<90){bdStatus='수습기간'}
+  else if(emp.birthday){
     const bMonth=parseInt(emp.birthday.split('-')[0],10);
     const curMonth=today.getMonth()+1;
     const bdUsed=r.birthdayUsed.filter(u=>u.date.startsWith(thisYear));
@@ -835,6 +840,8 @@ async function addVacation(){
   const used=loadUsed(selectedEmpId);
 
   if(typeVal==='생일연차'){
+    const hd2=toDate(emp.hireDate),dd2=Math.floor((today-hd2)/86400000);
+    if(dd2<90){alert('수습기간(입사 3개월 미만)에는 생일연차를 사용할 수 없습니다.');return}
     if(!emp.birthday){alert('해당 직원의 생일이 설정되지 않았습니다.');return}
     const bMonth=parseInt(emp.birthday.split('-')[0],10);
     const selMonth=parseInt(dateVal.split('-')[1],10);
