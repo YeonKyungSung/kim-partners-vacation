@@ -320,7 +320,7 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5
     </table>
   </section>
 
-  <footer class="footer">근로기준법 제60조에 의거한 연차유급휴가 산정 &middot; 데이터는 브라우저(localStorage)에 저장됩니다.</footer>
+  <footer class="footer">근로기준법 제60조에 의거한 연차유급휴가 산정 &middot; 데이터는 서버(Supabase)에 저장됩니다.</footer>
 </main>
 
 <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true">
@@ -344,7 +344,12 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+const SUPABASE_URL='https://npcppfsfumyvhiwddeuh.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_JQUoT_AoUdIfWURzdw1UkQ_CrY3AcXA';
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
 /* ═══════════════════════════════════════════════
    법정공휴일 (2025~2026, 대체공휴일 포함)
    ═══════════════════════════════════════════════ */
@@ -384,6 +389,11 @@ const EMBEDDED_VACATION_DATA={"손승웅":[{"date":"2023-01-13","type":"연차"}
 const KEYS={settings:LINK_MODE?'vac_link_'+LINK_DATA.name:'vac_settings',used:LINK_MODE?'vac_link_used_'+LINK_DATA.name:'vac_used'};
 const DEFAULT_SETTINGS=LINK_MODE?{name:LINK_DATA.name,dept:LINK_DATA.dept,hireDate:LINK_DATA.hireDate,birthday:LINK_DATA.birthday||''}:{name:'',dept:'마케팅',hireDate:'2025-08-25',birthday:''};
 const DEFAULT_USED=LINK_MODE?(EMBEDDED_VACATION_DATA[LINK_DATA.name]||[]):[];
+async function fetchUsedFromDB(name){
+  const {data,error}=await supabase.from('vacation_entries').select('date,type').eq('employee_name',name).order('date');
+  if(error){console.error(error);return []}
+  return data;
+}
 function load(k,d){try{const v=localStorage.getItem(k);if(!v)return structuredClone(d);const o=JSON.parse(v);if(k===KEYS.settings&&o.dept==='개발팀'){o.dept='마케팅';save(k,o)}return o}catch{return structuredClone(d)}}
 function save(k,v){
   localStorage.setItem(k,JSON.stringify(v));
@@ -451,7 +461,7 @@ function renderSwatches(){
 function previewTheme(id){
   applyTheme(id);
   renderSwatches();
-  render();
+  render().catch(console.error);
 }
 
 function toggleSection(id){
@@ -481,7 +491,7 @@ function saveSettings(){
   save(KEYS.settings,s);
   // admin 페이지 직원 목록과 연동
   syncToAdmin(s);
-  closeSettings();render();
+  closeSettings();render().catch(console.error);
 }
 function syncToAdmin(s){
   try{
@@ -500,10 +510,10 @@ function syncToAdmin(s){
 }
 function resetAllData(){
   if(!confirm('모든 데이터를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'))return;
-  localStorage.removeItem(KEYS.settings);localStorage.removeItem(KEYS.used);closeSettings();render();
+  localStorage.removeItem(KEYS.settings);localStorage.removeItem(KEYS.used);closeSettings();render().catch(console.error);
 }
 
-function addVacation(){
+async function addVacation(){
   const dateVal=document.getElementById('inputDate').value;
   const typeVal=document.getElementById('inputType').value;
   if(!dateVal){alert('날짜를 선택하세요.');return}
@@ -520,34 +530,56 @@ function addVacation(){
     const bMonth=parseInt(st.birthday.split('-')[0],10);
     const selMonth=parseInt(dateVal.split('-')[1],10);
     if(bMonth!==selMonth){alert('생일연차는 생일 당월('+bMonth+'월)에만 사용할 수 있습니다.');return}
-    const used0=load(KEYS.used,DEFAULT_USED);
+    const used0=LINK_MODE?await fetchUsedFromDB(LINK_DATA.name):load(KEYS.used,DEFAULT_USED);
     const selYear=dateVal.split('-')[0];
     if(used0.some(u=>u.type==='생일연차'&&u.date.startsWith(selYear))){alert(selYear+'년 생일연차는 이미 사용했습니다.');return}
     alert('📌 생일 휴가 등록 안내\n\n1. 휴가 대장 스프레드에 기재해주세요.\n   예) '+st.name+'(생일 휴가)\n\n2. 네이버 웍스에도 기재해주세요.\n   예) '+st.name+'(생일 휴가)\n\n※ 생일 당월 미사용 시 소멸됩니다.');
   }
-  const used=load(KEYS.used,DEFAULT_USED);
+  const used=LINK_MODE?await fetchUsedFromDB(LINK_DATA.name):load(KEYS.used,DEFAULT_USED);
   if(used.find(u=>u.date===dateVal&&u.type===typeVal)){alert('이미 등록된 내역입니다.');return}
   if(typeVal==='연차'&&used.some(u=>u.date===dateVal)){
     if(!confirm(dateVal+'에 이미 반차가 등록되어 있습니다. 연차로 덮어쓰시겠습니까?'))return;
-    const f=used.filter(u=>u.date!==dateVal);f.push({date:dateVal,type:typeVal});f.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,f);
-  }else{used.push({date:dateVal,type:typeVal});used.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,used)}
-  document.getElementById('inputDate').value='';render();
+    if(LINK_MODE){
+      const {error:delErr}=await supabase.from('vacation_entries').delete().eq('employee_name',LINK_DATA.name).eq('date',dateVal);
+      if(delErr){alert('삭제 실패: '+delErr.message);return}
+      const {error:insErr}=await supabase.from('vacation_entries').insert({employee_name:LINK_DATA.name,date:dateVal,type:typeVal});
+      if(insErr){alert('저장 실패: '+insErr.message);return}
+    }else{
+      const f=used.filter(u=>u.date!==dateVal);f.push({date:dateVal,type:typeVal});f.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,f);
+    }
+  }else{
+    if(LINK_MODE){
+      const {error}=await supabase.from('vacation_entries').insert({employee_name:LINK_DATA.name,date:dateVal,type:typeVal});
+      if(error){alert('저장 실패: '+error.message);return}
+    }else{
+      used.push({date:dateVal,type:typeVal});used.sort((a,b)=>a.date.localeCompare(b.date));save(KEYS.used,used);
+    }
+  }
+  document.getElementById('inputDate').value='';await render();
 }
-function removeVacation(date,type){
+async function removeVacation(date,type){
   if(!confirm(date+' '+type+'을(를) 삭제하시겠습니까?'))return;
-  save(KEYS.used,load(KEYS.used,DEFAULT_USED).filter(u=>!(u.date===date&&u.type===type)));render();
+  if(LINK_MODE){
+    const {error}=await supabase.from('vacation_entries').delete().eq('employee_name',LINK_DATA.name).eq('date',date).eq('type',type);
+    if(error){alert('삭제 실패: '+error.message);return}
+  }else{
+    save(KEYS.used,load(KEYS.used,DEFAULT_USED).filter(u=>!(u.date===date&&u.type===type)));
+  }
+  await render();
 }
 
-function exportCSV(){
-  const s=load(KEYS.settings,DEFAULT_SETTINGS),used=load(KEYS.used,DEFAULT_USED);
+async function exportCSV(){
+  const s=load(KEYS.settings,DEFAULT_SETTINGS),used=LINK_MODE?await fetchUsedFromDB(LINK_DATA.name):load(KEYS.used,DEFAULT_USED);
   let csv='\uFEFF성명,부서,입사일\n'+`${s.name},${s.dept},${s.hireDate}\n\n날짜,구분,차감일수\n`;
   used.forEach(u=>{const label=u.type==='생일연차'?s.name+'(생일 휴가)':u.type;csv+=`${u.date},${label},${u.type==='생일연차'?'별도':dayVal(u)}\n`});
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
   a.download=`연차사용내역_${s.name||'export'}_${fmtISO(getToday())}.csv`;a.click();
 }
 
-function render(){
-  const settings=load(KEYS.settings,DEFAULT_SETTINGS),used=load(KEYS.used,DEFAULT_USED),today=getToday(),hireDate=toDate(settings.hireDate);
+async function render(){
+  const settings=load(KEYS.settings,DEFAULT_SETTINGS);
+  const used=LINK_MODE?await fetchUsedFromDB(LINK_DATA.name):load(KEYS.used,DEFAULT_USED);
+  const today=getToday(),hireDate=toDate(settings.hireDate);
   document.getElementById('todayBadge').textContent=fmt(today)+' 기준';
 
   const info=[];
@@ -748,14 +780,15 @@ function render(){
   }
   document.getElementById('dashboard').innerHTML=dash;
 
-  renderCal();
+  await renderCal();
 }
 
 let calYear,calMonth;
 (function(){const t=getToday();calYear=t.getFullYear();calMonth=t.getMonth()})();
-function calMove(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++}else if(calMonth<0){calMonth=11;calYear--}renderCal()}
-function renderCal(){
-  const used=load(KEYS.used,DEFAULT_USED),today=getToday();
+function calMove(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++}else if(calMonth<0){calMonth=11;calYear--}renderCal().catch(console.error)}
+async function renderCal(){
+  const used=LINK_MODE?await fetchUsedFromDB(LINK_DATA.name):load(KEYS.used,DEFAULT_USED);
+  const today=getToday();
   const DOW=['일','월','화','수','목','금','토'];
   const fd=new Date(calYear,calMonth,1).getDay(),dim=new Date(calYear,calMonth+1,0).getDate();
   document.getElementById('calLabel').textContent=calYear+'.'+(calMonth+1);
@@ -774,35 +807,19 @@ function renderCal(){
   document.getElementById('calGrid').innerHTML=h;
 }
 
-(function(){
+(async function(){
   if(LINK_MODE){
     // 링크 모드: 항상 링크 데이터로 설정 덮어쓰기 (테마는 유지)
     const existing=load(KEYS.settings,DEFAULT_SETTINGS);
     save(KEYS.settings,{...DEFAULT_SETTINGS,theme:existing.theme||'sage'});
-    // 링크 모드: 내장 데이터 버전 관리 — 버전 변경 시 캐시 리셋
-    const DATA_VER='v7';
-    const verKey='vac_data_ver_'+LINK_DATA.name;
-    const storedVer=localStorage.getItem(verKey);
-    if(storedVer!==DATA_VER){
-      // 데이터 업데이트됨 — 내장 데이터로 리셋 (사용자 추가분은 초기화)
-      save(KEYS.used,DEFAULT_USED);
-      localStorage.setItem(verKey,DATA_VER);
-    }else{
-      // 버전 동일 — 사용자 추가분 유지
-      const stored=load(KEYS.used,[]);
-      const embeddedDates=new Set(DEFAULT_USED.map(u=>u.date+'|'+u.type));
-      const userAdded=stored.filter(u=>!embeddedDates.has(u.date+'|'+u.type));
-      const hireDateStr=LINK_DATA.hireDate;
-      const merged=DEFAULT_USED.concat(userAdded).filter(u=>u.date>=hireDateStr).sort((a,b)=>a.date.localeCompare(b.date));
-      save(KEYS.used,merged);
-    }
+    // 링크 모드: Supabase에서 데이터 로드 (localStorage 버전 관리 불필요)
   }else{
     if(!localStorage.getItem(KEYS.settings))save(KEYS.settings,DEFAULT_SETTINGS);
     if(!localStorage.getItem(KEYS.used))save(KEYS.used,DEFAULT_USED);
   }
   const savedTheme=load(KEYS.settings,DEFAULT_SETTINGS).theme||'sage';
   applyTheme(savedTheme);
-  render();
+  await render();
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
   document.getElementById('settingsModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings()});
 })();

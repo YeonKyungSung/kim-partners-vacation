@@ -329,7 +329,12 @@ select.input{min-width:120px}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+const SUPABASE_URL='https://npcppfsfumyvhiwddeuh.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_JQUoT_AoUdIfWURzdw1UkQ_CrY3AcXA';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
 /* ═══════════════════════════════════════════════
    법정공휴일 (2025~2026, 대체공휴일 포함)
    ═══════════════════════════════════════════════ */
@@ -353,43 +358,31 @@ function isWeekend(dateStr){const d=new Date(dateStr);const dow=d.getDay();retur
 function isNonWorkday(dateStr){return isWeekend(dateStr)||isHoliday(dateStr)}
 
 /* ═══════════════════════════════════════════════
-   직원 목록 — localStorage 기반
+   직원 목록 — Supabase 기반
    ═══════════════════════════════════════════════ */
-const EMBEDDED_VACATION_DATA={"손승웅":[{"date":"2023-01-13","type":"연차"},{"date":"2023-01-21","type":"연차"},{"date":"2023-01-26","type":"연차"},{"date":"2023-01-27","type":"연차"},{"date":"2023-01-28","type":"연차"},{"date":"2023-01-29","type":"연차"},{"date":"2024-02-02","type":"연차"},{"date":"2024-03-18","type":"연차"},{"date":"2024-04-15","type":"연차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-08","type":"연차"},{"date":"2024-05-09","type":"연차"},{"date":"2024-05-10","type":"연차"},{"date":"2024-06-10","type":"연차"},{"date":"2024-06-28","type":"오후반차"},{"date":"2024-07-22","type":"연차"},{"date":"2024-08-26","type":"연차"},{"date":"2024-08-29","type":"오후반차"},{"date":"2024-09-19","type":"연차"},{"date":"2024-09-20","type":"연차"},{"date":"2024-11-18","type":"연차"},{"date":"2024-11-19","type":"연차"},{"date":"2024-12-16","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-02-21","type":"연차"},{"date":"2025-03-24","type":"오후반차"},{"date":"2025-04-14","type":"오후반차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-07-02","type":"연차"},{"date":"2025-07-03","type":"연차"},{"date":"2025-07-04","type":"연차"},{"date":"2025-07-21","type":"연차"},{"date":"2025-08-18","type":"연차"},{"date":"2025-09-08","type":"연차"},{"date":"2025-09-22","type":"연차"},{"date":"2025-10-02","type":"연차"},{"date":"2025-10-10","type":"생일연차"},{"date":"2025-11-17","type":"연차"},{"date":"2025-12-01","type":"오전반차"},{"date":"2025-12-26","type":"연차"},{"date":"2026-01-05","type":"연차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-03-23","type":"연차"},{"date":"2026-03-24","type":"연차"},{"date":"2026-04-27","type":"연차"}],"안희공":[{"date":"2022-11-30","type":"연차"},{"date":"2022-12-27","type":"연차"},{"date":"2023-01-05","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-09","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-14","type":"연차"},{"date":"2023-01-22","type":"연차"},{"date":"2023-01-23","type":"연차"},{"date":"2023-01-24","type":"연차"},{"date":"2023-01-28","type":"연차"},{"date":"2024-02-01","type":"연차"},{"date":"2024-03-20","type":"연차"},{"date":"2024-05-02","type":"연차"},{"date":"2024-05-03","type":"연차"},{"date":"2024-07-05","type":"연차"},{"date":"2024-08-05","type":"연차"},{"date":"2024-11-07","type":"연차"},{"date":"2024-11-08","type":"연차"},{"date":"2024-11-15","type":"연차"},{"date":"2024-11-21","type":"연차"},{"date":"2024-11-27","type":"연차"},{"date":"2024-11-28","type":"연차"},{"date":"2024-12-31","type":"연차"},{"date":"2025-03-10","type":"연차"},{"date":"2025-05-28","type":"연차"},{"date":"2025-06-05","type":"연차"},{"date":"2025-07-17","type":"연차"},{"date":"2025-08-04","type":"연차"},{"date":"2025-08-05","type":"연차"},{"date":"2025-11-07","type":"연차"},{"date":"2025-11-14","type":"연차"},{"date":"2025-11-27","type":"오전반차"},{"date":"2025-11-28","type":"연차"},{"date":"2026-02-27","type":"연차"}],"여현정":[{"date":"2022-11-18","type":"오전반차"},{"date":"2022-11-23","type":"연차"},{"date":"2022-11-25","type":"연차"},{"date":"2022-11-30","type":"연차"},{"date":"2023-01-04","type":"오전반차"},{"date":"2023-01-05","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-11","type":"오후반차"},{"date":"2023-01-12","type":"오전반차"},{"date":"2023-01-14","type":"연차"},{"date":"2023-01-21","type":"연차"},{"date":"2023-01-23","type":"연차"},{"date":"2023-01-24","type":"연차"},{"date":"2023-01-26","type":"연차"},{"date":"2023-01-28","type":"연차"},{"date":"2023-01-29","type":"오후반차"},{"date":"2024-01-15","type":"연차"},{"date":"2024-01-25","type":"연차"},{"date":"2024-03-19","type":"연차"},{"date":"2024-05-02","type":"연차"},{"date":"2024-05-03","type":"연차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-05-31","type":"연차"},{"date":"2024-08-01","type":"연차"},{"date":"2024-08-02","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2024-09-30","type":"연차"},{"date":"2024-10-02","type":"연차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-11-27","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-24","type":"연차"},{"date":"2025-04-28","type":"연차"},{"date":"2025-05-07","type":"연차"},{"date":"2025-05-26","type":"연차"},{"date":"2025-05-27","type":"연차"},{"date":"2025-06-20","type":"연차"},{"date":"2025-07-04","type":"연차"},{"date":"2025-07-24","type":"오후반차"},{"date":"2025-07-25","type":"오후반차"},{"date":"2025-08-01","type":"오후반차"},{"date":"2025-08-06","type":"오전반차"},{"date":"2025-09-19","type":"연차"},{"date":"2025-11-03","type":"연차"},{"date":"2025-11-04","type":"연차"},{"date":"2025-11-26","type":"오전반차"},{"date":"2025-11-28","type":"오전반차"},{"date":"2025-12-12","type":"연차"},{"date":"2026-01-16","type":"연차"},{"date":"2026-01-21","type":"오후반차"},{"date":"2026-02-11","type":"오후반차"},{"date":"2026-03-20","type":"연차"},{"date":"2026-04-20","type":"생일연차"},{"date":"2026-04-21","type":"연차"},{"date":"2026-04-22","type":"연차"},{"date":"2026-04-23","type":"연차"},{"date":"2026-04-24","type":"연차"}],"조윤미":[{"date":"2022-11-18","type":"연차"},{"date":"2022-11-25","type":"연차"},{"date":"2022-11-26","type":"연차"},{"date":"2022-12-27","type":"연차"},{"date":"2022-12-28","type":"연차"},{"date":"2022-12-30","type":"연차"},{"date":"2022-12-31","type":"연차"},{"date":"2023-01-09","type":"연차"},{"date":"2023-01-12","type":"연차"},{"date":"2023-01-13","type":"연차"},{"date":"2023-01-20","type":"연차"},{"date":"2023-01-21","type":"연차"},{"date":"2023-01-22","type":"연차"},{"date":"2023-01-23","type":"연차"},{"date":"2023-01-24","type":"연차"},{"date":"2023-01-26","type":"연차"},{"date":"2023-01-28","type":"연차"},{"date":"2024-02-23","type":"연차"},{"date":"2024-03-12","type":"연차"},{"date":"2024-03-25","type":"연차"},{"date":"2024-04-11","type":"연차"},{"date":"2024-04-12","type":"연차"},{"date":"2024-05-23","type":"연차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-06-28","type":"연차"},{"date":"2024-07-10","type":"연차"},{"date":"2024-07-29","type":"연차"},{"date":"2024-07-30","type":"연차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-10-29","type":"연차"},{"date":"2024-11-07","type":"오후반차"},{"date":"2024-11-08","type":"연차"},{"date":"2024-11-11","type":"연차"},{"date":"2024-12-17","type":"오후반차"},{"date":"2025-03-21","type":"연차"},{"date":"2025-04-21","type":"오전반차"},{"date":"2025-04-25","type":"연차"},{"date":"2025-04-29","type":"오후반차"},{"date":"2025-05-14","type":"오후반차"},{"date":"2025-05-15","type":"연차"},{"date":"2025-05-16","type":"연차"},{"date":"2025-05-19","type":"연차"},{"date":"2025-06-19","type":"오후반차"},{"date":"2025-06-20","type":"연차"},{"date":"2025-06-23","type":"연차"},{"date":"2025-06-24","type":"연차"},{"date":"2025-06-25","type":"연차"},{"date":"2025-06-26","type":"연차"},{"date":"2025-06-27","type":"연차"},{"date":"2025-08-22","type":"연차"},{"date":"2025-10-23","type":"연차"},{"date":"2025-10-24","type":"연차"},{"date":"2025-11-28","type":"생일연차"},{"date":"2025-12-26","type":"연차"},{"date":"2026-03-12","type":"오후반차"},{"date":"2026-03-27","type":"오후반차"}],"안희진":[{"date":"2022-11-09","type":"오전반차"},{"date":"2022-11-18","type":"연차"},{"date":"2022-11-23","type":"연차"},{"date":"2022-12-27","type":"연차"},{"date":"2022-12-30","type":"연차"},{"date":"2022-12-31","type":"연차"},{"date":"2023-01-04","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-11","type":"연차"},{"date":"2023-01-14","type":"연차"},{"date":"2023-01-20","type":"연차"},{"date":"2023-01-23","type":"연차"},{"date":"2023-01-26","type":"연차"},{"date":"2023-01-27","type":"연차"},{"date":"2023-01-28","type":"연차"},{"date":"2024-01-24","type":"연차"},{"date":"2024-02-19","type":"연차"},{"date":"2024-04-26","type":"연차"},{"date":"2024-05-09","type":"연차"},{"date":"2024-06-24","type":"연차"},{"date":"2024-07-18","type":"연차"},{"date":"2024-07-19","type":"연차"},{"date":"2024-07-26","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2024-09-06","type":"연차"},{"date":"2024-11-01","type":"연차"},{"date":"2024-11-04","type":"연차"},{"date":"2024-11-05","type":"연차"},{"date":"2025-02-10","type":"연차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-06-19","type":"연차"},{"date":"2025-07-14","type":"연차"},{"date":"2025-07-15","type":"연차"},{"date":"2025-07-21","type":"연차"},{"date":"2025-09-29","type":"연차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-12-26","type":"연차"},{"date":"2026-01-26","type":"연차"},{"date":"2026-03-03","type":"연차"},{"date":"2026-04-20","type":"연차"},{"date":"2026-04-21","type":"연차"},{"date":"2026-04-22","type":"연차"},{"date":"2026-04-23","type":"연차"},{"date":"2026-04-24","type":"연차"},{"date":"2026-04-27","type":"생일연차"},{"date":"2026-04-28","type":"연차"},{"date":"2026-04-29","type":"연차"},{"date":"2026-04-30","type":"연차"}],"이세림":[{"date":"2022-11-02","type":"연차"},{"date":"2022-11-25","type":"연차"},{"date":"2023-01-02","type":"연차"},{"date":"2023-01-03","type":"연차"},{"date":"2023-01-06","type":"연차"},{"date":"2023-01-07","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-08","type":"오전반차"},{"date":"2023-01-16","type":"연차"},{"date":"2023-01-19","type":"연차"},{"date":"2023-01-20","type":"연차"},{"date":"2023-01-21","type":"연차"},{"date":"2023-01-22","type":"연차"},{"date":"2023-01-25","type":"연차"},{"date":"2024-01-12","type":"오후반차"},{"date":"2024-02-07","type":"연차"},{"date":"2024-04-03","type":"연차"},{"date":"2024-04-25","type":"오전반차"},{"date":"2024-05-09","type":"오전반차"},{"date":"2024-05-31","type":"연차"},{"date":"2024-06-12","type":"오후반차"},{"date":"2024-07-25","type":"연차"},{"date":"2024-07-26","type":"연차"},{"date":"2024-08-30","type":"오후반차"},{"date":"2024-10-25","type":"연차"},{"date":"2024-11-04","type":"오후반차"},{"date":"2024-12-23","type":"연차"},{"date":"2024-12-24","type":"연차"},{"date":"2025-02-24","type":"오전반차"},{"date":"2025-04-22","type":"오후반차"},{"date":"2025-04-25","type":"오후반차"},{"date":"2025-05-21","type":"연차"},{"date":"2025-05-22","type":"연차"},{"date":"2025-05-23","type":"연차"},{"date":"2025-07-04","type":"연차"},{"date":"2025-07-18","type":"연차"},{"date":"2025-08-29","type":"오후반차"},{"date":"2025-09-05","type":"오후반차"},{"date":"2025-09-29","type":"생일연차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-10-31","type":"연차"},{"date":"2025-11-17","type":"연차"},{"date":"2025-12-18","type":"연차"},{"date":"2025-12-19","type":"연차"},{"date":"2026-01-06","type":"연차"},{"date":"2026-02-02","type":"연차"},{"date":"2026-04-20","type":"연차"},{"date":"2026-04-21","type":"연차"},{"date":"2026-04-22","type":"연차"},{"date":"2026-04-23","type":"연차"},{"date":"2026-04-24","type":"연차"},{"date":"2026-04-27","type":"연차"},{"date":"2026-04-28","type":"연차"},{"date":"2026-04-29","type":"연차"},{"date":"2026-04-30","type":"연차"}],"윤승빈":[{"date":"2024-09-19","type":"연차"},{"date":"2024-09-20","type":"연차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-10-15","type":"연차"},{"date":"2024-10-22","type":"오전반차"},{"date":"2024-10-31","type":"오후반차"},{"date":"2024-11-08","type":"연차"},{"date":"2024-11-22","type":"오후반차"},{"date":"2024-12-24","type":"연차"},{"date":"2025-01-31","type":"오후반차"},{"date":"2025-03-04","type":"연차"},{"date":"2025-03-05","type":"연차"},{"date":"2025-03-28","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-13","type":"연차"},{"date":"2025-07-04","type":"오후반차"},{"date":"2025-07-07","type":"연차"},{"date":"2025-07-08","type":"연차"},{"date":"2025-08-11","type":"오후반차"},{"date":"2025-08-29","type":"오후반차"},{"date":"2025-09-26","type":"오후반차"},{"date":"2025-09-29","type":"오전반차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-10-21","type":"연차"},{"date":"2025-10-22","type":"연차"},{"date":"2025-11-21","type":"생일연차"},{"date":"2025-12-22","type":"연차"},{"date":"2026-02-02","type":"오후반차"},{"date":"2026-02-13","type":"오후반차"},{"date":"2026-03-04","type":"연차"},{"date":"2026-05-12","type":"연차"},{"date":"2026-06-23","type":"연차"}],"한성종":[{"date":"2022-12-28","type":"연차"},{"date":"2023-01-08","type":"연차"},{"date":"2023-01-09","type":"연차"},{"date":"2023-01-10","type":"연차"},{"date":"2023-01-12","type":"연차"},{"date":"2023-01-16","type":"연차"},{"date":"2023-01-17","type":"연차"},{"date":"2023-01-18","type":"연차"},{"date":"2023-01-28","type":"연차"},{"date":"2024-01-16","type":"연차"},{"date":"2024-01-19","type":"연차"},{"date":"2024-02-01","type":"연차"},{"date":"2024-02-21","type":"연차"},{"date":"2024-05-22","type":"연차"},{"date":"2024-05-23","type":"연차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-06-10","type":"연차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-08-19","type":"연차"},{"date":"2024-08-20","type":"연차"},{"date":"2024-08-21","type":"연차"},{"date":"2024-09-05","type":"연차"},{"date":"2024-09-26","type":"연차"},{"date":"2024-10-14","type":"연차"},{"date":"2024-11-14","type":"연차"},{"date":"2024-11-15","type":"연차"},{"date":"2025-01-13","type":"연차"},{"date":"2025-02-28","type":"연차"},{"date":"2025-03-14","type":"오후반차"},{"date":"2025-04-28","type":"연차"},{"date":"2025-04-29","type":"오전반차"},{"date":"2025-05-09","type":"연차"},{"date":"2025-06-09","type":"연차"},{"date":"2025-06-10","type":"연차"},{"date":"2025-06-11","type":"연차"},{"date":"2025-06-27","type":"오후반차"},{"date":"2025-08-01","type":"연차"},{"date":"2025-09-24","type":"오전반차"},{"date":"2025-10-15","type":"연차"},{"date":"2025-11-11","type":"연차"},{"date":"2025-12-05","type":"연차"},{"date":"2025-12-12","type":"오후반차"},{"date":"2026-01-16","type":"오후반차"},{"date":"2026-01-30","type":"오후반차"},{"date":"2026-02-23","type":"연차"},{"date":"2026-03-12","type":"연차"},{"date":"2026-03-13","type":"연차"}],"박하람":[{"date":"2024-03-14","type":"연차"},{"date":"2024-03-15","type":"연차"},{"date":"2024-04-11","type":"연차"},{"date":"2024-04-12","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-07-01","type":"연차"},{"date":"2024-07-02","type":"연차"},{"date":"2024-07-03","type":"연차"},{"date":"2024-09-13","type":"연차"},{"date":"2024-11-01","type":"연차"},{"date":"2024-11-15","type":"연차"},{"date":"2024-12-23","type":"연차"},{"date":"2024-12-24","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-02-12","type":"연차"},{"date":"2025-03-17","type":"연차"},{"date":"2025-03-18","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-08-21","type":"연차"},{"date":"2025-08-22","type":"연차"},{"date":"2025-09-15","type":"생일연차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-12-04","type":"오후반차"},{"date":"2025-12-05","type":"연차"},{"date":"2025-12-26","type":"연차"},{"date":"2025-12-29","type":"오전반차"},{"date":"2026-01-02","type":"연차"},{"date":"2026-02-11","type":"연차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-03-12","type":"연차"},{"date":"2026-03-13","type":"연차"},{"date":"2026-03-19","type":"연차"},{"date":"2026-03-20","type":"연차"}],"이진호":[{"date":"2024-04-05","type":"연차"},{"date":"2024-08-22","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2025-04-11","type":"연차"},{"date":"2025-07-11","type":"연차"},{"date":"2025-11-07","type":"오후반차"},{"date":"2025-12-04","type":"오후반차"},{"date":"2025-12-19","type":"생일연차"},{"date":"2025-12-31","type":"연차"},{"date":"2026-01-09","type":"연차"},{"date":"2026-02-10","type":"연차"},{"date":"2026-02-11","type":"연차"},{"date":"2026-02-12","type":"연차"},{"date":"2026-02-13","type":"연차"},{"date":"2026-02-23","type":"오후반차"}],"김태희":[{"date":"2024-02-08","type":"오후반차"},{"date":"2024-04-05","type":"연차"},{"date":"2024-04-08","type":"연차"},{"date":"2024-04-09","type":"연차"},{"date":"2024-04-11","type":"연차"},{"date":"2024-04-12","type":"연차"},{"date":"2024-04-24","type":"오후반차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-09","type":"오후반차"},{"date":"2024-05-23","type":"오전반차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-06-05","type":"오후반차"},{"date":"2024-06-07","type":"연차"},{"date":"2024-07-02","type":"연차"},{"date":"2024-07-16","type":"오후반차"},{"date":"2024-08-05","type":"오후반차"},{"date":"2024-08-14","type":"오후반차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-08-20","type":"연차"},{"date":"2024-08-22","type":"오전반차"},{"date":"2024-09-26","type":"연차"},{"date":"2024-10-07","type":"연차"},{"date":"2024-10-08","type":"연차"},{"date":"2024-11-22","type":"오후반차"},{"date":"2024-12-06","type":"오후반차"},{"date":"2024-12-16","type":"연차"},{"date":"2025-02-24","type":"오후반차"},{"date":"2025-03-26","type":"오후반차"},{"date":"2025-04-01","type":"오후반차"},{"date":"2025-04-16","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-06-05","type":"연차"},{"date":"2025-07-02","type":"오후반차"},{"date":"2025-07-11","type":"연차"},{"date":"2025-07-17","type":"연차"},{"date":"2025-07-18","type":"연차"},{"date":"2025-07-30","type":"연차"},{"date":"2025-07-31","type":"오후반차"},{"date":"2025-08-26","type":"오후반차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-12-19","type":"연차"},{"date":"2025-12-26","type":"연차"},{"date":"2026-01-02","type":"생일연차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-02-27","type":"오후반차"},{"date":"2026-04-06","type":"연차"},{"date":"2026-05-04","type":"연차"},{"date":"2026-07-20","type":"연차"},{"date":"2026-09-28","type":"연차"},{"date":"2026-10-06","type":"연차"},{"date":"2026-10-07","type":"연차"},{"date":"2026-10-08","type":"연차"}],"백운선":[{"date":"2024-01-26","type":"연차"},{"date":"2024-03-18","type":"연차"},{"date":"2024-04-17","type":"연차"},{"date":"2024-04-24","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-07-25","type":"연차"},{"date":"2024-07-26","type":"연차"},{"date":"2024-07-29","type":"연차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-08-30","type":"연차"},{"date":"2024-09-19","type":"연차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-11-22","type":"오후반차"},{"date":"2024-12-26","type":"연차"},{"date":"2024-12-27","type":"연차"},{"date":"2024-12-31","type":"연차"},{"date":"2025-02-20","type":"오후반차"},{"date":"2025-02-21","type":"연차"},{"date":"2025-03-14","type":"오후반차"},{"date":"2025-04-30","type":"오후반차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-07-24","type":"연차"},{"date":"2025-07-25","type":"연차"},{"date":"2025-08-01","type":"연차"},{"date":"2025-08-06","type":"연차"},{"date":"2025-08-07","type":"연차"},{"date":"2025-08-08","type":"연차"},{"date":"2025-08-22","type":"오후반차"},{"date":"2025-09-05","type":"오후반차"},{"date":"2025-09-24","type":"연차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-10-31","type":"오후반차"},{"date":"2025-12-02","type":"연차"},{"date":"2025-12-26","type":"오후반차"},{"date":"2025-12-31","type":"생일연차"},{"date":"2026-01-23","type":"연차"},{"date":"2026-02-06","type":"오후반차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-02-26","type":"오후반차"},{"date":"2026-03-20","type":"연차"}],"김태훈":[{"date":"2024-02-08","type":"연차"},{"date":"2024-03-20","type":"연차"},{"date":"2024-03-27","type":"연차"},{"date":"2024-04-03","type":"연차"},{"date":"2024-04-17","type":"연차"},{"date":"2024-04-24","type":"연차"},{"date":"2024-05-08","type":"연차"},{"date":"2024-05-13","type":"연차"},{"date":"2024-05-14","type":"연차"},{"date":"2024-05-22","type":"연차"},{"date":"2024-06-07","type":"연차"},{"date":"2024-07-11","type":"오후반차"},{"date":"2024-08-16","type":"연차"},{"date":"2024-08-26","type":"오후반차"},{"date":"2024-08-27","type":"연차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-11-26","type":"연차"},{"date":"2024-12-31","type":"연차"},{"date":"2025-01-06","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-12","type":"연차"},{"date":"2025-03-19","type":"연차"},{"date":"2025-04-16","type":"연차"},{"date":"2025-04-23","type":"연차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-05-21","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-08-01","type":"연차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-10-20","type":"연차"},{"date":"2025-12-01","type":"오후반차"},{"date":"2025-12-12","type":"오후반차"},{"date":"2025-12-16","type":"오후반차"},{"date":"2025-12-26","type":"연차"},{"date":"2026-01-30","type":"연차"},{"date":"2026-02-12","type":"연차"},{"date":"2026-02-13","type":"연차"},{"date":"2026-02-20","type":"오후반차"},{"date":"2026-03-20","type":"연차"},{"date":"2026-04-17","type":"연차"},{"date":"2026-04-30","type":"생일연차"},{"date":"2026-05-15","type":"연차"},{"date":"2026-05-26","type":"연차"}],"유승아":[{"date":"2024-02-16","type":"연차"},{"date":"2024-04-03","type":"연차"},{"date":"2024-04-26","type":"연차"},{"date":"2024-04-29","type":"연차"},{"date":"2024-04-30","type":"연차"},{"date":"2024-05-17","type":"오후반차"},{"date":"2024-05-21","type":"오후반차"},{"date":"2024-05-24","type":"연차"},{"date":"2024-05-27","type":"연차"},{"date":"2024-06-21","type":"연차"},{"date":"2024-07-15","type":"연차"},{"date":"2024-07-18","type":"오후반차"},{"date":"2024-08-02","type":"연차"},{"date":"2024-10-08","type":"연차"},{"date":"2024-11-29","type":"연차"},{"date":"2024-12-02","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-04","type":"연차"},{"date":"2025-03-05","type":"연차"},{"date":"2025-03-06","type":"연차"},{"date":"2025-04-24","type":"오후반차"},{"date":"2025-05-02","type":"연차"},{"date":"2025-06-02","type":"연차"},{"date":"2025-06-04","type":"연차"},{"date":"2025-06-05","type":"연차"},{"date":"2025-06-20","type":"오후반차"},{"date":"2025-08-04","type":"오후반차"},{"date":"2025-08-11","type":"연차"},{"date":"2025-09-25","type":"오후반차"},{"date":"2025-09-26","type":"연차"},{"date":"2025-11-11","type":"연차"},{"date":"2025-12-31","type":"연차"},{"date":"2026-02-06","type":"오후반차"},{"date":"2026-04-27","type":"연차"},{"date":"2026-04-28","type":"연차"},{"date":"2026-04-29","type":"연차"},{"date":"2026-05-04","type":"생일연차"},{"date":"2026-06-04","type":"연차"},{"date":"2026-06-05","type":"연차"}],"정지인":[{"date":"2024-01-18","type":"연차"},{"date":"2024-01-24","type":"연차"},{"date":"2024-01-25","type":"연차"},{"date":"2024-01-26","type":"연차"},{"date":"2024-03-11","type":"오전반차"},{"date":"2024-05-17","type":"오후반차"},{"date":"2024-06-05","type":"연차"},{"date":"2024-06-12","type":"연차"},{"date":"2024-06-14","type":"연차"},{"date":"2024-06-27","type":"연차"},{"date":"2024-07-17","type":"연차"},{"date":"2024-08-01","type":"연차"},{"date":"2024-08-08","type":"연차"},{"date":"2024-08-09","type":"연차"},{"date":"2024-08-23","type":"연차"},{"date":"2024-09-05","type":"오전반차"},{"date":"2024-09-09","type":"연차"},{"date":"2024-09-23","type":"연차"},{"date":"2024-10-07","type":"연차"},{"date":"2025-01-20","type":"연차"},{"date":"2025-02-27","type":"오후반차"},{"date":"2025-03-10","type":"연차"},{"date":"2025-03-11","type":"연차"},{"date":"2025-03-31","type":"연차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-06-18","type":"연차"},{"date":"2025-07-24","type":"오전반차"},{"date":"2025-08-04","type":"오후반차"},{"date":"2025-08-20","type":"연차"},{"date":"2025-08-28","type":"연차"},{"date":"2026-01-05","type":"연차"},{"date":"2026-01-23","type":"연차"},{"date":"2026-02-19","type":"생일연차"},{"date":"2026-02-25","type":"오후반차"},{"date":"2026-03-10","type":"연차"},{"date":"2026-03-18","type":"연차"}],"김유진":[{"date":"2024-01-25","type":"연차"},{"date":"2024-01-26","type":"연차"},{"date":"2024-03-05","type":"연차"},{"date":"2024-03-11","type":"연차"},{"date":"2024-03-20","type":"연차"},{"date":"2024-04-17","type":"오후반차"},{"date":"2024-04-18","type":"오후반차"},{"date":"2024-05-02","type":"오전반차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-08","type":"연차"},{"date":"2024-05-09","type":"연차"},{"date":"2024-05-10","type":"연차"},{"date":"2024-05-27","type":"오후반차"},{"date":"2024-09-19","type":"연차"},{"date":"2024-09-20","type":"연차"},{"date":"2024-11-18","type":"연차"},{"date":"2024-11-19","type":"연차"},{"date":"2024-11-27","type":"오후반차"},{"date":"2024-12-16","type":"연차"},{"date":"2025-01-06","type":"연차"},{"date":"2025-01-09","type":"오후반차"},{"date":"2025-01-10","type":"연차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-12","type":"연차"},{"date":"2025-03-13","type":"연차"},{"date":"2025-03-14","type":"연차"},{"date":"2025-03-19","type":"연차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-05-13","type":"오후반차"},{"date":"2025-06-02","type":"오후반차"},{"date":"2025-06-04","type":"오후반차"},{"date":"2025-06-13","type":"오후반차"},{"date":"2025-06-17","type":"연차"},{"date":"2025-06-27","type":"오후반차"},{"date":"2025-06-30","type":"오전반차"},{"date":"2025-07-22","type":"연차"},{"date":"2025-07-30","type":"연차"},{"date":"2025-08-06","type":"연차"},{"date":"2025-08-07","type":"연차"},{"date":"2025-08-08","type":"연차"},{"date":"2025-08-28","type":"오후반차"},{"date":"2025-09-08","type":"오후반차"},{"date":"2025-09-23","type":"오후반차"},{"date":"2025-09-26","type":"연차"},{"date":"2025-09-29","type":"연차"},{"date":"2025-10-22","type":"오전반차"},{"date":"2025-12-16","type":"연차"},{"date":"2025-12-17","type":"연차"},{"date":"2026-03-10","type":"오후반차"},{"date":"2026-03-11","type":"오전반차"},{"date":"2026-03-12","type":"오전반차"},{"date":"2026-03-13","type":"오전반차"},{"date":"2026-03-31","type":"연차"}],"명지숙":[{"date":"2024-04-11","type":"연차"},{"date":"2024-05-07","type":"연차"},{"date":"2024-05-31","type":"연차"},{"date":"2024-07-08","type":"연차"},{"date":"2024-08-28","type":"오전반차"},{"date":"2024-11-15","type":"연차"},{"date":"2024-11-22","type":"연차"},{"date":"2024-11-27","type":"오전반차"},{"date":"2024-12-13","type":"연차"},{"date":"2024-12-20","type":"연차"},{"date":"2025-01-07","type":"연차"},{"date":"2025-01-08","type":"연차"},{"date":"2025-01-09","type":"오전반차"},{"date":"2025-02-28","type":"오후반차"},{"date":"2025-03-10","type":"연차"},{"date":"2025-03-14","type":"오전반차"},{"date":"2025-04-07","type":"연차"},{"date":"2025-04-28","type":"오전반차"},{"date":"2025-06-17","type":"오전반차"},{"date":"2025-07-25","type":"연차"},{"date":"2025-07-28","type":"연차"},{"date":"2025-08-20","type":"오전반차"},{"date":"2025-09-08","type":"오전반차"},{"date":"2025-09-09","type":"오전반차"},{"date":"2026-01-05","type":"연차"},{"date":"2026-01-12","type":"연차"},{"date":"2026-01-19","type":"연차"},{"date":"2026-01-22","type":"연차"},{"date":"2026-01-26","type":"연차"},{"date":"2026-01-27","type":"연차"},{"date":"2026-03-05","type":"오전반차"},{"date":"2026-04-06","type":"생일연차"},{"date":"2026-04-09","type":"연차"}],"구혜수":[{"date":"2024-08-30","type":"오후반차"},{"date":"2024-10-04","type":"연차"},{"date":"2024-10-31","type":"오후반차"},{"date":"2024-12-10","type":"연차"},{"date":"2025-01-03","type":"오후반차"},{"date":"2025-01-17","type":"오후반차"},{"date":"2025-01-31","type":"연차"},{"date":"2025-03-19","type":"연차"},{"date":"2025-04-14","type":"연차"},{"date":"2025-05-07","type":"연차"},{"date":"2025-05-28","type":"오후반차"},{"date":"2025-06-12","type":"오후반차"},{"date":"2025-06-13","type":"연차"},{"date":"2025-06-16","type":"연차"},{"date":"2025-07-28","type":"연차"},{"date":"2025-07-29","type":"연차"},{"date":"2025-08-11","type":"연차"},{"date":"2025-08-18","type":"오후반차"},{"date":"2025-08-25","type":"오후반차"},{"date":"2025-09-24","type":"연차"},{"date":"2025-10-10","type":"연차"},{"date":"2025-11-17","type":"생일연차"},{"date":"2025-12-18","type":"오전반차"},{"date":"2026-01-02","type":"연차"},{"date":"2026-02-03","type":"오후반차"},{"date":"2026-02-04","type":"연차"},{"date":"2026-02-05","type":"연차"},{"date":"2026-02-06","type":"연차"},{"date":"2026-03-18","type":"연차"},{"date":"2026-03-20","type":"연차"}],"문희원":[{"date":"2026-01-05","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-04-06","type":"연차"}],"임동욱":[{"date":"2025-12-30","type":"연차"},{"date":"2026-01-13","type":"연차"},{"date":"2026-03-25","type":"연차"}],"김대영":[{"date":"2025-12-26","type":"연차"},{"date":"2026-02-19","type":"연차"},{"date":"2026-02-20","type":"연차"},{"date":"2026-03-03","type":"오전반차"},{"date":"2026-03-13","type":"오후반차"},{"date":"2026-05-04","type":"생일연차"}],"유예람":[{"date":"2026-02-09","type":"연차"},{"date":"2026-03-27","type":"오후반차"}],"김혜진":[],"김예은":[{"date":"2025-05-15","type":"연차"},{"date":"2025-07-28","type":"연차"},{"date":"2025-09-03","type":"연차"},{"date":"2025-09-25","type":"연차"},{"date":"2025-12-03","type":"오후반차"},{"date":"2026-03-09","type":"연차"},{"date":"2026-03-10","type":"연차"},{"date":"2026-03-11","type":"연차"},{"date":"2026-03-12","type":"연차"},{"date":"2026-04-07","type":"연차"},{"date":"2026-04-22","type":"오전반차"},{"date":"2026-05-18","type":"생일연차"}],"남진영":[{"date":"2025-12-05","type":"오전반차"},{"date":"2026-01-28","type":"연차"},{"date":"2026-02-27","type":"오후반차"},{"date":"2026-03-13","type":"오후반차"},{"date":"2026-03-27","type":"연차"},{"date":"2026-04-02","type":"생일연차"},{"date":"2026-04-10","type":"연차"}],"성연경":[{"date":"2025-10-10","type":"연차"},{"date":"2025-12-01","type":"연차"},{"date":"2026-01-08","type":"연차"},{"date":"2026-01-09","type":"연차"},{"date":"2026-03-20","type":"연차"}],"문정하":[],"양보영":[{"date":"2026-02-19","type":"연차"}]};
-const EMP_KEY='vac_admin_employees';
-function loadEmployees(){try{const v=localStorage.getItem(EMP_KEY);return v?JSON.parse(v):[]}catch{return[]}}
-function saveEmployees(list){localStorage.setItem(EMP_KEY,JSON.stringify(list))}
-function getEmployees(){return loadEmployees()}
+let _employees=null;
+let _usedCache={};
+
+async function fetchEmployees(){
+  const {data,error}=await sb.from('employees').select('*').eq('resigned',false).order('id');
+  if(error){console.error(error);return []}
+  _employees=data.map(e=>({id:e.id,name:e.name,dept:e.dept,hireDate:e.hire_date,birthday:e.birthday||'',resigned:e.resigned}));
+  return _employees;
+}
+
+function getEmployees(){return _employees||[]}
 
 /* ═══════════════════════════════════════════════
    Core functions
    ═══════════════════════════════════════════════ */
-function storageKey(empId){ return 'vac_admin_'+empId; }
-function loadUsed(empId){
-  // admin 자체 데이터
-  let adminData=[];
-  try{const v=localStorage.getItem(storageKey(empId));if(v)adminData=JSON.parse(v)}catch{}
-  // 개별 사원 페이지 데이터도 병합
-  const emp=getEmployees().find(e=>e.id===empId);
-  if(emp){
-    try{
-      const linkData=localStorage.getItem('vac_link_used_'+emp.name);
-      if(linkData){
-        const linkUsed=JSON.parse(linkData);
-        if(linkUsed.length>0){
-          // 개별 페이지 데이터가 있으면 그것을 우선 사용 (사원이 직접 입력한 데이터)
-          return linkUsed;
-        }
-      }
-    }catch{}
-  }
-  return adminData;
+async function fetchUsed(empName){
+  const {data,error}=await sb.from('vacation_entries').select('date,type').eq('employee_name',empName).order('date');
+  if(error){console.error(error);return []}
+  return data;
 }
-function saveUsed(empId,arr){
-  localStorage.setItem(storageKey(empId),JSON.stringify(arr));
-  // 개별 사원 페이지에도 동기화
-  const emp=getEmployees().find(e=>e.id===empId);
-  if(emp){try{localStorage.setItem('vac_link_used_'+emp.name,JSON.stringify(arr))}catch{}}
+
+function loadUsed(empId){
+  return _usedCache[empId]||[];
 }
 function toDate(s){const p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
 function fmt(d){return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
@@ -572,9 +565,21 @@ function changeCalMonth(delta){
   renderMiniCal(calYear,calMonth);
 }
 
-function render(){
+async function render(){
   const today=getToday();
   document.getElementById('todayBadge').textContent=fmt(today)+' 기준';
+
+  await fetchEmployees();
+  const emps=getEmployees();
+
+  // Fetch all vacation entries at once
+  const {data:allEntries}=await sb.from('vacation_entries').select('employee_name,date,type').order('date');
+  // Group by employee name
+  _usedCache={};
+  emps.forEach(emp=>{
+    const empEntries=(allEntries||[]).filter(e=>e.employee_name===emp.name);
+    _usedCache[emp.id]=empEntries.map(e=>({date:e.date,type:e.type}));
+  });
 
   const allResults=getEmployees().map(calcEmployee);
   const results=allResults.filter(r=>!r.emp.resigned);
@@ -689,16 +694,16 @@ function render(){
 /* ═══════════════════════════════════════════════
    Detail panel
    ═══════════════════════════════════════════════ */
-function selectEmp(id){
+async function selectEmp(id){
   selectedEmpId=id;
-  render();
+  await render();
   document.getElementById('detailPanel').classList.add('active');
   document.getElementById('detailPanel').scrollIntoView({behavior:'smooth'});
 }
-function closeDetail(){
+async function closeDetail(){
   selectedEmpId=null;
   document.getElementById('detailPanel').classList.remove('active');
-  render();
+  await render();
 }
 
 function renderDetail(empId){
@@ -800,7 +805,7 @@ function renderDetail(empId){
 /* ═══════════════════════════════════════════════
    Add / Remove vacation
    ═══════════════════════════════════════════════ */
-function addVacation(){
+async function addVacation(){
   if(!selectedEmpId){alert('직원을 먼저 선택하세요.');return}
   const emp=getEmployees().find(e=>e.id===selectedEmpId);
   const dateVal=document.getElementById('addDate').value;
@@ -830,30 +835,27 @@ function addVacation(){
 
   if(typeVal==='연차'&&used.some(u=>u.date===dateVal)){
     if(!confirm(dateVal+'에 이미 반차가 등록되어 있습니다. 연차로 덮어쓰시겠습니까?'))return;
-    const f=used.filter(u=>u.date!==dateVal);
-    f.push({date:dateVal,type:typeVal});
-    f.sort((a,b)=>a.date.localeCompare(b.date));
-    saveUsed(selectedEmpId,f);
-  }else{
-    used.push({date:dateVal,type:typeVal});
-    used.sort((a,b)=>a.date.localeCompare(b.date));
-    saveUsed(selectedEmpId,used);
+    await sb.from('vacation_entries').delete().eq('employee_name',emp.name).eq('date',dateVal);
   }
+
+  const {error}=await sb.from('vacation_entries').insert({employee_name:emp.name,date:dateVal,type:typeVal});
+  if(error){alert('저장 실패: '+error.message);return}
   document.getElementById('addDate').value='';
-  render();
+  await render();
 }
 
-function removeVacation(empId,date,type){
+async function removeVacation(empId,date,type){
   if(!confirm(date+' '+type+'을(를) 삭제하시겠습니까?'))return;
-  const used=loadUsed(empId).filter(u=>!(u.date===date&&u.type===type));
-  saveUsed(empId,used);
-  render();
+  const emp=getEmployees().find(e=>e.id===empId);
+  await sb.from('vacation_entries').delete().eq('employee_name',emp.name).eq('date',date).eq('type',type);
+  await render();
 }
 
 /* ═══════════════════════════════════════════════
    Export all employees CSV
    ═══════════════════════════════════════════════ */
-function exportAllCSV(){
+async function exportAllCSV(){
+  await render();
   const today=getToday();
   let csv='\uFEFF성명,부서,입사일,년차,부여,이월,이월종료일,이월소멸,총일수,사용,잔여\n';
   getEmployees().forEach(emp=>{
@@ -908,7 +910,7 @@ function editEmployee(id){
 function closeEmpForm(){
   document.getElementById('empMgmtPanel').style.display='none';
 }
-function saveEmployee(){
+async function saveEmployee(){
   const editId=document.getElementById('empEditId').value;
   const name=document.getElementById('empName').value.trim();
   const dept=document.getElementById('empDept').value.trim();
@@ -916,32 +918,16 @@ function saveEmployee(){
   const birthday=document.getElementById('empBirthday').value.trim();
   if(!name){alert('성명을 입력하세요.');return}
   if(!hireDate){alert('입사일을 입력하세요.');return}
-  const list=getEmployees();
   if(editId){
-    const idx=list.findIndex(e=>e.id===editId);
-    if(idx>=0){list[idx]={...list[idx],name,dept,hireDate,birthday}}
+    const {error}=await sb.from('employees').update({name,dept,hire_date:hireDate,birthday:birthday||null}).eq('id',editId);
+    if(error){alert('저장 실패: '+error.message);return}
   }else{
     const id='emp_'+Date.now();
-    list.push({id,name,dept,hireDate,birthday});
+    const {error}=await sb.from('employees').insert({id,name,dept,hire_date:hireDate,birthday:birthday||null,resigned:false});
+    if(error){alert('저장 실패: '+error.message);return}
   }
-  saveEmployees(list);
-  // 개별 사원 페이지 localStorage 연동
-  syncToEmployeePage(name, {name,dept,hireDate,birthday});
   closeEmpForm();
-  render();
-}
-function syncToEmployeePage(empName, data){
-  const key='vac_link_'+empName;
-  try{
-    const existing=localStorage.getItem(key);
-    if(existing){
-      const s=JSON.parse(existing);
-      s.name=data.name; s.dept=data.dept; s.hireDate=data.hireDate; s.birthday=data.birthday||'';
-      localStorage.setItem(key,JSON.stringify(s));
-    }else{
-      localStorage.setItem(key,JSON.stringify({name:data.name,dept:data.dept,hireDate:data.hireDate,birthday:data.birthday||'',theme:'sage'}));
-    }
-  }catch(e){}
+  await render();
 }
 function openLink(id){
   const emp=getEmployees().find(e=>e.id===id);
@@ -954,94 +940,20 @@ function openLink(id){
   location.href=link;
 }
 
-function resignEmployee(id){
+async function resignEmployee(id){
   const emp=getEmployees().find(e=>e.id===id);
   if(!emp)return;
-  if(!confirm(emp.name+'을(를) 퇴사 처리하시겠습니까?\n해당 직원의 모든 정보가 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'))return;
-  saveEmployees(getEmployees().filter(e=>e.id!==id));
-  localStorage.removeItem(storageKey(id));
-  // 개별 페이지 데이터도 삭제
-  localStorage.removeItem('vac_link_'+emp.name);
-  localStorage.removeItem('vac_link_used_'+emp.name);
+  if(!confirm(emp.name+'을(를) 퇴사 처리하시겠습니까?\n해당 직원은 목록에서 제외됩니다.'))return;
+  const {error}=await sb.from('employees').update({resigned:true}).eq('id',id);
+  if(error){alert('퇴사 처리 실패: '+error.message);return}
   if(selectedEmpId===id){selectedEmpId=null;document.getElementById('detailPanel').classList.remove('active')}
-  render();
-}
-
-/* ═══════════════════════════════════════════════
-   초기 직원 데이터 (최초 1회 자동 등록)
-   ═══════════════════════════════════════════════ */
-function initDefaultEmployees(){
-  const existing=loadEmployees();
-  if(existing.length>0)return;
-  const defaults=[
-    // 도산팀 — 상담팀
-    {id:'e01',name:'안희공',dept:'상담팀',hireDate:'2020-12-01',birthday:'04-20'},
-    {id:'e02',name:'여현정',dept:'상담팀',hireDate:'2021-06-01',birthday:'04-28'},
-    {id:'e03',name:'손승웅',dept:'상담팀',hireDate:'2020-10-19',birthday:'10-14'},
-    {id:'e04',name:'김태희',dept:'상담팀',hireDate:'2023-05-02',birthday:'01-14'},
-    {id:'e05',name:'윤승빈',dept:'상담팀',hireDate:'2022-09-22',birthday:'11-30'},
-    // 도산팀 — 작성1팀
-    {id:'e06',name:'유예람',dept:'작성1팀',hireDate:'2026-01-02',birthday:'05-28'},
-    {id:'e07',name:'임동욱',dept:'작성1팀',hireDate:'2025-11-03',birthday:'12-27'},
-    // 도산팀 — 작성2팀
-    {id:'e08',name:'김태훈',dept:'작성2팀',hireDate:'2023-06-01',birthday:'04-21'},
-    {id:'e09',name:'유승아',dept:'작성2팀',hireDate:'2023-06-12',birthday:'05-21'},
-    {id:'e10',name:'정지인',dept:'작성2팀',hireDate:'2023-12-14',birthday:'02-22'},
-    {id:'e11',name:'김대영',dept:'작성2팀',hireDate:'2025-11-03',birthday:'05-02'},
-    // 도산팀 — 작성3팀
-    {id:'e12',name:'백운선',dept:'작성3팀',hireDate:'2023-05-15',birthday:'12-24'},
-    {id:'e13',name:'박하람',dept:'작성3팀',hireDate:'2023-03-20',birthday:'09-15'},
-    {id:'e14',name:'명지숙',dept:'작성3팀',hireDate:'2024-01-22',birthday:'04-06'},
-    {id:'e15',name:'김혜진',dept:'작성3팀',hireDate:'2026-01-02',birthday:'02-14'},
-    // 송무팀
-    {id:'e16',name:'김유진',dept:'송무팀',hireDate:'2024-01-01',birthday:'03-02'},
-    {id:'e17',name:'이진호',dept:'송무팀',hireDate:'2023-04-24',birthday:'12-03'},
-    {id:'e18',name:'구혜수',dept:'송무팀',hireDate:'2024-06-17',birthday:'11-16'},
-    {id:'e19',name:'문희원',dept:'송무팀',hireDate:'2025-10-23',birthday:'06-15'},
-    // 마케팅팀
-    {id:'e20',name:'한성종',dept:'마케팅팀',hireDate:'2022-12-06',birthday:'12-13'},
-    {id:'e21',name:'안희진',dept:'마케팅팀',hireDate:'2022-08-01',birthday:'04-29'},
-    {id:'e22',name:'이세림',dept:'마케팅팀',hireDate:'2022-09-14',birthday:'09-07'},
-    {id:'e23',name:'김예은',dept:'마케팅팀',hireDate:'2025-05-07',birthday:'05-24'},
-    {id:'e24',name:'성연경',dept:'마케팅팀',hireDate:'2025-08-25',birthday:'06-20'},
-    {id:'e25',name:'남진영',dept:'마케팅팀',hireDate:'2025-12-01',birthday:'04-01'},
-    {id:'e27',name:'문정하',dept:'마케팅팀',hireDate:'2026-03-16',birthday:'07-02'},
-    // 회계팀
-    {id:'e26',name:'조윤미',dept:'회계팀',hireDate:'2022-05-11',birthday:'11-13'},
-  ];
-  saveEmployees(defaults);
+  await render();
 }
 
 /* Init */
-(function(){
-  // v4: 강제 재설정 (버전 올리면 다시 초기화)
-  const INIT_VER='v10';
-  if(localStorage.getItem('vac_admin_init')!==INIT_VER){
-    localStorage.removeItem(EMP_KEY);
-    // 사용 내역도 초기화하고 임베디드 데이터로 재설정
-    const allKeys=Object.keys(localStorage).filter(k=>k.startsWith('vac_admin_e')||k.startsWith('vac_link_used_'));
-    allKeys.forEach(k=>localStorage.removeItem(k));
-    localStorage.setItem('vac_admin_init',INIT_VER);
-  }
-  initDefaultEmployees();
-  // 임베디드 사용 내역 초기화
-  initUsedData();
-  render();
+(async function(){
+  await render();
 })();
-function initUsedData(){
-  const emps=getEmployees();
-  for(const emp of emps){
-    const key=storageKey(emp.id);
-    if(!localStorage.getItem(key)){
-      const data=EMBEDDED_VACATION_DATA[emp.name]||[];
-      if(data.length>0){
-        localStorage.setItem(key,JSON.stringify(data));
-        // 개별 페이지 키에도 동기화
-        localStorage.setItem('vac_link_used_'+emp.name,JSON.stringify(data));
-      }
-    }
-  }
-}
 </script>
 </body>
 </html>
