@@ -662,32 +662,43 @@ async function render(){
   const carryoverCount=results.filter(r=>r.carryover>0).length;
   const avgRemain=totalEmp>0?(results.reduce((s,r)=>s+r.remaining,0)/totalEmp):0;
 
-  // 이번달+다음달 휴가 예정자
+  // 오늘 휴가자 + 예정 휴가
+  const todayStr=fmtISO(today);
   const thisMonth=today.getMonth(),thisYear2=today.getFullYear();
+  const todayLeaves=[];
   const upcomingLeaves=[];
   results.forEach(r=>{
     const used=loadUsed(r.emp.id);
     used.forEach(u=>{
       const d=toDate(u.date);
-      if(d>=today&&d<new Date(thisYear2,thisMonth+2,1)){
+      if(u.date===todayStr){
+        todayLeaves.push({name:r.emp.name,dept:r.emp.dept,date:u.date,type:u.type});
+      }else if(d>today&&d<new Date(thisYear2,thisMonth+2,1)){
         upcomingLeaves.push({name:r.emp.name,dept:r.emp.dept,date:u.date,type:u.type});
       }
     });
   });
   upcomingLeaves.sort((a,b)=>a.date.localeCompare(b.date));
 
-  const upcomingHtml=upcomingLeaves.length>0?upcomingLeaves.slice(0,15).map(l=>{
-    const typeColor=l.type==='연차'?'background:var(--krds-primary);color:#fff':l.type.includes('반차')?'background:var(--krds-primary-light);color:var(--krds-primary)':'background:var(--krds-warning-bg);color:var(--krds-warning)';
-    return `<li class="dash-panel__item"><span><span class="dash-panel__name">${l.name}</span><span class="dash-panel__dept">${l.dept}</span></span><span><span class="dash-panel__badge" style="${typeColor}">${l.type}</span> <span style="color:var(--krds-g400);font-size:11px;margin-left:4px">${l.date.slice(5)}</span></span></li>`;
-  }).join(''):`<li class="dash-panel__empty">예정된 휴가가 없습니다</li>`;
+  function leaveListHtml(list,emptyMsg){
+    if(list.length===0)return `<li class="dash-panel__empty">${emptyMsg}</li>`;
+    return list.slice(0,15).map(l=>{
+      const typeColor=l.type==='연차'?'background:var(--krds-primary);color:#fff':l.type.includes('반차')?'background:var(--krds-primary-light);color:var(--krds-primary)':'background:var(--krds-warning-bg);color:var(--krds-warning)';
+      return `<li class="dash-panel__item"><span><span class="dash-panel__name">${l.name}</span><span class="dash-panel__dept">${l.dept}</span></span><span><span class="dash-panel__badge" style="${typeColor}">${l.type}</span> <span style="color:var(--krds-g400);font-size:11px;margin-left:4px">${l.date.slice(5)}</span></span></li>`;
+    }).join('');
+  }
 
   document.getElementById('dashboardArea').innerHTML=`
     <div class="dash-cards">
       <div class="card"><div class="card__label">재직 인원</div><div class="card__val card__val--primary">${totalEmp}<span style="font-size:14px;font-weight:400;color:var(--krds-g400)">명</span></div><div class="card__sub">${today.getFullYear()}년 서울사무소</div></div>
+      <div class="card"><div class="card__label">오늘 휴가</div><div class="card__val" style="color:${todayLeaves.length>0?'var(--krds-error)':'var(--krds-g400)'}">${todayLeaves.length}<span style="font-size:14px;font-weight:400;color:var(--krds-g400)">명</span></div><div class="card__sub">${todayStr}</div></div>
       <div class="card"><div class="card__label">연차 소진</div><div class="card__val card__val--err">${zeroCount}<span style="font-size:14px;font-weight:400;color:var(--krds-g400)">명</span></div><div class="card__sub">잔여 0일 이하</div></div>
       <div class="card"><div class="card__label">이월 보유</div><div class="card__val card__val--purple">${carryoverCount}<span style="font-size:14px;font-weight:400;color:var(--krds-g400)">명</span></div><div class="card__sub">전년 이월 잔여</div></div>
     </div>
-    <div class="dash-panel"><div class="dash-panel__title">예정 휴가 (${upcomingLeaves.length}건)</div><ul class="dash-panel__list">${upcomingHtml}</ul></div>`;
+    <div class="dash-panels">
+      <div class="dash-panel"><div class="dash-panel__title">오늘 휴가 (${todayLeaves.length}명)</div><ul class="dash-panel__list">${leaveListHtml(todayLeaves,'오늘 휴가자가 없습니다')}</ul></div>
+      <div class="dash-panel"><div class="dash-panel__title">예정 휴가 (${upcomingLeaves.length}건)</div><ul class="dash-panel__list">${leaveListHtml(upcomingLeaves,'예정된 휴가가 없습니다')}</ul></div>
+    </div>`;
 
   if(selectedEmpId) renderDetail(selectedEmpId);
 }
