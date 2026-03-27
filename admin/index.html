@@ -956,7 +956,7 @@ function openLink(id){
   const token=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   const baseUrl=location.href.replace(/\/admin\/?.*$/,'').replace(/\/manage\/?.*$/,'');
   const link=baseUrl+'/?t='+token;
-  location.href=link;
+  window.open(link,'_blank');
 }
 
 async function resignEmployee(id){
