@@ -951,7 +951,11 @@ function openLink(id){
   const token=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   const baseUrl=location.href.replace(/\/admin\/?.*$/,'').replace(/\/manage\/?.*$/,'');
   const link=baseUrl+'/?t='+token;
-  window.open(link,'_blank');
+  navigator.clipboard.writeText(link).then(()=>{
+    if(confirm(emp.name+' 개별 링크가 복사되었습니다.\n\n새 탭에서 열어볼까요?')) window.open(link,'_blank');
+  }).catch(()=>{
+    prompt(emp.name+' 개별 링크 (복사해서 사용하세요):', link);
+  });
 }
 
 function resignEmployee(id){
