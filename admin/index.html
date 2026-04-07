@@ -116,9 +116,22 @@ body{font-family:var(--krds-font);font-size:15px;font-weight:400;line-height:1.5
 .mini-cal__day--sun .mini-cal__num{color:#C44D3E}
 .mini-cal__day--sat .mini-cal__num{color:#4A7AB5}
 .mini-cal__num{font-size:15px;font-weight:600;color:var(--krds-g800);line-height:1;width:30px;height:30px;display:flex;align-items:center;justify-content:center}
+.mini-cal__day--clickable{cursor:pointer;border-radius:var(--krds-radius-md);transition:background .15s}
+.mini-cal__day--clickable:hover{background:var(--krds-primary-light)}
+.mini-cal__day--selected{background:var(--krds-primary-light)!important}
 .mini-cal__count{background:var(--krds-primary);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;cursor:default;line-height:1.4}
 .mini-cal__legend{display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--krds-g100)}
 .mini-cal__legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--krds-g500)}
+.mini-cal__detail{margin-top:12px;padding:14px;background:var(--krds-g50);border:1px solid var(--krds-g100);border-radius:var(--krds-radius-md);animation:fadeIn .15s}
+.mini-cal__detail-title{font-size:14px;font-weight:700;color:var(--krds-g800);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.mini-cal__detail-close{background:none;border:none;cursor:pointer;font-size:16px;color:var(--krds-g400);padding:0 2px}
+.mini-cal__detail-close:hover{color:var(--krds-g700)}
+.mini-cal__detail-list{list-style:none;padding:0;margin:0}
+.mini-cal__detail-list li{font-size:13px;color:var(--krds-g700);padding:4px 0;border-bottom:1px solid var(--krds-g100);display:flex;justify-content:space-between}
+.mini-cal__detail-list li:last-child{border-bottom:none}
+.mini-cal__detail-list .vac-type{font-size:11px;color:var(--krds-g400);font-weight:500}
+.mini-cal__detail-empty{font-size:13px;color:var(--krds-g400);text-align:center;padding:8px 0}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 
 /* Table — KRDS: text left, numbers right */
 .panel{background:var(--krds-surface);border-radius:var(--krds-radius-lg);border:1px solid var(--krds-g100);overflow:hidden;margin-bottom:24px}
@@ -532,12 +545,11 @@ function renderMiniCal(year, month){
     const hName=isHoliday(dateStr);
     const todayClass=isToday?' mini-cal__day--today':'';
     const holidayClass=hName?' mini-cal__day--holiday':'';
-    html+=`<div class="mini-cal__day${dayClass}${todayClass}${holidayClass}">`;
+    html+=`<div class="mini-cal__day mini-cal__day--clickable${dayClass}${todayClass}${holidayClass}" onclick="showDayDetail('${dateStr}')">`;
     html+=`<div class="mini-cal__num">${d}</div>`;
     if(hName) html+=`<div class="mini-cal__hname">${hName}</div>`;
     if(entries.length>0){
-      const names=entries.map(e=>e.name+(e.type!=='연차'?' ('+e.type+')':'')).join('\n');
-      html+=`<div class="mini-cal__count" title="${names}">${entries.length}</div>`;
+      html+=`<div class="mini-cal__count">${entries.length}</div>`;
     }
     html+='</div>';
   }
@@ -556,7 +568,32 @@ function renderMiniCal(year, month){
     <div class="mini-cal__legend-item"><div style="width:12px;height:12px;border-radius:4px;background:var(--krds-error-bg);border:1px solid #F5C4BA"></div>공휴일</div>
   </div>`;
 
+  html+='<div id="miniCalDetail"></div>';
   document.getElementById('miniCal').innerHTML=html;
+}
+
+let _calVacMap={};
+function showDayDetail(dateStr){
+  const emps=getEmployees().filter(e=>!e.resigned);
+  const entries=[];
+  emps.forEach(emp=>{
+    const used=loadUsed(emp.id);
+    used.forEach(u=>{if(u.date===dateStr)entries.push({name:emp.name,type:u.type})});
+  });
+  const d=toDate(dateStr);
+  const dows=['일','월','화','수','목','금','토'];
+  const title=dateStr.replace(/-/g,'.')+' ('+dows[d.getDay()]+')';
+  const hName=isHoliday(dateStr);
+  let html=`<div class="mini-cal__detail"><div class="mini-cal__detail-title"><span>${title}${hName?' — '+hName:''}</span><button class="mini-cal__detail-close" onclick="document.getElementById('miniCalDetail').innerHTML=''">&times;</button></div>`;
+  if(entries.length===0){
+    html+='<div class="mini-cal__detail-empty">휴가자 없음</div>';
+  }else{
+    html+='<ul class="mini-cal__detail-list">';
+    entries.forEach(e=>{html+=`<li><span>${e.name}</span><span class="vac-type">${e.type}</span></li>`});
+    html+='</ul>';
+  }
+  html+='</div>';
+  document.getElementById('miniCalDetail').innerHTML=html;
 }
 
 function changeCalMonth(delta){
@@ -800,11 +837,12 @@ function renderDetail(empId){
       <div class="detail-mini"><div class="detail-mini__label">사용기한</div><div class="detail-mini__val">${fmt(dayBefore(curEnd))}</div></div>
     </div>`;
 
-  // Used list
-  if(used.length===0){
+  // Used list (내림차순 정렬)
+  const sortedUsed=[...used].sort((a,b)=>b.date.localeCompare(a.date));
+  if(sortedUsed.length===0){
     document.getElementById('detailUsedList').innerHTML='<tr><td colspan="5" style="color:var(--krds-g400);padding:20px">등록된 사용 내역이 없습니다.</td></tr>';
   }else{
-    document.getElementById('detailUsedList').innerHTML=used.map((u,i)=>{
+    document.getElementById('detailUsedList').innerHTML=sortedUsed.map((u,i)=>{
       const isHalf=u.type==='오전반차'||u.type==='오후반차';
       const bc=isBirthday(u)?'badge--birthday':isHalf?'badge--half':'badge--used';
       const label=isBirthday(u)?emp.name+'(생일 휴가)':u.type;
