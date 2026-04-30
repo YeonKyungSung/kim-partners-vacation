@@ -1,0 +1,24 @@
+# 직원 개인정보 (이름, 부서, 입사일, 생일, 휴가이력)
+employee_links.txt
+vacation_data.json
+
+# 로컬 유틸리티 스크립트
+reextract.py
+fix_render.py
+gen_report.py
+
+# Supabase 시드/설정 SQL (DB 구조 노출 방지)
+supabase_seed.sql
+supabase_setup.sql
+
+# 임베딩/임시 파일
+vac_embed.txt
+
+# Claude Code 로컬 설정
+.claude/
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
